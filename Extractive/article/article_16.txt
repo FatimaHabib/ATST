@@ -1,0 +1,455 @@
+
+
+
+
+
+
+
+
+
+{3pt}{3pt}{}{16pt}{{:}{.5em}{}
+
+{Theorem}
+{0}
+{Example}
+{Definition}
+{Remark}
+{Comparison}
+{Proposition}
+{Corollary}
+{Lemma}
+{Construction}
+{Condition}
+
+Guilin 541004, China (e-mail: chengqinshi,qlzhang2017,jjiang2008@hotmail.com).}
+             (e-mail: rwei@lakeheadu.ca) }}}
+
+
+
+
+
+
+
+Predominantly driven by video content demand, there is a dramatic increase in wireless traffic now. The high temporal variability of network traffic results in communication systems that are congested
+during peak-traffic times and underutilized during off-peak times. Caching is a natural strategy to cope with this high temporal variability by shifting some transmissions from peak to off-peak times with the help of cache memories
+at the network edge.
+
+Maddah-Ali and Niesen in  proved that coded caching does not only shift some transmissions from peak to off-peak times, but also further reduces the amount of transmission during the peak traffic times by exploiting caches to create multicast opportunities. The first caching scenario  focused in  is: a single server containing  files with the same length connects to  users over a shared link and each user has a cache memory of size  files. During the off-peak traffic times the server places some contents to each user's cache.
+In this phase the server does not known what each user will require next. During the peak traffic times, each user requires a file from server randomly. Then according to each user's cache, the server sends a coded signal (XOR of some required packets) to the users such that various user demands are satisfied.
+The first determined coded caching scheme, which is called MN scheme in this paper, was proposed in . It is worth mentioning that the broadcasted amount of MN scheme for the worst request, where all the requirements are different from each other, is at most four times larger than the lower bound when  . We denote such amount by . So MN scheme has been extensively employed in practical scenarios, such as device to device networks , hierarchical networks , security , multi-servers setting  and so on.  There are also many results following MN scheme in  etc.
+
+The coded caching used in muti-server setting can be seen everywhere. We focus on the setting in  which is also widely used (e.g. redundant array of independent disks-4) in our life. In this setting there are three servers, i.e., two data servers ,  storing  disjoint files respectively and a parity server  storing the bitwise XOR of the information in  and . The servers connect to users and operate on independent errorfree channels. This implies that these servers can transmit messages simultaneously and without interference to the same or different users. In practice servers are aware of the content cached by each user and of the content stored in other servers.
+So even though any two files sorted on different servers can not be combined into a single message, the servers can still coordinate the messages of these two files. Similar to the single server setting, assume that each user request one file from  files and sends to the three servers. Then each server combines multiple segments from its own files into a single message, and broadcasts them respectively such that each user can be satisfied by means of its cache and the received signal messages from servers. We prefer that the amount of transmission in each channel is as small as possible. Denote the maximum amount broadcasted among the three servers by  files for all the requests. Clearly it is meaningful to design a scheme such that  is as small as possible.  is referred to the rate of a scheme.
+
+Luo et al., in  constructed the first determined coded caching scheme by means of MN scheme and the results on saturating matching in bipartite graph. Specifically they first considered the symmetric request, i.e., both data servers receive the same number of requests, and showed that in their scheme the rate  if  is even, otherwise  where the upper bound of  is . Then a scheme and the related rate for the other requests  can be obtained directly by means of several classes of schemes in symmetric requests.
+
+In this paper, we further investigate the caching system with three servers, i.e., there are two data servers, one parity check server connecting to  users independently. By modifying the schemes in  we derive a new rate  when  is an odd integer.  Figure  indicated that  is obviously smaller than  in most cases.
+
+In particular when   is large,  if , and  if  or .
+The rest of this paper is organized as follows. Section  briefly reviews MN scheme, the scheme proposed in  and the related concepts. In Section , an improved scheme and its performance analysis are proposed for the case of
+three servers. Then
+we discussed briefly the general cases in Section IV. Conclusion is drawn in Section .
+
+
+
+We consider a network of  users and  files,  denote by , , , such that each user has a cache with capacity for 
+files. We denote that network as
+ a  caching system.  In the single server setting, when  is an integer, an MN scheme can be described as follows .
+
+
+_k=}, i=1,2,
+
+ subset  of users , the server sends the following coded signal to each user of  .
+
+
+}W_{d_k,}
+
+
+
+Clearly the server broadcasts  times. So the amount of transmission by server is
+
+
+R_{MN}(K,{{N}})={K={t+1}.
+
+Each user  uses the cached segments to recover the designed segment and then the requested file.
+
+
+ A graph is denoted by , where  is the set of vertices and  is the set of edges.
+A subset of edges  is a matching if no two edges have a common vertex. A bipartite graph, denoted by , is a graph whose vertices are divided into
+two disjoint parts  and  such that every edge in  connects a vertex in  to one in . For a set , let  denote the set of all vertices in  adjacent to some vertex of .
+The degree of a vertex is the number of vertices adjacent to it. If every vertex of  has the same degree, we also call such a degree the degree of  and denote .
+
+)
+
+Given a bipartite graph , assume that  and . If , then there is a saturating matching.
+
+}
+
+
+  proposed a simple caching system with 3 severs, two data servers and a third server storing their bitwise XOR.
+In the following we denote the files in server  and  by , ,  and ,,  respectively.
+So the files in parity server  are , , ,  as showed in Table .
+
+The following notations will be used.
+
+-th file in server .
+
+Following , we only consider the case that  is an integer for the simplicity. Luo et al., in  used the same caching strategy as MN scheme during the off-peak traffic times for each server,  but modified the coded signals in  during the peak traffic times as follows. Given a subset of users  of size , it can be divided into three parts, say ,  and  where  and  .
+If there exists another subset  of size  which can be divided into ,  and 
+where ,
+then the pair  is called an effective pair.
+When servers ,  and  broadcast the following messages respectively
+
+
+
+
+ m_{_1}^A&={_A}A_{d_k,_1}{
+_B}A_{d_k,_1}}
+_A'}A_{d_k,_1}}m_{_2}^B&={_A}B_{d_k,_2}_B}B_{d_k,_2}_B'}B_{d_k,_2}m_{_1_2}^P&={_B}_1}_1}_A}_2}_2}&={_B}A_{d_k,_1}_B}B_{d_k,_1}&_A}B_{d_k,_2}_A}A_{d_k,_2}
+
+
+Then each user in  and  can obtain the requested segments from ,  and .
+So if the sets  and  form an effective pair, then the messages indexed by  and  in  can be replaced by three messages in .
+  In the case of symmetric request, i.e., , Luo et al., obtained the following results.
+
+In the following we will focus on the symmetric request.
+
+ investigated  the value of  (we will see it later) using their method. The main purpose of this paper is to give
+some refined method that can improve (reduce) the value of . Using our method, the value of  depends on
+. Therefore in what follows, we will discuss the value of   according to different
+ values of .
+
+ To use graphs to discuss the values of , we will use the following settings.
+Each vertex of a graph is always represented  a subset  with size . And for any bipartite graph  where a vertex  is adjacent to  if and only if they can form an effective pair.
+
+
+A brief review of the  proof of Theorem  is  useful to understand our proofs.
+Here we take the case that   is odd as an example. For each , , , , define 
+
+
+_w&=|=t+1, |_A|=w
+
+Clearly  since . By the fact ,
+Luo et. al.   constructed several classes of bipartite graphes satisfying Corollary  in the following way. For each , they defined a bipartite graph
+ by  and
+showed that these bipartite graphes satisfy Corollary . When ,  always holds for each subset  with cardinality . So they did not need to consider the case . When  and , assume that server  (and ) broadcast the messages  (and ),  (and ) independently. For the sets , , and , let
+
+
+
+=_{{2}}_{{2}},=_{{2}}.
+
+
+They defined a bipartite graph  and showed that there is a saturating matching. So the number of unpaired messages is
+
+
+
+n={K_B- {K_A{K_B-{K_B{K_A  
+and the ratio of unpaired messages is
+
+
+{ {{K}.}
+
+Since each unpaired message can be transmitted by any two servers, each server could transmit  unpaired messages. So the rate is
+{ 
+
+R_{T}(K,{{N}})={3}}{{K}={2}+{6}(K,{{N}}).
+}
+This is the result in Theorem .
+Next we will provide some method that can improve the ratio of unpaired messages so that to reduce the rate .
+
+
+
+
+
+
+
+
+
+
+In this section, we focus on the case of symmetric request for the case that  is odd. Clearly an intuitive approach to reduce the ratio of unpaired messages is finding the maximal matching of graph . It is well known that this maximal problem is an NP-hard and its complexity is very high since there are  vertices. We will propose a local maximal matching method to reduce the complexity.
+
+Denote , , ,  and , , , . We divide sets ,  and  into four subsets respectively in the following way:
+
+
+
+
+_{w;a_1,b_1 }=_{w}, b_1 _{w;a_1 ,_1}=_{w}, b_1 _{w;_1,b_1}=_{w}, b_1 _{w;_1 ,_1 }=_{w}, b_1 
+
+
+where , , . It is easy to check that
+
+
+
+
+|_{w;a_1,b_1}|={K/2 -1{K/2 -1,|_{w;a_1,_1 }|={K/2 -1{K/2 -1,|_{w;_1 ,b_1}|={K/2 -1{K/2 -1,|_{w;_1 ,_1 }|={K/2 -1{K/2 -1.
+
+
+
+
+
+
+Let .   Given a fixed number , Table  can be obtained by  when  is appropriate large.
+
+
+Now let us consider the sets in  and their subsets in . We can obtain a bipartite graph for any two different subsets. However we only interested in the bipartite graph which has at least one edge. It is not difficult to check that any two elements of a set can not form an effective pair since they have the same number of users requiring from server (and sever ). So we only need to consider any two subsets from distinct sets. We take bipartite graph  as an example.
+First let us count the degree of each vertex in . Given a vertex $
+, it is adjacent to  vertices $
+Hence . Now let us consider the degree of each vertex in .
+Given a vertex $
+, it is adjacent to
+ vertices, i.e.,  for each . That is . Similarly we can compute the degree of each vertex in the bipartite graph  generated by any two subsets from distinct sets and list them in Tables  and  where  and  are respectively on the the top and bottom of the diagonal in the entry indexed by  and . It is easy to check that
+the elements on the top and bottom of the diagonal in the entry indexed by
+ are  and  respectively. By the way the entry is defined by empty when there is no edges in the related bipartite graph.
+
+
+
+In order to make the cardinality of a maximal matching as large as possible, we can also use several subsets to generate a bipartite graph.
+
+A bipartite graph  where
+
+=_{{2};_1 ,_1 },=_{{2};_1 ,b_1} _{{2};a_1,_1},
+
+can be obtained. From Table , we have  and . Suppose that . It is easy to check that  if , otherwise . From Corollary  there is a saturating matching. So there are  or  vertices in the maximal matching of  generated by . Of course we can also assume that
+
+=_{{2};_1 ,_1 } ,=_{{2};_1 ,b_1}
+=_{{2};_1 ,_1 },=_{{2};a_1,_1}.
+
+Similarly we can also show that they have saturating matchings respectively. And it is easy to check that cardinality of the maximal matching by the first assumption is maximal.
+
+With the aid of a computer, we have the following bipartite graphes such that the the number of the unpair of messages is minimal according to the value of .
+
+
+When , one of the most appropriate method constructing bipartite graphs is 
+
+
+&_1=(_{{2};_1,_1},
+_{{2};_1,b_1}_{{2};a_1,_1};_1)&_2=(_{{2};_1,b_1},_{{2};_1,b_1};_2)_3=(_{{2};a_1,_1},_{{2};a_1,_1};_3)&_4=(_{{2};_1,_1},
+_{{2};_1,_1};_4)_5=(_{{2};a_1,b_1},_{{2};a_1,b_1};_5)
+
+From Tables  and , similar to the discussion in Example  the following statement holds.
+
+Each of the bipartite graphs in  has a saturating matching.
+
+From Lemma  and Table , the number of unpaired messages is
+
+
+
+
+n_1&=_{{2};a_1,b_1}_{{2};_1 ,_1 }_{{2};_1 ,b_1}_{{2};a_1,_1 }|+_{{2};_1 ,b_1}_{{2};_1 ,b_1}&+_{{2};a_1,_1 }_{{2};a_1,_1 }+_{{2};_1 ,_1 }_{{2};_1 ,,_1 } +_{{2};a_1,b_1}_{{2};a_1,b_1}&={K-t-1}}{K-t-1}}2{K-t-1}-{(t+3)(K-t+1)(K-t-1)}}^2}&={K-t-1}+{(K-t-1)^2(t+3)(K-t+1)}} ^2}.
+
+
+Now let us consider the reduction comparing with the scheme in , i.e.,
+
+
+
+{n}&={K-t-1}+{(K-t-1)^2(t+3)(K-t+1)}} ^2}}{{K_B- {K_A{K_B-{K_B{K_A  &={K-t-1}+{(K-t-1)^2(t+3)(K-t+1)}}{K^2}}{2{(K-t+1)(t+3)}-1}&.
+
+
+The last equation holds when  is appropriate large and  is a fixed number. This implies that the number of unpaired messages left by  is about  times smaller than that of obtained by . Figure  is the function  depends on variable .
+Clearly  if  towards . We can also compute the ratio of unpaired messages as follows.
+
+
+
+{{K }<{_{{2}}_{{2}}_{{2}}&={K-t-1}+{(K-t-1)^2(t+3)(K-t+1)}} &^2}{2{K/2 
+{K/2 +{K/2 {K/2 }}&={K-t-1}+{(K-t-1)^2(t+3)(K-t+1)}} {K^2}}{2{(K-t+1)(t+3)}+1}&{3}}
+
+Clearly  tends to  if  towards .
+
+
+
+When , one of the most appropriate method constructing bipartite graphs is
+
+
+
+&_1=(_{{2};a_1,b_1},_{{2};_1,b_1};_1),_2=(_{{2};a_1,_1},_{{2};a_1,_1};_2)&_3=(_{{2};_1,b_1},_{{2};_1,b_1};_3)_4=(_{{2};_1,_1},
+_{{2};a_1,_1};_4)&_5=(_{{2};a_1,b_1},_{{2};a_1,b_1};_5)_6=(_{{2};_1,_1},
+_{{2};_1,_1};_6)
+
+From Tables  and , similar to the discussion in Example  the following result can be obtained.
+
+Each of the bipartite graphs in  has a saturating matching.
+
+From Lemma  and Table , the number of unpaired messages is
+
+
+n_2&=
+_{{2};a_1,b_1}_{{2};_1,b_1}+_{{2};a_1,_1}_{{2};a_1,_1}+_{{2};_1,b_1}_{{2};_1,b_1}&+_{{2};_1,_1}_{{2};a_1,_1}+_{{2};a_1,b_1}_{{2};a_1,b_1}           _{{2};_1,_1}           _{{2};_1,_1}&={K-t-1}{K-t-1}-1+
+2{K-t-1}-{(t+3)(K-t+1)(K-t-1)}}{{K-t-1}-1^2}&={(K-t-1)^2}|2t+2-K|+{K-t-1}{(t+3)(K-t+1)}}^2}
+Similar to  and , we have
+
+
+
+{n}&={(K-t-1)^2}|2t+2-K|+{K-t-1}{(t+3)(K-t+1)}}{K^2}}{2{(K-t+1)(t+3)}-1}&
+
+
+and the ratio of unpaired messages
+
+
+
+{{K }<{2{K/2 
+{K/2 +{K/2 {K/2 }&{3}|2
+
+
+Clearly both  and  tend to  if  towards . Figure  is the function  depends on variable .
+
+
+
+
+
+When , one of the most appropriate method constructing bipartite graphs is
+
+
+
+&_1=(_{{2};a_1,b_1},
+_{{2};_1,b_1}_{{2};a_1,_1};_1)&_2=(_{{2};a_1,_1},_{{2};a_1,_1};_2)_3=(_{{2};_1,b_1},_{{2};_1,b_1};_3)&_4=(_{{2};_1,_1},
+_{{2};_1,_1};_4)_5=(_{{2};a_1,b_1},_{{2};a_1,b_1};_5)
+
+Similar to the discussions in Section , the following results can be obtained.
+
+Each of the bipartite graphs in  has a saturating matching.
+
+From Lemma  and Table , the number of unpaired messages is
+
+
+n_3&=
+_{{2};_1,_1}_{{2};a_1,b_1}_{{2};_1,b_1}_{{2};a_1,_1}+_{{2};a_1,_1}_{{2};a_1,_1}&+_{{2};_1,b_1}_{{2};_1,b_1}+_{{2};_1 ,_1 }_{{2};_1 ,,_1 } +_{{2};a_1,b_1}_{{2};a_1,b_1}&={K-t-1}{K-t-1}-2+
+2{K-t-1}-{(t+3)(K-t+1)(K-t-1)}}^2}&={(K-t-1)^2}|3t+3-2K|+{K-t-1}{(t+3)(K-t+1)}}^2}
+
+Similar to  and , we have
+
+
+
+
+{n}&={(K-t-1)^2}|3t+3-2K|+{K-t-1}{(t+3)(K-t+1)}}{K^2}}{2{(K-t+1)(t+3)}-1}&
+
+
+and the ratio of unpaired messages left
+
+
+
+{{K }<{2{K/2 
+{K/2 +{K/2 {K/2 }&={K-t-1}{K-t-1}-2{K-t-1}{(t+3)(K-t+1)}}^2}{2{K/2 
+{K/2 +{K/2 {K/2 }}&{3}}
+
+Clearly  and  tend to  and   respectively if  towards . Figure  is the function  depends on variable .
+
+
+By  the following result can be obtained.
+
+
+
+
+In general, we can consider  servers. Basically, we follow the settings of  where each data segment is stored in a single server, all
+caches have the same capacity, and users request a single file. We should indicate that  discussed the coded caching
+system for general multiple servers. However, their methods for all the general cases are based on the three servers scheme
+as we discussed
+in previous section. Therefore we can just follow their methods to treat the general cases. By this reason, in the
+following we just outline
+methods for various general cases without going
+ into details. The details can be obtained using the method similar to that in .
+
+
+
+
+First we consider asymmetric requests for three servers as in Section . Without loss of generality,
+we assume that  and . Then we divide  into two parts, one part is of the size 
+and other part is of size . For the first part with , we can use the previous method by pairing the effective
+ subsets. The remaining request is just like a request for the one server system. Now consider the all possible values
+of , we obtain the peak rate as
+
+$
+where  is as in ().
+
+
+
+
+Now we consider more data servers. During the off-peak traffic times, for each server the users caches the segments
+in a way same
+as in the MN scheme. In the requesting time, if a server receives  requests, then it will transmit
+ messages. So the normalized peak rate for that server will be
+$
+
+Suppose there are  servers and one parity. Consider two -subsets of users 
+and . Using a similar method in the
+three servers system, we can let two servers, say  and
+, and the parity send one message to the users and other servers send two messages if
+two subsets are effective pair.  Similar to previous method, we divide  
+into four parts: , and 
+into: , where  and  denote the requests to servers other than
+ and .  The other parts are similar to the parts defined in II-B. A little detailed calculation shows the normalized peak
+rate in this situation is
+$
+
+Now we consider  data servers with two parities  and . Instead of  using XOR, a higher order field is used to
+store data in the parities.  The files stored in parities are shown in Table , with the assumption
+that the servers form an MDS code.
+
+
+
+For two -subsets of users  and , let .
+Divide  into two parts  and  and divide  into two parts
+ and .
+Using a similar idea of pairing, server  and  send  and ,
+respectively. For each
+of other servers, sends a message to  with the content for each user: users requiring files for  received matching
+ones so that the desired segments can be decoded using the parity  later, and the remaining users in  will get
+the desired segment corresponding to  when possible, or undesired segment corresponding to
+. Finally, parity servers  and  transmit a message to  with a combination of segments for
+each user so that they can recover their required file. Using this method, one can prove that the normalized peak rate
+in this situation is:
+$
+
+
+
+
+Finally, we should point out that the rate in Theorem  can be further improved when  is odd. First let us generalize the notations in , i.e., define
+
+
+
+&_{w;_1,_{h_1-1},a_{h_1},_1,_{h_2-1},b_{h_2}}&_{w}, b_{h_2}, a_i,b_j,i
+
+where , ,  and , . It is easy to check that
+
+
+|_{w;_1,_{h_1-1},a_{h_1},_1,_{h_2-1},b_{h_2}}|
+={K/2 -h_1{K/2 -h_2 
+
+and
+$$_{w;_1,_{h_1-1},a_{h_1},_1,_{h_2-1},b_{h_2}}
+_{w;_1,_{h'_1-1},a_{h'_1},_1,_{h'_2-1},b_{h'_2}}
+=for any distinct vectors . In addition,
+
+
+
+{K/2 {K/2 =_{h_1=1}_{h_2=1}
+{K/2 -h_1{K/2 -h_2
+
+
+since it is well know that
+
+{n={n-1+{n-2+,
+always holds. So we have
+$$_{w}=_{h_1=1}_{h_2=1}
+_{w;_1,_{h_1-1},a_{h_1},_1,_{h_2-1},b_{h_2}}.$$
+Then we can also compute the degree of each vertex in the bipartite graph generated by any subsets in . Similar to the discussions in Subsections ,  and , we can further reduce the value of  in  by sacrificing run-time efficiency on constructing the most appropriate classes of bipartite graphs.
+ In fact the sacrificing run-time is very small comparing with that of finding the maximal matching of graph .
+
+
+In this paper, we considered the coded caching  scheme for multiple servers setting in .  By a refined method for pairing we reduced
+the transmission  in the case  is odd for the system with three data servers.
+Consequently an obviously smaller rate was obtained. Especially when  is large,  if  nears , and  if  nears  or .
+A brief discussion shows that the improvement can be applied to general multiply servers systems.
+
+
+In addition, our modification can be generalized to further reduce the rate.
+However, with an exhaustive computer search, it will cost more running times to search the bipartite graphs generated by the subsets in  such that the unpaired messages as small as possible. So it would be of interest if one can found an efficient construction for such bipartite graphs.
+
+
+
+{00}
+
+
+
+
+
+

@@ -1,0 +1,1047 @@
+%% bare_conf.tex
+%% V1.3
+%% 2007/01/11
+%% by Michael Shell
+%% See:
+%% http://www.michaelshell.org/
+%% for current contact information.
+%%
+%% This is a skeleton file demonstrating the use of IEEEtran.cls
+%% (requires IEEEtran.cls version 1.7 or later) with an IEEE conference paper.
+%%
+%% Support sites:
+%% http://www.michaelshell.org/tex/ieeetran/
+%% http://www.ctan.org/tex-archive/macros/latex/contrib/IEEEtran/
+%% and
+%% http://www.ieee.org/
+
+%%*************************************************************************
+%% Legal Notice:
+%% This code is offered as-is without any warranty either expressed or
+%% implied; without even the implied warranty of MERCHANTABILITY or
+%% FITNESS FOR A PARTICULAR PURPOSE! 
+%% User assumes all risk.
+%% In no event shall IEEE or any contributor to this code be liable for
+%% any damages or losses, including, but not limited to, incidental,
+%% consequential, or any other damages, resulting from the use or misuse
+%% of any information contained here.
+%%
+%% All comments are the opinions of their respective authors and are not
+%% necessarily endorsed by the IEEE.
+%%
+%% This work is distributed under the LaTeX Project Public License (LPPL)
+%% ( http://www.latex-project.org/ ) version 1.3, and may be freely used,
+%% distributed and modified. A copy of the LPPL, version 1.3, is included
+%% in the base LaTeX documentation of all distributions of LaTeX released
+%% 2003/12/01 or later.
+%% Retain all contribution notices and credits.
+%% ** Modified files should be clearly indicated as such, including  **
+%% ** renaming them and changing author support contact information. **
+%%
+%% File list of work: IEEEtran.cls, IEEEtran_HOWTO.pdf, bare_adv.tex,
+%%                    bare_conf.tex, bare_jrnl.tex, bare_jrnl_compsoc.tex
+%%********************************************************************
+
+% *** Authors should verify (and, if needed, correct) their LaTeX system  ***
+% *** with the testflow diagnostic prior to trusting their LaTeX platform ***
+% *** with production work. IEEE's font choices can trigger bugs that do  ***
+% *** not appear when using other class files.                            ***
+% The testflow support page is at:
+% http://www.michaelshell.org/tex/testflow/
+
+
+
+% Note that the a4paper option is mainly intended so that authors in
+% countries using A4 can easily print to A4 and see how their papers will
+% look in print - the typesetting of the document will not typically be
+% affected with changes in paper size (but the bottom and side margins will).
+% Use the testflow package mentioned above to verify correct handling of
+% both paper sizes by the user's LaTeX system.
+%
+% Also note that the "draftcls" or "draftclsnofoot", not "draft", option
+% should be used if it is desired that the figures are to be displayed in
+% draft mode.
+%
+\documentclass[conference]{IEEEtran}
+\usepackage{blindtext, graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage[skip=4pt]{caption}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{soul}
+\usepackage{graphicx}
+\usepackage{subcaption}
+
+
+\usepackage[usenames, dvipsnames]{color}
+% Add the compsoc option for Computer Society conferences.
+%
+% If IEEEtran.cls has not been installed into the LaTeX system files,
+% manually specify the path to it like:
+% \documentclass[conference]{../sty/IEEEtran}
+
+\setlength{\textfloatsep}{10pt plus 1.0pt minus 2.0pt}
+\setlength{\floatsep}{10pt plus 1.0pt minus 2.0pt}
+\setlength{\intextsep}{10pt plus 1.0pt minus 2.0pt}
+\setlength{\dblfloatsep}{10pt plus 1.0pt minus 2.0pt}
+% Some very useful LaTeX packages include:
+% (uncomment the ones you want to load)
+
+
+% *** MISC UTILITY PACKAGES ***
+%
+%\usepackage{ifpdf}
+% Heiko Oberdiek's ifpdf.sty is very useful if you need conditional
+% compilation based on whether the output is pdf or dvi.
+% usage:
+% \ifpdf
+%   % pdf code
+% \else
+%   % dvi code
+% \fi
+% The latest version of ifpdf.sty can be obtained from:
+% http://www.ctan.org/tex-archive/macros/latex/contrib/oberdiek/
+% Also, note that IEEEtran.cls V1.7 and later provides a builtin
+% \ifCLASSINFOpdf conditional that works the same way.
+% When switching from latex to pdflatex and vice-versa, the compiler may
+% have to be run twice to clear warning/error messages.
+
+
+
+
+
+
+% *** CITATION PACKAGES ***
+%
+%\usepackage{cite}
+% cite.sty was written by Donald Arseneau
+% V1.6 and later of IEEEtran pre-defines the format of the cite.sty package
+% \cite{} output to follow that of IEEE. Loading the cite package will
+% result in citation numbers being automatically sorted and properly
+% "compressed/ranged". e.g., [1], [9], [2], [7], [5], [6] without using
+% cite.sty will become [1], [2], [5]--[7], [9] using cite.sty. cite.sty's
+% \cite will automatically add leading space, if needed. Use cite.sty's
+% noadjust option (cite.sty V3.8 and later) if you want to turn this off.
+% cite.sty is already installed on most LaTeX systems. Be sure and use
+% version 4.0 (2003-05-27) and later if using hyperref.sty. cite.sty does
+% not currently provide for hyperlinked citations.
+% The latest version can be obtained at:
+% http://www.ctan.org/tex-archive/macros/latex/contrib/cite/
+% The documentation is contained in the cite.sty file itself.
+
+
+
+
+
+
+% *** GRAPHICS RELATED PACKAGES ***
+%
+\ifCLASSINFOpdf
+  % \usepackage[pdftex]{graphicx}
+  % declare the path(s) where your graphic files are
+  % \graphicspath{{../pdf/}{../jpeg/}}
+  % and their extensions so you won't have to specify these with
+  % every instance of \includegraphics
+  % \DeclareGraphicsExtensions{.pdf,.jpeg,.png}
+\else
+  % or other class option (dvipsone, dvipdf, if not using dvips). graphicx
+  % will default to the driver specified in the system graphics.cfg if no
+  % driver is specified.
+  % \usepackage[dvips]{graphicx}
+  % declare the path(s) where your graphic files are
+  % \graphicspath{{../eps/}}
+  % and their extensions so you won't have to specify these with
+  % every instance of \includegraphics
+  % \DeclareGraphicsExtensions{.eps}
+\fi
+% graphicx was written by David Carlisle and Sebastian Rahtz. It is
+% required if you want graphics, photos, etc. graphicx.sty is already
+% installed on most LaTeX systems. The latest version and documentation can
+% be obtained at: 
+% http://www.ctan.org/tex-archive/macros/latex/required/graphics/
+% Another good source of documentation is "Using Imported Graphics in
+% LaTeX2e" by Keith Reckdahl which can be found as epslatex.ps or
+% epslatex.pdf at: http://www.ctan.org/tex-archive/info/
+%
+% latex, and pdflatex in dvi mode, support graphics in encapsulated
+% postscript (.eps) format. pdflatex in pdf mode supports graphics
+% in .pdf, .jpeg, .png and .mps (metapost) formats. Users should ensure
+% that all non-photo figures use a vector format (.eps, .pdf, .mps) and
+% not a bitmapped formats (.jpeg, .png). IEEE frowns on bitmapped formats
+% which can result in "jaggedy"/blurry rendering of lines and letters as
+% well as large increases in file sizes.
+%
+% You can find documentation about the pdfTeX application at:
+% http://www.tug.org/applications/pdftex
+
+
+% *** MATH PACKAGES ***
+%
+%\usepackage[cmex10]{amsmath}
+% A popular package from the American Mathematical Society that provides
+% many useful and powerful commands for dealing with mathematics. If using
+% it, be sure to load this package with the cmex10 option to ensure that
+% only type 1 fonts will utilized at all point sizes. Without this option,
+% it is possible that some math symbols, particularly those within
+% footnotes, will be rendered in bitmap form which will result in a
+% document that can not be IEEE Xplore compliant!
+%
+% Also, note that the amsmath package sets \interdisplaylinepenalty to 10000
+% thus preventing page breaks from occurring within multiline equations. Use:
+%\interdisplaylinepenalty=2500
+% after loading amsmath to restore such page breaks as IEEEtran.cls normally
+% does. amsmath.sty is already installed on most LaTeX systems. The latest
+% version and documentation can be obtained at:
+% http://www.ctan.org/tex-archive/macros/latex/required/amslatex/math/
+
+
+
+
+
+% *** SPECIALIZED LIST PACKAGES ***
+%
+%\usepackage{algorithmic}
+% algorithmic.sty was written by Peter Williams and Rogerio Brito.
+% This package provides an algorithmic environment fo describing algorithms.
+% You can use the algorithmic environment in-text or within a figure
+% environment to provide for a floating algorithm. Do NOT use the algorithm
+% floating environment provided by algorithm.sty (by the same authors) or
+% algorithm2e.sty (by Christophe Fiorio) as IEEE does not use dedicated
+% algorithm float types and packages that provide these will not provide
+% correct IEEE style captions. The latest version and documentation of
+% algorithmic.sty can be obtained at:
+% http://www.ctan.org/tex-archive/macros/latex/contrib/algorithms/
+% There is also a support site at:
+% http://algorithms.berlios.de/index.html
+% Also of interest may be the (relatively newer and more customizable)
+% algorithmicx.sty package by Szasz Janos:
+% http://www.ctan.org/tex-archive/macros/latex/contrib/algorithmicx/
+
+
+
+
+% *** ALIGNMENT PACKAGES ***
+%
+%\usepackage{array}
+% Frank Mittelbach's and David Carlisle's array.sty patches and improves
+% the standard LaTeX2e array and tabular environments to provide better
+% appearance and additional user controls. As the default LaTeX2e table
+% generation code is lacking to the point of almost being broken with
+% respect to the quality of the end results, all users are strongly
+% advised to use an enhanced (at the very least that provided by array.sty)
+% set of table tools. array.sty is already installed on most systems. The
+% latest version and documentation can be obtained at:
+% http://www.ctan.org/tex-archive/macros/latex/required/tools/
+
+
+%\usepackage{mdwmath}
+%\usepackage{mdwtab}
+% Also highly recommended is Mark Wooding's extremely powerful MDW tools,
+% especially mdwmath.sty and mdwtab.sty which are used to format equations
+% and tables, respectively. The MDWtools set is already installed on most
+% LaTeX systems. The lastest version and documentation is available at:
+% http://www.ctan.org/tex-archive/macros/latex/contrib/mdwtools/
+
+
+% IEEEtran contains the IEEEeqnarray family of commands that can be used to
+% generate multiline equations as well as matrices, tables, etc., of high
+% quality.
+
+
+%\usepackage{eqparbox}
+% Also of notable interest is Scott Pakin's eqparbox package for creating
+% (automatically sized) equal width boxes - aka "natural width parboxes".
+% Available at:
+% http://www.ctan.org/tex-archive/macros/latex/contrib/eqparbox/
+
+
+
+
+
+% *** SUBFIGURE PACKAGES ***
+%\usepackage[tight,footnotesize]{subfigure}
+% subfigure.sty was written by Steven Douglas Cochran. This package makes it
+% easy to put subfigures in your figures. e.g., "Figure 1a and 1b". For IEEE
+% work, it is a good idea to load it with the tight package option to reduce
+% the amount of white space around the subfigures. subfigure.sty is already
+% installed on most LaTeX systems. The latest version and documentation can
+% be obtained at:
+% http://www.ctan.org/tex-archive/obsolete/macros/latex/contrib/subfigure/
+% subfigure.sty has been superceeded by subfig.sty.
+
+
+
+%\usepackage[caption=false]{caption}
+%\usepackage[font=footnotesize]{subfig}
+% subfig.sty, also written by Steven Douglas Cochran, is the modern
+% replacement for subfigure.sty. However, subfig.sty requires and
+% automatically loads Axel Sommerfeldt's caption.sty which will override
+% IEEEtran.cls handling of captions and this will result in nonIEEE style
+% figure/table captions. To prevent this problem, be sure and preload
+% caption.sty with its "caption=false" package option. This is will preserve
+% IEEEtran.cls handing of captions. Version 1.3 (2005/06/28) and later 
+% (recommended due to many improvements over 1.2) of subfig.sty supports
+% the caption=false option directly:
+%\usepackage[caption=false,font=footnotesize]{subfig}
+%
+% The latest version and documentation can be obtained at:
+% http://www.ctan.org/tex-archive/macros/latex/contrib/subfig/
+% The latest version and documentation of caption.sty can be obtained at:
+% http://www.ctan.org/tex-archive/macros/latex/contrib/caption/
+
+
+
+
+% *** FLOAT PACKAGES ***
+%
+%\usepackage{fixltx2e}
+% fixltx2e, the successor to the earlier fix2col.sty, was written by
+% Frank Mittelbach and David Carlisle. This package corrects a few problems
+% in the LaTeX2e kernel, the most notable of which is that in current
+% LaTeX2e releases, the ordering of single and double column floats is not
+% guaranteed to be preserved. Thus, an unpatched LaTeX2e can allow a
+% single column figure to be placed prior to an earlier double column
+% figure. The latest version and documentation can be found at:
+% http://www.ctan.org/tex-archive/macros/latex/base/
+
+
+
+%\usepackage{stfloats}
+% stfloats.sty was written by Sigitas Tolusis. This package gives LaTeX2e
+% the ability to do double column floats at the bottom of the page as well
+% as the top. (e.g., "\begin{figure*}[!b]" is not normally possible in
+% LaTeX2e). It also provides a command:
+%\fnbelowfloat
+% to enable the placement of footnotes below bottom floats (the standard
+% LaTeX2e kernel puts them above bottom floats). This is an invasive package
+% which rewrites many portions of the LaTeX2e float routines. It may not work
+% with other packages that modify the LaTeX2e float routines. The latest
+% version and documentation can be obtained at:
+% http://www.ctan.org/tex-archive/macros/latex/contrib/sttools/
+% Documentation is contained in the stfloats.sty comments as well as in the
+% presfull.pdf file. Do not use the stfloats baselinefloat ability as IEEE
+% does not allow \baselineskip to stretch. Authors submitting work to the
+% IEEE should note that IEEE rarely uses double column equations and
+% that authors should try to avoid such use. Do not be tempted to use the
+% cuted.sty or midfloat.sty packages (also by Sigitas Tolusis) as IEEE does
+% not format its papers in such ways.
+
+
+
+
+
+% *** PDF, URL AND HYPERLINK PACKAGES ***
+%
+%\usepackage{url}
+% url.sty was written by Donald Arseneau. It provides better support for
+% handling and breaking URLs. url.sty is already installed on most LaTeX
+% systems. The latest version can be obtained at:
+% http://www.ctan.org/tex-archive/macros/latex/contrib/misc/
+% Read the url.sty source comments for usage information. Basically,
+% \url{my_url_here}.
+
+
+
+
+
+% *** Do not adjust lengths that control margins, column widths, etc. ***
+% *** Do not use packages that alter fonts (such as pslatex).         ***
+% There should be no need to do such things with IEEEtran.cls V1.6 and later.
+% (Unless specifically asked to do so by the journal or conference you plan
+% to submit to, of course. )
+
+
+% correct bad hyphenation here
+\hyphenation{op-tical net-works semi-conduc-tor}
+
+\renewcommand{\baselinestretch}{0.97}
+\begin{document}
+%
+% paper title
+% can use linebreaks \\ within to get better formatting as desired
+
+%\title{Multi-UAV coalition formation with multi-objective target prosecutions using a leader-follower-inspired approach and quantum evolutionary algorithm}
+\title{Leader-follower based Coalition Formation in Large-scale UAV Networks, A Quantum Evolutionary Approach}
+
+
+% author names and affiliations
+% use a multiple column layout for up to three different
+% affiliations
+\author{
+   \IEEEauthorblockN{
+     Sajad Mousavi\IEEEauthorrefmark{1},
+     Fatemeh Afghah\IEEEauthorrefmark{1},
+    Jonathan D. Ashdown\IEEEauthorrefmark{2} 
+    and
+    Kurt Turck\IEEEauthorrefmark{2}}
+   \IEEEauthorblockA{
+     \IEEEauthorrefmark{1}School of Informatics, Computing and Cyber Systems,
+    Northern Arizona University, Flagstaff, AZ, United States\\
+     Email: \{sajadmousavi, fatemeh.afghah\}@nau.edu}
+   \IEEEauthorblockA{
+   \IEEEauthorrefmark{2}Air Force Research Laboratory,
+   Rome, NY, United States\\
+     Email: \{jonathan.ashdown, kurt.turck\}@us.af.mil}
+ }
+
+% conference papers do not typically use \thanks and this command
+% is locked out in conference mode. If really needed, such as for
+% the acknowledgment of grants, issue a \IEEEoverridecommandlockouts
+% after \documentclass
+
+% for over three affiliations, or if they all won't fit within the width
+% of the page, use this alternative format:
+% 
+%\author{\IEEEauthorblockN{Michael Shell\IEEEauthorrefmark{1},
+%Homer Simpson\IEEEauthorrefmark{2},
+%James Kirk\IEEEauthorrefmark{3}, 
+%Montgomery Scott\IEEEauthorrefmark{3} and
+%Eldon Tyrell\IEEEauthorrefmark{4}}
+%\IEEEauthorblockA{\IEEEauthorrefmark{1}School of Electrical and Computer Engineering\\
+%Georgia Institute of Technology,
+%Atlanta, Georgia 30332--0250\\ Email: see http://www.michaelshell.org/contact.html}
+%\IEEEauthorblockA{\IEEEauthorrefmark{2}Twentieth Century Fox, Springfield, USA\\
+%Email: homer@thesimpsons.com}
+%\IEEEauthorblockA{\IEEEauthorrefmark{3}Starfleet Academy, San Francisco, California 96678-2391\\
+%Telephone: (800) 555--1212, Fax: (888) 555--1212}
+%\IEEEauthorblockA{\IEEEauthorrefmark{4}Tyrell Inc., 123 Replicant Street, Los Angeles, California 90210--4321}}
+
+
+
+
+% use for special paper notices
+%\IEEEspecialpapernotice{(Invited Paper)}
+
+
+
+
+% make the title area
+\maketitle
+
+
+\begin{abstract}
+%\boldmath
+The problem of decentralized multiple Point of Interests (PoIs) detection and associated task completion in an unknown environment with multiple resource-constrained and self-interested Unmanned Aerial Vehicles (UAVs) is studied. The UAVs form several coalitions to efficiently complete the compound tasks which are impossible to be performed individually.
+The objectives of such coalition formation are to firstly minimize resource consumption in completing the encountered tasks on time, secondly to enhance the reliability of the coalitions, and lastly in segregating the most trusted UAVs amid the self interested of them. As many previous publications have merely focused upon minimizing costs, this study considers a multi-objective optimization coalition formation problem that considers the three aforementioned objectives. In doing so, a leader-follower-inspired coalition formation algorithm amalgamating the three objectives to address the problem of the computational complexity of coalition formation in large-scale UAV networks is proposed. This algorithm attempts to form the coalitions with minimally exceeding the required resources for the encountered tasks while maximizing the number of completed tasks. The proposed algorithm is based on Quantum Evolutionary Algorithms (QEA) which are a combination of quantum computing and evolutionary algorithms. Results from simulations show that the proposed algorithm significantly outperforms the existing coalition formation algorithms such as merge-and-split and a famous multi-objective genetic algorithm called NSGA-II \footnote{DISTRIBUTION A. Approved for public release: distribution unlimited. Case
+Number: 88ABW-2018-0096 . Dated 10 Jan 2018.
+}.
+%\blindtext[1]
+\end{abstract}
+% IEEEtran.cls defaults to using nonbold math in the Abstract.
+% This preserves the distinction between vectors and scalars. However,
+% if the journal you are submitting to favors bold math in the abstract,
+% then you can use LaTeX's standard command \boldmath at the very start
+% of the abstract to achieve this. Many IEEE journals frown on math
+% in the abstract anyway.
+
+% Note that keywords are not normally used for peerreview papers.
+\begin{IEEEkeywords}
+Unmanned aerial vehicles, coalition formation, mission completion, evolutionary algorithms.
+\end{IEEEkeywords}
+
+
+% For peer review papers, you can put extra information on the cover
+% page as needed:
+% \ifCLASSOPTIONpeerreview
+% \begin{center} \bfseries EDICS Category: 3-BBND \end{center}
+% \fi
+%
+% For peerreview papers, this IEEEtran command inserts a page break and
+% creates the second title. It will be ignored for other modes.
+\IEEEpeerreviewmaketitle
+
+
+
+\section{Introduction}
+%\blindtext
+A single agent system is often unable to perform complex tasks considering the limited individual capabilities of such an agent. Therefore, cooperative multi-agent systems (MASs) can offer a practical solution to this problem by ensembling a complementary set of different capabilities/resources from several agents. However, one of the key challenges in such cooperative MASs is forming optimal sub-groups of agents (i.e., coalition formation) in order to efficiently perform the existing tasks, especially in a distributed case where no central controller is available. That being said, the coalition formation problem concerns how different coalitions can be formed considering the tasks' requirements and the agents' capabilities so much so that the collective goals of the tasks are reached in the most effective manner.
+
+A considerable amount of research has been recently carried out in solving coalition formation problems. This has spawned several classic methods to form stable coalitions that follow common stability concepts based on Core, Shapley value, Bargaining Set, and Kernel \cite{sandholm1999distributed,ketchpel1993coalition,contreras1998multi}. However, achieving such stability concepts often mandates high computational complexity. Many researchers have attempted to deal with the problem of coalition formation in multi-agent systems by applying various approaches including genetic algorithms \cite{yang2007coalition}, dynamic programing methods \cite{cruz2013optimizing}, graph theory \cite{bistaffa2014anytime,sless2014forming}, iterative processes \cite{janovsky2016multi}, cooperative Multi-Agent Reinforcement Learning (MARL) \cite{ghazanfari2014enhancing}, and temporal-spatial abstraction MARL \cite{ghazanfari2017autonomous,ghazanfari2016extracting,mousavi2014automatic}. The majority of these reported studies have focused mainly in reducing costs and only a few of them have focused upon multiple objectives in solving the problem. In this paper, a solution for coalition formation problem in a heterogeneous resource-constraint UAV network in which multiple objectives are considered to form the optimal coalitions is proposed.
+The objectives of the coalition formation method proposed here are : minimizing the cost associated with consumption of resources of the coalitions formed, maximizing the reliability of the formed coalitions, and lastly to select the most trustworthy of UAVs among the available self-interested UAVs in the network. %\textcolor{red}{Reliability is a critical factor in coalition formation to performing a task successfully needs all UAVs to work perfectly during the mission. Hence, it is desired to maximize the coalition reliability by involving the most reliable UAVs in the coalition. 
+%To the best of our knowledge, this paper is the first work that incorporates the reliability as an objective in multi-UAV coalition formation problem.}
+
+Finding the solution of such a multi-objective coalition formation problem involves an NP-hard problem. Many approaches such as mixed integer linear programming \cite{schumacher2004uav,darrah2005multiple} and dynamic network flow optimization \cite{schumacher2002task} have been utilized to provide an exact solution to this problem. However, since these approaches seek such a solution, applying them to a large-scale problem is computationally taxing. More recently, metaheuristic algorithms such as Particle Swarm Optimization (PSO) \cite{kennedy2011particle}, Ant Colony Optimization \cite{dorigo1997ant}, Genetic Algorithms (GAs) \cite{goldberg2006genetic}, and Simulated Annealing (SA) \cite{van1987simulated} have offered reasonable solutions in efficient times for a variation of multi-objective optimization problems.  Inspired by the success of evolutionary approaches, this paper presents a novel leader-follower-based coalition formation algorithm using a quantum evolutionary approach whilst considering the aforementioned objectives in addressing the problem. As an unknown, dynamic environment is assumed where no prior knowledge is available about targets or Point of Interests (PoIs) and UAVs need to gain the knowledge of environment dynamically \cite{8124890,razi2017optimal}. Some potential applications of the proposed method are search and rescue, humanitarian relief, and public safety operations in unknown remote environments or military operations in remote fields. In such environments, it can be safely assumed that ground station does not have prior information about the PoIs and their positions. To evaluate the performance of the proposed method in such an unknown environment, several scenarios with different numbers of tasks ranging from 4 to 24, and a heterogeneous network of UAVs consists of a different number of UAVs ranging from 8 to 124 were simulated. 
+
+The rest of the paper is organized as follows: Section \ref{Sec:formulation} presents the problem statement and the formulation of the multi-UAV coalition formation as a multi-objective optimization problem. Section \ref{Sec:proposed} describes the proposed coalition formation algorithm. Section \ref{Sec:results} reports the simulation results followed by concluding remarks in section \ref{Sec:conclusion}.
+
+
+%\blindtext
+
+% needed in second column of first page if using \IEEEpubid
+%\IEEEpubidadjcol
+
+% An example of a floating figure using the graphicx package.
+% Note that \label must occur AFTER (or within) \caption.
+% For figures, \caption should occur after the \includegraphics.
+% Note that IEEEtran v1.7 and later has special internal code that
+% is designed to preserve the operation of \label within \caption
+% even when the captionsoff option is in effect. However, because
+% of issues like this, it may be the safest practice to put all your
+% \label just after \caption rather than within \caption{}.
+%
+% Reminder: the "draftcls" or "draftclsnofoot", not "draft", class
+% option should be used if it is desired that the figures are to be
+% displayed while in draft mode.
+%
+%\begin{figure}[!t]
+%\centering
+%\includegraphics[width=2.5in]{myfigure}
+% where an .eps filename suffix will be assumed under latex, 
+% and a .pdf suffix will be assumed for pdflatex; or what has been declared
+% via \DeclareGraphicsExtensions.
+%\caption{Simulation Results}
+%\label{fig_sim}
+%\end{figure}
+
+% Note that IEEE typically puts floats only at the top, even when this
+% results in a large percentage of a column being occupied by floats.
+
+
+% An example of a double column floating figure using two subfigures.
+% (The subfig.sty package must be loaded for this to work.)
+% The subfigure \label commands are set within each subfloat command, the
+% \label for the overall figure must come after \caption.
+% \hfil must be used as a separator to get equal spacing.
+% The subfigure.sty package works much the same way, except \subfigure is
+% used instead of \subfloat.
+%
+%\begin{figure*}[!t]
+%\centerline{\subfloat[Case I]\includegraphics[width=2.5in]{subfigcase1}%
+%\label{fig_first_case}}
+%\hfil
+%\subfloat[Case II]{\includegraphics[width=2.5in]{subfigcase2}%
+%\label{fig_second_case}}}
+%\caption{Simulation results}
+%\label{fig_sim}
+%\end{figure*}
+%
+% Note that often IEEE papers with subfigures do not employ subfigure
+% captions (using the optional argument to \subfloat), but instead will
+% reference/describe all of them (a), (b), etc., within the main caption.
+
+
+% An example of a floating table. Note that, for IEEE style tables, the 
+% \caption command should come BEFORE the table. Table text will default to
+% \footnotesize as IEEE normally uses this smaller font for tables.
+% The \label must come after \caption as always.
+%
+%\begin{table}[!t]
+%% increase table row spacing, adjust to taste
+%\renewcommand{\arraystretch}{1.3}
+% if using array.sty, it might be a good idea to tweak the value of
+% \extrarowheight as needed to properly center the text within the cells
+%\caption{An Example of a Table}
+%\label{table_example}
+%\centering
+%% Some packages, such as MDW tools, offer better commands for making tables
+%% than the plain LaTeX2e tabular which is used here.
+%\begin{tabular}{|c||c|}
+%\hline
+%One & Two\\
+%\hline
+%Three & Four\\
+%\hline
+%\end{tabular}
+%\end{table}
+
+% Note that IEEE does not put floats in the very first column - or typically
+% anywhere on the first page for that matter. Also, in-text middle ("here")
+% positioning is not used. Most IEEE journals use top floats exclusively.
+% Note that, LaTeX2e, unlike IEEE journals, places footnotes above bottom
+% floats. This can be corrected via the \fnbelowfloat command of the
+% stfloats package.
+
+\section{Problem Statement}
+\label{Sec:formulation}
+In this section, the decentralized task allocation problem in a network of autonomous UAVs by forming optimum coalitions are formulated. %describe the objectives and associated costs of such coalition formation. 
+The possibility of selfish behavior of these self-interested UAVs are accounted for and reputation guidelines in selecting the most reliable of UAVs to participate in the formed coalitions are also defined. It is vital to note that the proposed algorithm considers minimizing the cost of coalition formation in terms of overspending the resources on particular tasks as well as enhancing the reliability of the formed coalitions as paramount.
+
+A heterogeneous network of $N$ UAVs $\mathcal{U}=\{u_1,u_2,\ldots,u_N\}$, where each UAV, $u_i$ can carry a different set of resources compared to another is considered. $R_{u_i}=\{r_{u_i }^1,r_{u_i}^2,\ldots,r_{u_i}^{N_r}\}$ denotes the set of resources available at UAV, $u_i$ where $N_r$ is the number of possible resources in the network. It is also assumed that there exists $n$ tasks in the environment $T=\{T_1,T_2,\ldots,T_n\}$. Each task, $T_i$ requires a certain amount available resource in each of $R_{u_i}$ in order to be completed. The vector of required resources for task $i$ is defined as follows: \begin{equation}
+\tau^i=\{\tau^i_1,\tau^i_2,\tau^i_3,\ldots,\tau^i_{N_r}\},
+\end{equation}
+where $\tau^i_j$ is the required amount of resource $j$ for task $i$. It is assumed that each task is associated to one PoI (target) and the PoIs can be located in different positions with a diverse set of resource requirements. All UAVs are able to search the unknown environment for new PoIs. The tasks are carried out by the formed coalitions $\mathcal{S}=\{S_1,S_2,\ldots,S_m\}$, where each coalition $S_i$ is responsible for one task. A large search space where the PoIs are distributed far apart from each other are considered. It can therefore be assumed that the formed coalitions are sufficiently far from one another that each UAV can only be a member of a single coalition, i.e., $S_k\cap S_l=\emptyset, \forall S_k, S_l \in \mathcal{S}$. This also means that the coalitions are non-overlapping. The capability of each coalition $S_i$ to complete its encountered task is defined as the value of coalition $v(S_i), ~(v(S_i) \in \mathcal{R})$ as described in the next section. Moreover, $cost(S_i,T_i)$ is defined as the cost of coalition $S_i$ in performing task $T_i$. The cost function for coalition $S_i$ captures the cost imposed on all UAV members of this coalition (i.e., $\sum_{u_j\in S_i} cost(S_i,u_j))$ in which their resources have been shared to accomplish task {$T_i$}. 
+
+Another key contribution of the proposed model is considering the reliability factor in forming the optimal coalitions. While in the majority of existing techniques, it is assumed that the UAV members of formed coalitions are perfectly operational during the mission lifetime, this is obviously not a realistic assumption as the UAVs' operation can be interrupted for several reasons (e.g., exhaustion of battery or a particular resource). A practical scenario is considered where the UAVs are assumed to be either fully operational or one of their capabilities (e.g., resources) are bound to fail during the mission. Such failures in various capabilities are considered to be statistically independent. Furthermore, involving different types of UAVs in a coalition may result in different execution times of accomplishing the sub-tasks as the UAVs have a different set of capabilities. For instance, a given UAV may be able to fulfill its duty in a shorter time than another. The cost and reliability of a coalition indeed depend on these execution times where lower execution times are favored for incurring lower execution costs.
+%(e.g., a UAV with a lower execution time incurs a lower execution cost from its allocated resources for a task compared to another UAV with a higher execution time for the same task). 
+In the next section, we define and formulate these factors (i.e., cost, reliability and reputation).   
+
+\subsection{Definition of Cost, Reliability, and Reputation}
+A set of UAVs in the form of a coalition collaborate with one another to carry out the encountered task. Participation in such coalitions involves a cost of sharing and consuming the resources for the member UAVs. For a given task $T_k$ with the required resources $\tau^k=\{\tau^k_1,\tau^k_2,\tau^k_3,\ldots,\tau^k_{N_r}\}$, where the amount of resource $i$ for task $k$ is denoted by $\tau^k_i\geq 0$, the execution cost of consuming resource $j$ of UAV $i$ is denoted by $e_{ij}$, where $e_{ij}=\mu_j r_{u_i}^j \quad \forall i,j$ and $\mu_j$ is a constant coefficient in order to convert the amount of resource $j$ to a time dependent value to have the same unit as the execution time. Thus, the cost of  coalition $S_k$, $C(S_k)$ can be calculated as follows:
+\begin{equation}
+C(S_k)=\sum_{i=1}^{N_k}\sum_{j=1}^{N_r} {e_{ij}k_{ij}+a_{ij}},
+\end{equation}
+where $k_{ij}$ is the execution time if UAV $i$ carrying resource $j$ is involved in task $k$, and $a_{ij}$ is the travel time of UAV $i$ to task $j$.
+
+Possibility of potential defects in the UAVs' resources that may result in performance failure of these UAVs during the mission is also accounted for. Considering so, the reliability of coalition $S_k$ for a give task $T_k$, denoted by $R(S_k)$ is defined as follows:
+\begin{equation}
+R(S_k)=\prod_{i=1}^{N_k}e^{-\sum_{j=1}^{N_r} {\lambda_{ij}k_{ij}}},
+\end{equation}
+where $\lambda_{ij}$ is the failure rate of resource $j$ of UAV $i$.
+For simplicity, $\log_e$ transfer of $R(S_k)$ function as follows, $\ln(R(S_k)) = -\sum_{i=1}^{N_k}\sum_{j=1}^{N_r} {\lambda_{ij}k_{ij}}$ is used.
+The formulation of the reliability has been inspired by works reported in \cite{han2000genetic} and \cite{yin2007multi}. Interested readers are referred to these papers for more details on the probability that a system can accomplish a particular task without failure. Similar to other cognitive agents, the UAVs are expected to be self-interested in the sense that they prefer to save their limited resources, and act selfishly by not consuming enough resources during the mission. To monitor the cooperative behavior of these UAVs, an accumulative cooperative reputation related to the amount of resources that each UAV shares during the mission is defined. %We follow the formulation described in \cite{afghah2017coalition} to calculate each UAV's credit. 
+During each mission $t$ (i.e., accomplishing an assigned task), the cooperative reputation of each UAV $i$, $\rho_i$ is updated as follows:
+\begin{equation}
+\rho_i^t=\bigg \{ \begin{tabular}{cc}
+  $\rho_i^{t-1} + \Delta \rho_i^t$, & $\exists k|u_i \in S_k$ \\
+  $\rho_i^{t-1}$, & otherwise  \\
+  \end{tabular}
+\end{equation}
+where $\Delta \rho_i^t$ is the amount of contribution of UAV $i$ to coalition $S_k$ in terms of sharing resources to carry out the assigned task $k$ and can be defined as follows:
+\begin{equation}
+\Delta \rho_i^t =\frac{\Upsilon_k}{\sum_{m\in S_k}f_m}f_i,
+\end{equation}
+where $\Upsilon_k$ is the sum of the resource requirements of task $T_k$ denoting as $\Upsilon_k=\sum_{j=1}^{N_r}\tau_j^k$ and $f_i$ is the sum of the resource contributions of UAV $i$, defined as $f_i=\sum_{j=1}^{N_r}\frac{r_{u_i}^j}{\tau_j^k}$. As such, the coalition reputation of all involved UAVs in the coalition $S_k$ is computed as follows:
+\begin{equation}
+P(S_k)=\sum_{i=1}^{N_k}\rho_i^t
+\end{equation}
+
+\subsection{Formulation of Multi-objective Optimization}\label{objfun}
+To consider all aforementioned optimization criteria including reducing the coalition cost, and increasing the reliability, and reputation of the formed coalitions, Multi-Objective Optimization Problem (MOOP) as a weighted-sum of three objectives is defined. The multi-objective optimization and its required constraints are defined as follows.\\
+\begin{equation} \label{multi}
+min \qquad O(S_k)= C(S_k)-\eta_1 \ln{R(S_k)} - \eta_2 P(S_k)
+\end{equation}
+\begin{equation} \label{equ:subj}
+subject \quad to \qquad \sum_{i=1}^{N_k}e_{ij}\geq \tau_j^k \quad \forall j= 1,2,3,\ldots,N_r,
+ \end{equation}
+where $\eta_1$ and $\eta_2$ are weighting parameters to assign the desired importance to each objective and scale them to be in comparative ranges. Constraint (\ref{equ:subj}) refers to the requirement to secure enough resources in the formed coalition to complete the encountered task $T_k$.
+In table \ref{tab:notations}, a summary of the notations used throughout this paper is presented. 
+\begin{table} 
+\caption{Notations}
+\label{tab:notations}
+\begin{tabular}{|l| p{8cm}|}
+%\hline
+%$\mu_i$  & A constant coefficient in order to convert the amount of resource $i$ to a time dependent value. \\
+\hline
+$a_{ij}$  & Travel time of UAV $i$ to task $j$. \\ \hline
+$e_{ij}$  & Execution cost of involving resource $j$ of UAV $i$ in a coalition. It is computed per unit time. \\ \hline
+$k_{ij}$  & Execution time of involving resource $j$ of UAV $i$ in a coalition. It depends on the task and capability of the UAV. \\ \hline
+$\lambda_{ij}$  & Failure rate of involving the resource $j$ of UAV $i$ in a coalition. \\ \hline
+$\rho_i$  &  Credit of UAV $i$. \\ \hline
+$N_k$  & Number of UAVs in coalition $k$. \\ \hline
+$N_r$  & Number of network resources. \\\hline
+$N$  & Number of network UAVs. \\\hline
+\end{tabular}
+\end{table} 
+
+\section{Proposed algorithm}
+\label{Sec:proposed}
+The objective function described in section \ref{objfun} is a NP-hard problem. Standard approaches such as dynamic programming and exact algorithms involve computational complexity of $O(n^2)$ that could be intractable in large-scale networks. Hence, evolutionary algorithms such as genetic algorithm can be considered as potential options to find feasible solutions of this problem. In this paper, we propose a coalition formation algorithm based on a version of genetic algorithm called Quantum-Inspired Genetic Algorithm (QIGA) to find the solution of the multi-objective problem in (\ref{multi}).
+
+\subsection{Review of Quantum-Inspired Genetic Algorithm (QIGA)}
+The idea behind QIG algorithms is to take advantage of both GA and quantum computing mechanisms \cite{han2000genetic}. In quantum computation, the data representation is based on qubit that is the smallest information unit. A qubit is considered as a superposition of two different states $|0 \rangle$ and $|1 \rangle$ that can be denoted as:\\
+\begin{equation}
+|\psi\rangle=\alpha|0\rangle+\beta|1\rangle,
+\end{equation}
+where $\alpha$ and $\beta$ are complex numbers such that $|\alpha|^2+|\beta|^2=1$. $|\alpha|^2$ and $|\beta|^2$ are the probability of  amplitudes where the qubit can be at states $|0 \rangle$ and $|1 \rangle$,  respectively. With $m$ qubits, the model can represent $2^m$ independent states. However, when the value of the qubit is measured, it leads to a single state of the quantum state (i.e., $|0 \rangle$ or $|1 \rangle$).
+Similar to a standard genetic algorithm, a chromosome's representation is defined as a string of $m$ information units. Thus, a chromosome can be defined as a string of $m$ qubits as:\\
+\begin{equation}
+\bigg \{ \dbinom{\alpha_0}{\beta_0},\dbinom{\alpha_1}{\beta_1},\dbinom{\alpha_2}{\beta_2}, \ldots, \dbinom{\alpha_{m-1}}{\beta_{m-1}} \bigg \},
+\end{equation}
+where each pair $(\alpha_i,\beta_i),i=1,2,3,\ldots,m-1$  denotes a gene of the chromosome.
+
+To evaluate a quantum chromosome, a transfer function called \emph{measure} is applied to convert the quantum states to a classical chromosome representation. For example, each pair $(\alpha_i,\beta_i)$ is converted to a value $c_i \in \{0,1\}$ so that the $m$-qubit chromosome may result in a binary string $\{c_1,c_2,c_3,\ldots,c_m\}$. More specifically, each pair becomes $0$ or $1$ using the corresponding qubit probabilities $|\alpha_i|^2$ and $|\beta_i|^2$. To perform this conversion, we use the measure function defined as follow:
+\begin{algorithmic} \label{measure}
+\Function{measure}{$\alpha$}
+\State set $r$  to  a random number between $0$ and $1$;
+\If {$r > |\alpha|^2 $}
+    \State  \Return $0$;
+\Else
+\State  \Return $1$;
+    \EndIf
+\EndFunction
+\end{algorithmic}
+Each binary string is a possible solution which is evaluated via a problem dependent fitness function. In the following section,  the proposed fitness function is described. 
+\subsection{Fitness function}
+The fitness function or evaluation function determines how to fit a solution with respect to the constrained optimization problem. To build the fitness function, the negative sign of the objective function $O(S_k )$, defined in (\ref{multi}), is used. In addition, as the solutions which meet all of the constraints get higher fitness value, the solutions which violate some of the constrains should achieve a lower objective value from the fitness function. To prevent potential violations, a penalty function technique that penalizes the solutions according to amount of constraints' mismatches is applied. Considering these facts, the fitness function is proposed as:
+\begin{equation}
+F(S_k)=-(O(S_k)+g(S_k)),
+\end{equation}
+where $g(S_k)$ is the penalty function such that if there is no violation, its value will be zero, and positive otherwise. $g(S_k )$ is defined as:
+\begin{equation}
+g(S_k)= \gamma \times \sum_{i=1}^{N_r}max(0,\tau_j^k-\sum_{i=1}^{N_s}e_{ij}),
+\end{equation}
+where $\gamma$ is the penalty coefficient that controls the weight of the amount of constraints violated.
+
+\begin{table*}  
+\caption{Algorithms' parameters}
+\centering{
+\label{tab:parameters}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{} & \multicolumn{3}{c}{\textbf{Method}} \\
+\cmidrule(lr){2-4}
+\textbf{Parameter} & {$Distance-Based$} & {$NSGA-II$} & {$MOQGA$} \\
+\midrule
+\texttt{Population size} &$NA$ &$200$ &$200$  \\
+\texttt{Maximum number of iterations} &$NA$ &$500$ &$500$ \\ 
+\texttt{Number of objectives} &$1$ &$3$ &$3$ \\ 
+\texttt{Mutation probability} &$NA$ &$10\%$ &$NA$ \\ 
+\texttt{Crossover probability} &$NA$ &$90\%$ &$NA$ \\ 
+\texttt{Distribution index for crossover} &$NA$ &$20$ &$NA$ \\ 
+\texttt{Distribution index for mutation} &$NA$ &$100$ &$NA$ \\ 
+        \bottomrule  
+NA: Not Available \\ 
+\end{tabular}}
+\end{table*}
+
+Evolutionary strategies (e.g., crossover and mutation operations) are often considered in GA algorithms to improve their performance. However, as stated in \cite{han2000genetic}, applying the crossover and mutation operators do not significantly improve the performance of the QIGA. Therefore, in the QIGAs, usually a qubit rotation gates strategy is used. Qubit $(\alpha_i,\beta_i)$ of the $m$-qubit chromosome is updated according to the rotation gates in order to get more or less probabilities to states $|0 \rangle$ and $|1 \rangle$. Therefore, at each time step $t$, the update of qubit is performed based on the following rotation gate matrix $L(\theta_i)$:
+
+\begin{equation}
+  L(\theta_i)=
+  \begin{pmatrix}
+    cos(\theta_i) & -sin(\theta_i) \\
+    sin(\theta_i) & cos(\theta_i)
+  \end{pmatrix}; 
+    \begin{pmatrix}
+    \alpha_i^t  \\
+    \beta_i^t 
+  \end{pmatrix}=L(\theta_i) \begin{pmatrix}
+    \alpha_i^{t-1}  \\
+    \beta_i^{t-1} 
+  \end{pmatrix},
+  \label{equ:mat}
+\end{equation}
+where $\theta_i$ is the amount of angle rotation of qubit gate $i$. Algorithm \ref{alg1} presents the pseudo-code for QIGA as described in \cite{han2000genetic}. 
+
+
+\begin{algorithm}
+\caption{Quantum-Inspired Genetic Algorithm}
+\begin{algorithmic}[1]
+\State $t\gets 0$
+\State Initialize $Q(t)$ as the population
+\State Make $P(t)$ by measuring $Q(t)$
+\State Evaluate $P(t)$
+\State Store the best solution $b$ among $P(t)$
+\Repeat
+  \State $t\gets t+1$
+  \State Make $P(t)$ by measuring $Q(t-1)$
+  \State  Evaluate $P(t)$
+  \State Update $Q(t)$ using quantum gates $L(t)$
+  \State  Store the best solution $b$ among $P(t)$
+\Until {the termination-condition}
+\end{algorithmic}
+\label{alg1}
+\end{algorithm}
+
+
+
+%\fbox{what is the termination condition for your model, I didn't see it in the text}
+
+\subsection{Multi-UAV Coalition Formation}
+To establish a multi-UAV coalition, a leader-follower coalition formation method is followed. %In this approach, the coalition leaders are responsible for forming the coalitions and the followers follow the leader requirements. 
+Initially, the UAVs are uniformly distributed in a search space to look for the PoIs. When a PoI is detected by a UAV, this UAV computes the resource requirements of the detected PoI and serves as a leader to form an optimal coalition. 
+After calculating the required resources, the leader UAV calls other UAVs within a  certain distance to join it in forming a coalition. Then, the UAVs with at least one of the required resources can respond to this call by reporting the amount of resources that they are able to contribute to help accomplish the task. It is also assumed that the UAVs are self-interested, meaning that if a UAV receives multiple requests, it will consider joining the coalition which offers the highest benefit. The UAV $i$, $u_i$ measures the value of each request based on travel time to reach the task and the expected cooperative reputation credit received. Thus, its utility value can be defined as:
+\begin{equation}
+U(u_i,S_k)=\rho_i-\delta a_{ij},
+\end{equation}
+where $\rho_i$ and $a_i$ are the cooperation credit and travel time of $u_i$ when it attempts to join coalition $k$. $\delta$ is the weight indicating the relative significance of the travel time compared to the expected credit. Algorithm \ref{pseudoMOQGA} shows the pseudo-code for the multi-UAV coalition formation.
+\begin{algorithm}
+\caption{Multi-UAV coalition formation using the leader-follower method and QIGA}
+\label{pseudoMOQGA}
+\begin{algorithmic}[1]
+\State Search PoIs in the search space
+\State Initialize each leader as a singleton coalition committed to a single PoI 
+\State $coalition\_members \gets [\,]$
+\While{there exists an idle UAV around}
+\For{\textbf{all} unsatisfied PoIs so far}
+   \State $coal\_mems \gets$ execute MOQIG method regarding algorithm \ref{alg1}
+    \State $coalition\_members.append(coal\_mems)$ 
+\EndFor
+\State Send bids to UAVs as potential followers
+\State Calculate the utility values of the followers and receive bid responses
+\State Update coalition members of each leader with respect to the bid responses
+\EndWhile
+\end{algorithmic}
+\end{algorithm}
+
+%\begin{figure*}
+ %   \centering
+ %   \begin{subfigure}[b]{0.3\textwidth}
+ %       \includegraphics[width=\textwidth]{8-2-resource-crop.pdf}
+ %       \caption{8-2}
+ %       \label{fig:resvoi8-2}
+ %   \end{subfigure}
+ %   ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+ %     %(or a blank line to force the subfigure onto a new line)
+  %  \begin{subfigure}[b]{0.3\textwidth}
+ %       \includegraphics[width=\textwidth]{16-4-resource-crop.pdf}
+ %       \caption{16-4}
+ %       \label{fig:resvoi16-4}
+ %   \end{subfigure}
+ %   ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+ %   %(or a blank line to force the subfigure onto a new line)
+ %   \begin{subfigure}[b]{0.3\textwidth}
+  %      \includegraphics[width=\textwidth]{32-8-resource-crop.pdf}
+  %      \caption{32-8}
+  %      \label{fig:resvoi32-8}
+  %  \end{subfigure}
+   %     \begin{subfigure}[b]{0.3\textwidth}
+   %     \includegraphics[width=\textwidth]{64-16-resource-crop.pdf}
+  %      \caption{64-16}
+ %       \label{fig:resvoi64-16}
+ %   \end{subfigure}
+ %    \caption{The number of resource violations for the proposed coalition formation method at each mission compared to the distance-based and NSGA-II algorithms when there are different numbers of UAVs and tasks in the environment, respectively.}\label{fig:resvois}
+%\end{figure*}
+
+
+\begin{figure*}
+    \centering
+    \begin{subfigure}[b]{0.4\textwidth}
+       % \includegraphics[width=\textwidth]{8-2-pareto-crop.pdf}
+         \includegraphics[width=\textwidth]{8-2-pareto-crop.pdf}
+        \caption{8-2}
+        \label{fig:pareto-8-2}
+    \end{subfigure}
+    ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+      %(or a blank line to force the subfigure onto a new line)
+    \begin{subfigure}[b]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{16-4-pareto-crop.pdf}
+        \caption{16-4}
+        \label{fig:pareto-16-4}
+    \end{subfigure}
+    ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+    %(or a blank line to force the subfigure onto a new line)
+    
+    \begin{subfigure}[b]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{32-8-pareto-crop.pdf}
+        \caption{32-8}
+        \label{fig:pareto-32-8}
+    \end{subfigure}
+        \begin{subfigure}[b]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{64-16-pareto-crop.pdf}
+        \caption{64-16}
+        \label{fig:pareto-64-16}
+    \end{subfigure}
+    \caption{Comparison the qualities of solutions provided by the proposed method (MOQGA) and NSGA-II.}\label{fig:quality}
+\end{figure*}
+
+
+\begin{figure}
+\centering
+
+\includegraphics[scale=0.5]{8-2-credit-crop.pdf}
+\caption{Changes in UAVs' cooperative reputation over time, where UAVs $u_5$ and $u_6$ are assumed to be selfish}
+\label{fig:8-2-credit}
+\end{figure}
+
+
+
+\section{Experimental results}
+\label{Sec:results}
+To evaluate the performance of the proposed QIGA-based coalition formation method, several scenarios with different number of UAVs and PoIs were simulated. It is assumed that the UAVs and PoIs are uniformly distributed across the region and the closest UAV to the PoI is considered to be the one that first detects the PoI and form a coalition (as a coalition leader). It is also assumed that each UAV has five different types of resources. The values for the UAVs' resources are generated with a random uniform distribution and the UAV's resource failure rates are produced randomly in the range $(5\times10^{-5}, 10^{-4})$. Furthermore, the execution times of the identified tasks are computed randomly in the range between $10$ and $20$, depending on the task and the capability of the UAV.
+\begin{table*}  
+\caption{ Percentage of completed tasks and average of resource violations for different algorithms in 30 missions (with different numbers of UAVs and tasks).}
+\centering{
+\label{tab:results}
+\begin{tabular}{ccccccc}
+\toprule
+\textbf{} & \multicolumn{6}{c}{\textbf{Method}} \\
+\cmidrule(lr){2-7}
+ \textbf{} & \multicolumn{2}{c}{$\mathbf{Distance-Based}$} & \multicolumn{2}{c}{$\mathbf{NSGA-II}$} & \multicolumn{2}{c}{$\mathbf{MOQGA}$} \\
+ \cmidrule(lr){2-7}
+ \textbf{No. of UAVs and tasks} &  Completed tasks & Resource violations & Completed tasks & Resource violations & Completed tasks & Resource violations \\
+  \midrule
+8-2 &$67\%$ &$1.6$ &$$80\%$$ &$0.43$ &$\underline{\mathbf{90\%}}$ &$\underline{\mathbf{0.3}}$\\
+16-4 &$43\%$ &$3.83$ &$$86\%$$ &$0.6$ &$\underline{\mathbf{90\%}}$ &$\underline{\mathbf{0.43}}$\\
+32-8 &$39\%$ &$6.93$ &$$91\%$$ &$0.73$ &$\underline{\mathbf{97\%}}$ &$\underline{\mathbf{0.20}}$\\
+64-16 &$45\%$ &$11.97$ &$$92\%$$ &$2.03$ &$\underline{\mathbf{95\%}}$ &$\underline{\mathbf{1.23}}$\\
+128-24 &$47\%$ &$20.33$ &$$90\%$$ &$4.33$ &$\underline{\mathbf{94\%}}$ &$\underline{\mathbf{2.47}}$\\
+\bottomrule             
+\end{tabular}}
+\end{table*}
+
+\begin{table*} 
+\caption{The selected UAVs by leaders in 10 missions, where it is assumed the failure rate of the UAVs $u_5$ and $u_6$ is 90\%.}
+\label{tab:reliability}
+\centering{
+\begin{tabular}{ |c|c|c|c|c|c|} 
+\hline
+Time slot & Coalition 1  & Satisfied & Coalition 2 & Satisfied  & Unreliable UAVs \\
+\hline
+$1$ & $L\{u_6\};F\{u_3,u_4,u_8\}$ & Yes &  $L\{u_1\};F\{u_7,u_2\}$ & Yes & \{\} \\ 
+\hline
+$2$ & $L\{u_2\};F\{u_3,u_8,u_4\}$ & Yes &  $L\{u_1\};F\{u_3,u_7\}$ & Yes & \{\} \\ 
+\hline
+$3$ & $L\{u_2\};F\{u_3,u_5,u_8\}$ & Yes &  $L\{u_6\};F\{u_4\}$ & Yes & $\{u_5\}$ \\ 
+\hline
+$4$ & $L\{u_2\};F\{u_4,u_7,u_3\}$ & Yes &  $L\{u_1\};F\{u_5,u_6,u_8\}$ & No & $\{u_5,u_6\}$ \\ 
+\hline
+$5$ & $L\{u_5\};F\{u_1,u_3,u_4\}$ & Yes &  $L\{u_2\};F\{u_7,u_8\}$ & Yes & \{\} \\ 
+\hline
+$6$ & $L\{u_1\};F\{u_3,u_4\}$ & Yes &  $L\{u_2\};F\{u_5,u_6,u_8,u_7\}$ & No & $\{u_5,u_6\}$ \\ 
+\hline
+$7$ & $L\{u_5\};F\{u_2,u_3,u_8\}$ & Yes &  $L\{u_1\};F\{u_4,u_7\}$ & Yes & \{\} \\ 
+\hline
+$8$ & $L\{u_5\};F\{u_2,u_3,u_6\}$ & Yes &  $L\{u_1\};F\{u_4,u_7\}$ & Yes & $\{u_6\}$ \\ 
+\hline
+$8$ & $L\{u_5\};F\{u_2,u_6,u_7,u_8\}$ & Yes &  $L\{u_1\};F\{u_3,u_4\}$ & Yes & $\{u_6\}$ \\ 
+\hline
+$9$ & $L\{u_5\};F\{u_2,u_7,u_8\}$ & No &  $L\{u_1\};F\{u_3,u_4\}$ & Yes & \{\} \\ 
+\hline
+$10$ & $L\{u_5\};F\{u_1,u_3,u_4\}$ & Yes &  $L\{u_2\};F\{u_7,u_8\}$ & No & \{\} \\ 
+\hline
+\multicolumn{1}{c}{L: Leader, F: Follower}
+\end{tabular} }
+\end{table*}
+The performance of our proposed algorithm is compared with three well-known algorithms including: i) the distance-based coalition formation method in which the coalitions are formed with the closest UAVs to the leader (i.e., the leader only considers the UAVs in a certain distance of the PoI to be in the coalition and do not evaluate them in terms of cooperative reputation or available resources), ii) the common merge-and-split coalition formation \cite{afghah2017coalition}, and iii) a Non-Dominated Sorting Genetic Algorithm (NSGA-II) which is a fast, elitist and heuristic-based multi-objective algorithm. Table \ref{tab:parameters} shows the corresponding parameters for these algorithms.
+%\textcolor{magenta}{That does not seem right, the first one has a totally different formation criteria and the second one and your own method consider a MOOP. It seems better to have two different set of scenarios, first to show the effect of decision criteria you have defined for your method, (e.g. distance-based, random selection, having or not having reputation, or the impact of reliability over time and the second set could be the same objective function using different formation methods( e.g merge-and-split, GA, QGA)}
+%\textcolor{magenta} {Figure \ref{fig:comtask8-2} shows the number of completed tasks of the proposed coalition formation method compared to the method of selecting the closest UAVs to target (regardless of resources), and NSGA-II for 30 different missions. As shown in this figure, we observe that the MOQGA coalition formation method can formed the required coalition successfully to carry out the identified tasks in most of the missions while the other methods often fail to do that.} 
+%\textcolor{magenta}{this is not a strong conclusion nor presentation , there are only two targets, it is not clear how far apart are the UAVs and what is their resources, it would have been more meaningful to have some unreliable UAVs or some UAVs with very limited resources to show that the distance based method is not effective, I also think only looking at distance-based is not enough and you should have multiple formation methods with different metrics to show the impact of the proposed objective function}
+
+%\begin{figure*}
+%    \centering
+%    \begin{subfigure}[b]{0.475\textwidth}
+%        \includegraphics[width=\textwidth]{8-2-completed-crop.pdf}
+%        \caption{8-2}
+%        \label{fig:comptask8-2}
+%    \end{subfigure}
+%    ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+%      %(or a blank line to force the subfigure onto a new line)
+%    \begin{subfigure}[b]{0.475\textwidth}
+%        \includegraphics[width=\textwidth]{16-4-completed-crop.pdf}
+%        \caption{16-4}
+%        \label{fig:comptask16-4}
+%    \end{subfigure}
+%    ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+%    %(or a blank line to force the subfigure onto a new line)
+%    
+%    \begin{subfigure}[b]{0.475\textwidth}
+%        \includegraphics[width=\textwidth]{32-8-completed-crop.pdf}
+%        \caption{32-8}
+%        \label{fig:comptask32-8}
+%    \end{subfigure}
+%        \begin{subfigure}[b]{0.475\textwidth}
+%        \includegraphics[width=\textwidth]{64-16-completed-crop.pdf}
+%        \caption{64-16}
+%        \label{fig:comptask64-16}
+%    \end{subfigure}
+%    \caption{A comparison of performance of the number of completed tasks for 30 %missions separately for the proposed method and other algorithms when we have 8 %UAVs and 2 targets in the environment.}\label{fig:comptasks}
+%\end{figure*}
+
+Table \ref{tab:results} represents some statistics regarding the completed tasks and resources violations for different algorithms. It demonstrates that the performance of the proposed coalition formation method is quite better than other algorithms addressed here in terms of percentage of completed tasks and average of resource violations. We  also compared the proposed method against the merge-and-split coalition formation algorithm. The percentage of completed tasks for the merge-and-split method in 30 missions for different numbers of UAVs and tasks were between 46\% and 50\%, while, as shown in table \ref{tab:results}, our method could achieve rate of 90\% in task completion.
+
+Figure \ref{fig:quality} compares the qualities of solutions of the MOQGA to NSGA-II algorithm. The plots demonstrate that the performance of the proposed method is better than the NSGA-II algorithm and result in superior quality solutions in terms of lower cost and higher reliability.
+Figure \ref{fig:8-2-credit} shows changes in UAV's cooperative reputation over the course of time. It is assumed that UAVs, $u_5$ and $u_6$ are not trustworthy. As seen in the figure, the reputations of these UAVs decrease at each time slot, therefore it is less likely that these UAVs are selected by the leaders over time. 
+The impact of reliability in coalition formation is also studied, where a pre-defined failure rate of 90\% is considered for resources of UAVs $u_5$ and $u_6$. Table \ref{tab:reliability} represents the selected UAVs (e.g., followers) by leaders where there are two unreliable UAVs. As shown in the table, the proposed method tries to not select unreliable UAVs in most cases. 
+The reason for the selection of unreliable UAVs in some cases is that the problem is a MOOP and the method has to consider other objectives (i.e., cost and reputation) to optimize as well.
+
+
+
+%\textcolor{magenta}{the scenario is wage not knowing how many resources was needed for each mission, at least one could be mentioned as an example}
+%\textcolor{magenta}{the simulation results should be improved significantly, here are some directions to take: i) more realistic scenarios in terms of number of targets, their distribution, the ratio of UAVs related to targets, ii) extreme cases where there are some fully unreliable UAVs or untrusted ones to show the impact of the designed objective function, iii) a real large-scale scenario!!, iv) complexity analysis, v) convergence time  }
+
+
+\section{Conclusion}
+\label{Sec:conclusion}
+A leader-follower UAV coalition formation method is proposed to provide a practical solution for distributed task allocation in an unknown environment. Three critical aspects of cost minimization, reliability maximization, and the potential selfish behavior of the UAVs were considered in this coalition formation, and a quantum-inspired genetic algorithm is proposed to find the optimal coalitions with a low level of computational complexity. The proposed approach led to promising results compared to existing solutions with respect to completing a higher number of tasks and minimally overspending the resources.
+
+\section{ACKNOWLEDGMENT OF SUPPORT AND DISCLAIMER}
+The authors acknowledge the U.S. Government's support in  the publication of this paper. This material is based upon work funded by AFRL. Any opinions, findings and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the US government or AFRL.
+
+% if have a single appendix:
+%\appendix[Proof of the Zonklar Equations]
+% or
+%\appendix  % for no appendix heading
+% do not use \section anymore after \appendix, only \section*
+% is possibly needed
+
+% use appendices with more than one appendix
+% then use \section to start each appendix
+% you must declare a \section before using any
+% \subsection or using \label (\appendices by itself
+% starts a section numbered zero.)
+%
+
+
+%\appendices
+%\section{Proof of the First Zonklar Equation}
+%\blindtext
+
+% use section* for acknowledgement
+%\section*{Acknowledgment}
+
+
+%The authors would like to thank...
+
+
+% Can use something like this to put references on a page
+% by themselves when using endfloat and the captionsoff option.
+%\ifCLASSOPTIONcaptionsoff
+ % \newpage
+%\fi
+
+
+
+% trigger a \newpage just before the given reference
+% number - used to balance the columns on the last page
+% adjust value as needed - may need to be readjusted if
+% the document is modified later
+%\IEEEtriggeratref{8}
+% The "triggered" command can be changed if desired:
+%\IEEEtriggercmd{\enlargethispage{-5in}}
+
+% references section
+
+% can use a bibliography generated by BibTeX as a .bbl file
+% BibTeX documentation can be easily obtained at:
+% http://www.ctan.org/tex-archive/biblio/bibtex/contrib/doc/
+% The IEEEtran BibTeX style support page is at:
+% http://www.michaelshell.org/tex/ieeetran/bibtex/
+%\bibliographystyle{IEEEtran}
+% argument is your BibTeX string definitions and bibliography database(s)
+%\bibliography{IEEEabrv,../bib/paper}
+%
+% <OR> manually copy in the resultant .bbl file
+% set second argument of \begin to the number of references
+% (used to reserve space for the reference number labels box)
+%\begin{thebibliography}{1}
+
+%\bibitem{IEEEhowto:kopka}
+%H.~Kopka and P.~W. Daly, \emph{A Guide to \LaTeX}, 3rd~ed.\hskip 1em plus
+%  0.5em minus 0.4em\relax Harlow, England: Addison-Wesley, 1999.
+
+%\end{thebibliography}
+
+\bibliographystyle{IEEEtran}
+\bibliography{IEEEtran}
+
+
+
+% biography section
+% 
+% If you have an EPS/PDF photo (graphicx package needed) extra braces are
+% needed around the contents of the optional argument to biography to prevent
+% the LaTeX parser from getting confused when it sees the complicated
+% \includegraphics command within an optional argument. (You could create
+% your own custom macro containing the \includegraphics command to make things
+% simpler here.)
+%\begin{biography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{mshell}}]{Michael Shell}
+% or if you just want to reserve a space for a photo:
+
+%\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{picture}}]{John Doe}
+%\blindtext
+%\end{IEEEbiography}
+
+% You can push biographies down or up by placing
+% a \vfill before or after them. The appropriate
+% use of \vfill depends on what kind of text is
+% on the last page and whether or not the columns
+% are being equalized.
+
+%\vfill
+
+% Can be used to pull up biographies so that the bottom of the last one
+% is flush with the other column.
+%\enlargethispage{-5in}
+
+
+
+% that's all folks
+\end{document}
+
+

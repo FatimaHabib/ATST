@@ -1,0 +1,223 @@
+
+
+Consider a stationary stochastic process , where each  takes values in a finite alphabet  of size . The  (or simply ) of this process is defined as~
+
+where  P_{X^n}(x^n) {P_{X^n}(x^n)} (or ) of the random vector  and  is the joint probability mass function. Since the entropy of a random variable depends only on its distribution, we also refer to the entropy  of a discrete distribution , defined as
+$
+H(P) = ^S p_i {p_i}.
+$
+
+The Shannon entropy rate is the fundamental limit of the expected logarithmic loss when predicting the next symbol, given the all past symbols. It is also the fundamental limit of data compressing for stationary stochastic processes in terms of the average number of bits required to represent each symbol . Estimating the entropy rate of a stochastic process is a fundamental problem in information theory, statistics, and machine learning; and it has diverse applications---see, for example, .
+
+There exists extensive literature on entropy rate estimation. It is known from data compression theory that the normalized codelength of any  code is a consistent estimator for the entropy rate as the number of samples approaches infinity. This observation has inspired a large variety of entropy rate estimators; see  .
+However, most of this work has been in the asymptotic regime . Attention to  analysis has only been more recent, and to date, almost only for i.i.d.. There have been substantial recent advances in probabilistic language models, which have been widely used in applications such as machine translation and search query completion. The entropy rate of (say) the English language represents a fundamental limit on the efficacy of a language model (measured by its ), so it is of great interest to language model researchers to obtain an accurate estimate of the entropy rate as a benchmark. However, since the alphabet size here is exceedingly large, and Google's One Billion Words corpus includes about two million unique words,} it is unrealistic to assume the large-sample asymptotics especially when dealing with combinations of words (bigrams, trigrams, etc). It is therefore of significant practical importance to investigate the optimal entropy rate estimator with limited sample size.
+
+In the context of non-asymptotic analysis for i.i.d. first showed that the Shannon entropy can be consistently estimated with  samples when the alphabet size  approaches infinity. The seminal work of~ showed that when estimating the entropy rate of an i.i.d.The entropy estimators proposed in  and refined in , based on linear programming, have not been shown to achieve the minimax estimation rate. Another estimator proposed by the same authors~ has been shown to achieve the minimax rate in the restrictive regime of .
+Using the idea of best polynomial approximation, the independent work of~ and~ obtained estimators that achieve the minimax mean-square error  for entropy estimation.
+The intuition for the  sample complexity in the independent case can be interpreted as follows: as opposed to estimating the entire distribution which has  parameters and requires  samples, estimating the scalar functional (entropy) can be done with a logarithmic factor reduction of samples. For Markov chains which are characterized by the transition matrix consisting of  free parameters, it is reasonable to expect an  sample complexity. Indeed, we will show that this is correct provided the mixing is not too slow.
+
+Estimating the entropy rate of a Markov chain falls in the general area of property testing and estimation with dependent data. The prior work  provided a non-asymptotic analysis of maximum-likelihood estimation of entropy rate in Markov chains and showed that it is necessary to assume certain assumptions on the mixing time for otherwise the entropy rate is impossible to estimate.
+There has been some progress in related questions of estimating the mixing time from sample path , estimating the transition matrix , and testing symmetric Markov chains . The current paper makes contribution to this growing field. In particular, the main results of this paper are highlighted as follows:
+
+     and shows that when mixing is not too slow, the sample complexity of the empirical entropy does not depend on the mixing time. Precisely, the bias of the empirical entropy rate vanishes uniformly over all Markov chains regardless of mixing time and reversibility as long as the number of samples grows faster than the number of parameters. It is its variance that may explode when the mixing time becomes gigantic.
+    . In particular, we show that when the mixing is neither too fast nor too slow, the sample complexity (up to a constant) does not depend on mixing time. In this regime, the performance of the optimal estimator with  samples is essentially that of the empirical entropy rate with  samples.
+		As opposed to the lower bound for estimating the mixing time in  obtained by applying Le Cam's method to two Markov chains which are statistically indistinguishable, the minimax lower bound in the current paper is much more involved, which, in addition to
+	a series of reductions by means of simulation, relies on constructing two stationary reversible Markov chains with  transition matrices , so that the marginal distributions of the sample paths are statistically indistinguishable.
+				     and concentration inequalities for Markov chains.
+
+    
+    
+
+The rest of the paper is organized as follows. After setting up preliminary definitions in Section~, we summarize our main findings in Section~, with proofs sketched in Section~. Section~ provides empirical results on estimating the entropy rate of the Penn Treebank (PTB) and the Google One Billion Words (1BW) datasets. Detailed proofs and more experiments are deferred to the appendices. 
+
+
+
+
+Consider a first-order Markov chain  on a finite state space  with transition kernel . We denote the entries of  as , that is,  for .
+Let  denote the th row of , which is the conditional law of  given .
+ Throughout the paper, we focus on first-order Markov chains, since any finite-order Markov chain can be converted to a first-order one by extending the state space~.
+
+We say that a Markov chain is  if the distribution of , denoted by , satisfies . 
+We say that a Markov chain is  if
+it  satisfies the detailed balance equations,
+$
+  =  
+i,jIf a Markov chain is reversible, the (left) spectrum of its transition matrix  contains  real eigenvalues, which we denote as . We define the  and the  of  as
+$
+ |$, respectively, 
+and the  of a reversible Markov chain as
+
+
+The relaxation time of a reversible Markov chain (approximately) captures its mixing time, which roughly speaking is the smallest  for which the marginal distribution of  is close to the Markov chain's stationary distribution. We refer to~ for a survey.
+
+We consider the following observation model. We observe a sample path of a stationary finite-state Markov chain , whose Shannon entropy rate  in~() reduces to
+
+where  is the stationary distribution of this Markov chain. Let  be the set of transition matrices of all stationary Markov chains on a state space of size . Let  be the set of transition matrices of all stationary  Markov chains on a state space of size . We define the following class of stationary Markov reversible chains whose relaxation time is at most :
+
+The goal is to characterize the sample complexity of entropy rate estimation as a function of , , and the estimation accuracy.
+
+Note that the entropy rate of a first-order Markov chain can be written as
+
+Given a sample path , let   denote the empirical distribution of states, and the subsequence of  containing elements  any occurrence of the state  as
+$
+^{(i)} = , X_{j-1} = i, j.
+$
+A natural idea to estimate the entropy rate  is to use  to estimate  and an appropriate Shannon entropy estimator to estimate . We define two estimators: 
+
+	: . Note that  computes the Shannon entropy of the empirical distribution of its argument .
+	.
+ 
+
+
+
+
+
+Our first result provides performance guarantees for the empirical entropy rate  and our entropy rate estimator : 
+
+
+
+
+
+Theorem~ shows that when the sample size is not too large, and the mixing is not too slow, it suffices to take  for the estimator  to achieve a vanishing error, and  for the empirical entropy rate. Theorem~ improves over~ in the analysis of the empirical entropy rate in the sense that unlike the error term , our dominating term  does not depend on the mixing time. 
+Note that we have made mixing time assumptions in the upper bound analysis of the empirical entropy rate in Theorem~, which is natural since~ showed that it is necessary to impose mixing time assumptions to provide meaningful statistical guarantees for entropy rate estimation in Markov chains. The following result shows that mixing assumptions are only needed to control the variance of the empirical entropy rate: the bias of the empirical entropy rate vanishes uniformly over all Markov chains regardless of reversibility and mixing time assumptions as long as . 
+
+
+
+Theorem~ implies that if , the bias of the empirical entropy rate estimator universally vanishes for any stationary Markov chains. 
+
+Now we turn to the lower bounds, which show that the scalings in Theorem  are in fact tight. The next result shows that the bias of the empirical entropy rate  is non-vanishing unless , even when the data are independent.
+
+
+
+
+
+The following corollary is immediate.
+
+
+
+
+There exists a universal constant  such that when , the absolute value of the bias of  is bounded away from zero even if the Markov chain is memoryless.
+
+
+
+
+
+
+
+The next theorem presents a minimax lower bound for entropy rate estimation which applies to any estimation scheme regardless of its computational cost. In particular, it shows that  is minimax rate-optimal under mild assumptions on the mixing time. 
+
+
+
+
+
+
+The following corollary, which follows from Theorem~ and~, presents the critical scaling that determines whether consistent estimation of the entropy rate is possible.
+
+If , there exists an estimator  which estimates the entropy rate with a uniformly vanishing error over Markov chains  if and only if .
+
+
+To conclude this section we summarize our result in terms of the sample complexity for estimating the entropy rate within a few bits (), classified according to the relaxation time:
+
+
+	
+	
+	
+	
+
+
+
+
+
+In this section we sketch the proof of Theorems ,  and , and defer the details to the appendix. 
+
+}
+A key step in the analysis of  and  is the idea of simulating a finite-state Markov chain from independent samples~: consider an independent collection of random variables  and  () such that $
+P_{X_0}(i) = P_{W_{in}}(j) = T_{ij}.W_{in}$ set out in the following array:
+
+
+W_{11} &W_{12}& & W_{21} &W_{22}& & W_{S1} &W_{S2}& &
+
+First,  is sampled. If , then the first variable in the th row of the array is sampled, and the result is assigned by definition to . If , then the first variable in the th row is sampled, unless , in which case the second variable is sampled. In any case, the result of the sampling is by definition . The next variable sampled is the first one in row  which has not yet been sampled. This process thus continues. After collecting  from the model, we assume that the last variable sampled from row  is . It can be shown that observing a Markov chain  is equivalent to observing , and consequently .
+
+The main reason to introduce the above framework is to analyze  and  as if the argument  is an i.i.d. vector. Specifically, although  conditioned on  are not i.i.d., they are i.i.d. as  for any  . Hence, using the fact that each  concentrates around  (cf. Definition  and Lemma  for details), we may use the concentration properties of  and  (cf. Lemma ) on i.i.d. data for each   and apply the union bound in the end. 
+
+Based on this alternative view, we have the following theorem, which implies Theorem . 
+
+
+
+}
+By the concavity of entropy, the empirical entropy rate  underestimates the truth  in expectation. On the other hand, the average codelength  of any lossless source code is at least  by Shannon's source coding theorem. As a result, , and we may find a good lossless code to make the RHS small. 
+
+Since the conditional empirical distributions maximizes the likelihood for Markov chains (Lemma~), we have
+
+where  denotes the space of all first-order Markov chains with state . Hence,
+
+
+The following lemma provides a non-asymptotic upper bound on the RHS of~() and completes the proof of Theorem .
+
+Let  denote the space of Markov chains with alphabet size  for each symbol. Then, the worst case minimax redundancy is bounded as
+
+
+
+}
+To prove the lower bound for Markov chains, we first introduce an auxiliary model, namely, the  model and show that the sample complexity of the Markov chain model is lower bounded by that of the independent Poisson model. Then we apply the so-called method of fuzzy hypotheses  (see also ) to prove a lower bound for the independent Poisson model. 
+We introduce the independent Poisson model below, which is parametrized by an  symmetric matrix , an integer  and a parameter .
+
+[Independent Poisson model]
+	Given an  symmetric matrix  with  and a parameter , under the independent Poisson model, we observe , and an  matrix  with independent entries distributed as , where
+	
+
+For each symmetric matrix , by normalizing the rows we can define a transition matrix  of a  Markov chain with stationary distribution . Upon observing the Poisson matrix , the functional to be estimated is the entropy rate  of . Given  and ,  define the following collection of  symmetric matrices:
+
+where . The reduction to independent Poisson model is summarized below: 
+
+	If there exists an estimator  for the Markov chain model with parameter  such that  under any , 
+	then there exists another estimator  for the independent Poisson model with parameter  such that
+	
+	provided , where  is a universal constant. 
+
+
+To prove the lower bound for the independent Poisson model, the goal is to construct two symmetric random matrices (whose distributions serve as the priors), such that 
+(a) they are sufficiently concentrated near the desired parameter space  for properly chosen parameters ;
+(b) their entropy rates are separated;
+	(c) the induced marginal laws of the sufficient statistic  are statistically indistinguishable.
+The prior construction in Definition  satisfies all these three properties (cf. Lemmas , , ), and thereby lead to the following theorem:
+
+
+
+
+In this section, we apply entropy rate estimators to estimate the fundamental limits of language modeling. A language model specifies the joint probability distribution of a sequence of words, . It is common to use a th-order Markov assumption to train these models, using sequences of  words (also known as -grams, sometimes with Latin prefixes , , ), with values of  of up to 5 . 
+A commonly used metric to measure the efficacy of a model  is the  (whose logarithm is called the ): 
+    _Q{Q_{X^n}(X^n)}}.
+If a language is modeled as a stationary and ergodic stochastic process with entropy rate , and  is drawn from the language with true distribution , then 
+      {Q_{X^n}(X^n)} =  _Qwith equality when . In this section, all logarithms are with respect to base  and all entropy are measured in bits.
+
+The entropy rate of the English language is of significant interest to language model researchers: since  is a tight lower bound on perplexity, this quantity indicates how close a given language model is to the optimum. Several researchers have presented estimates in bits per character ; because language models are trained on words, these estimates are not directly relevant to the present task. In one of the earliest papers on this topic, Claude Shannon  gave an estimate of 11.82 bits per word. This latter figure has been comprehensively beaten by recent models; for example,  achieved a perplexity corresponding to a cross-entropy rate of 4.55 bits per word.
+
+To produce an estimate of the entropy rate of English, we used two well-known linguistic corpora: the Penn Treebank (PTB) and Google's One Billion Words (1BW) benchmark. Results based on these corpora are particularly relevant because of their widespread use in training models. We used the conditional approach proposed in this paper with the JVHW estimator describe in Section . The PTB corpus contains about  million words, of which  are unique. The 1BW corpus contains about  million words, of which  million are unique.
+
+
+
+We estimate the conditional entropy  for , and our results are shown in Figure~. The estimated conditional entropy  provides us with a refined analysis of the intrinsic uncertainty in language prediction with context length of only . For 4-grams, using the JVHW estimator on the 1BW corpus, our estimate is 3.46 bits per word. With current state-of-the-art models trained on the 1BW corpus having an cross-entropy rate of about 4.55 bits per word , this indicates that language models are still at least 0.89 bits per word away from the fundamental limit. (Note that since  is decreasing in , .) Similarly, for the much smaller PTB corpus, we estimate an entropy rate of 1.50 bits per word, compared to state-of-the-art models that achieve a cross-entropy rate of about 5.96 bits per word , at least 4.4 bits away from the fundamental limit.
+
+More detailed analysis, e.g., the accuracy of the JVHW estimates, is shown in the Appendix .
+
+
+
+
+        xticklabel style={font=,
+        yticklabel style={font=,
+        xtick={1,2,3,4},
+        xlabel style={font=,
+        ylabel style={font=,
+        ymajorgrids=true,
+        legend style={at={(0.98,0.98),font=,anchor=north east},
+        xlabel={memory length },
+        ylabel={estimated cond.,
+        xmin=0, xmax=7, ymin=0,
+    }
+}
+
+
+
+

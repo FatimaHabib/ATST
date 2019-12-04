@@ -1,0 +1,17 @@
+
+A set of vertices in a graph is  if the subgraph induced by the set has a proper -coloring.
+In this paper, we study the problem of finding a step-by-step transformation (reconfiguration) between two -colorable sets in the same graph.
+This problem generalizes the well-studied  problem.
+As the first step toward a systematic understanding of the complexity of this general problem, we study the problem on classes of perfect graphs.
+We first focus on interval graphs and give a combinatorial characterization of the distance between two -colorable sets.
+This gives a linear-time algorithm for finding an actual shortest reconfiguration sequence for interval graphs.
+Since interval graphs are exactly the graphs that are simultaneously chordal and co-comparability,
+we then complement the positive result by showing that even deciding reachability is PSPACE-complete
+for chordal graphs and for co-comparability graphs.
+The hardness for chordal graphs holds even for split graphs.
+We also consider the case where  is a fixed constant
+and show that in such a case the reachability problem is polynomial-time solvable for split graphs
+but still PSPACE-complete for co-comparability graphs.
+The complexity of this case for chordal graphs remains unsettled.
+As by-products, our positive results give the first polynomial-time solvable cases (split graphs and interval graphs)
+for .

@@ -1,0 +1,743 @@
+\documentclass{llncs}
+%\documentclass[sigconf]{acmart}
+
+\usepackage{multirow}
+%\usepackage[caption=false]{subfig}
+\usepackage{subcaption}
+\captionsetup{compatibility=false}
+%\usepackage[numbers,sectionbib]{natbib}
+\usepackage{comment}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{float}
+\usepackage{pifont}
+\usepackage{soul}
+\usepackage{adjustbox}
+%\usepackage{multirow}
+%\usepackage{arabtex}
+%\usepackage{tabularx}
+%\usepackage{utf8}
+%\usepackage{pifont}% http://ctan.org/pkg/pifont
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ML 8/7/16: citation formatting 
+%\usepackage[numbers]{natbib} % numbered citations
+%\usepackage[round]{natbib} 
+
+
+%\newcommand\citeName[1]{\citeauthor{#1}~\shortcite{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% SILENCE STUPID WARNINGS so can verify always a warning free compilation!
+\usepackage{silence}
+\WarningFilter{latex}{Marginpar on page}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ML editting/comments
+
+% Highlight: \hl
+% Strike-through: \st
+% Addition: \add
+% Replace: \replace
+%
+% After fixing everything you see visually in the 
+% formatted document, search for these commands to
+% make sure you didn't miss any
+%
+% \add for easy way to add red text
+\usepackage{xcolor}
+\newcommand\add[1]{{\textcolor{red}{#1}}}
+
+% strike-through
+\usepackage{soul}  
+\setstcolor{red} 
+
+% \replace combines \st and \add
+\newcommand\replace[2]{\st{#1}\add{~#2}}
+
+% margin notes - ACM doesn't work with
+%\usepackage[textsize=tiny,backgroundcolor=green]{todonotes}
+%\setlength{\marginparwidth}{1.5cm} % position
+% use \todo[inline] for figures and footnotes, etc.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% see http://tex.stackexchange.com/questions/31091/space-after-latex-commands
+\newcommand\ml[1]{[\hl{{\bf ML}: #1}]}
+\newcommand\mk[1]{[\hl{{\bf MK}: #1}]}
+
+\newcommand\Mark[1]{\textsuperscript#1}
+
+\urldef{\mailsa}\path|mucahidkutlu@qu.edu.qa| 
+\urldef{\mailsb}\path| vivek.khetank@utexas.edu|
+\urldef{\mailsc}\path|ml@utexas.edu| 
+
+
+
+\def\sharedaffiliation{%
+\end{tabular}
+\begin{tabular}{c}}
+  
+\begin{document}
+
+
+\title{Correlation and Prediction of  Evaluation Metrics in Information Retrieval}
+
+\author{Mucahid Kutlu\inst{1}, Vivek Khetan\inst{2}, Matthew Lease\inst{2}}
+
+\institute{Computer Science and Engineering Department, Qatar University, Doha, Qatar\\
+\and School of Information, University of Texas at Austin, USA\\
+\mailsa, \mailsb, \mailsc}
+%\author{}
+
+
+
+%Effectiveness of information retrieval systems are evaluated using several performance measures. 
+% MK removed this sentence 12/05/17
+%Researchers are also proposing newer performance measures to report various intricacies of the IR system.
+%These evaluation measures are designed to address several aspects of IR system depending on the information needs.  The open source program trec\_eval 9.0 can compute up to 135 different measures%\cite{baccini2012many} 
+%given the results file and a standard set of judged results. The motivation of this paper is to study the correlation between a subset of highly reported metrics and measure the extent of interdependence between them. In this paper, we  are proposing the novel idea to explore the prediction of these highly reported metrics. 
+%Therefore, suggesting a similarly informative and smaller set of reportable evaluation measures.
+
+%\begin{itemize}
+%\item Probable TITLE: 
+%\item A study of selection  criteria for evaluation measure
+%\item Predicting IT system performance measure
+%\item IR System performance measure: Calculate or Predict
+%\item The philosophy of performance measure selection
+%\item Correlation and prediction of Performance Measures
+%\item Evaluating Performance Measure prediction
+%\end{itemize}
+
+
+
+
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{abstract}
+
+Because researchers typically do not have the time or space to present more than a few evaluation metrics in any published study, it can be difficult to assess relative effectiveness of prior methods for unreported metrics when baselining a new method or conducting a systematic meta-review. While sharing of study data would help alleviate this, recent attempts to encourage consistent sharing have been largely unsuccessful. Instead, we propose to enable relative comparisons with prior work across arbitrary metrics by predicting unreported metrics given one or more reported metrics. In addition, we further investigate prediction of high-cost evaluation measures using low-cost measures as a potential strategy for reducing evaluation cost. We begin by assessing the correlation between 23 IR metrics using 8 TREC test collections. Measuring prediction error {\em wrt.} $R^2$ and Kendall's $\tau$, we show that accurate prediction of MAP, P@10, and RBP can be achieved using only 2-3 other metrics. With regard to lowering evaluation cost, we show that RBP(p=0.95) can be predicted with high accuracy using measures with only evaluation depth of 30.
+%We also report on Kendall's $\tau$ rank correlation achieved in IR system evaluation based on predicted metrics. After first presenting and discussing correlation between metrics, we then show varying success in metric prediction. 
+Taken together, our findings provide a valuable proof-of-concept which we expect to spur follow-on work by others in proposing more sophisticated models for metric prediction.
+\end{abstract}
+
+\keywords{Information Retrieval; Evaluation; Metrics; Prediction}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+\label{section:introduction}
+
+%Just as one can determine the age of a tree by counting its rings, one might try to date the information retrieval (IR) field by counting all of the many evaluation metrics that have been proposed over the years (spoiler: there are more metrics than years). 
+%Because search can be used in many different contexts to meet many different types of information needs, we have created a large body of evaluation metrics to capture different aspects of IR system performance. 
+To assess an IR system's effectiveness for different  search scenarios, researchers have proposed a wide variety of evaluation metrics, each providing a different view of system effectiveness~\cite{aslam2005maximum}.  
+%systems can be evaluated from many aspects such as retrieving relevant documents in the first N results by minimizing the number of irrelevant ones, finding all relevant documents. 
+%Evaluation metrics can be categorized as simple and complex metrics, where simple metrics  have high entropy and information~\cite{aslam2005maximum}, whereas complex metrics have high stability and discriminative features~\cite{buckley2005retrieval}. 
+For example, while \emph{precision@10} (P@10) and \emph{reciprocal rank} (RR) are often used to evaluate the quality of the top search results, \emph{mean average precision} (MAP) and \emph{rank-biased precision} (RBP)~\cite{moffat2008rank} are often used to quality of search results at greater depth.
+
+%While many more metrics have been proposed over the years than anyone could reasonably recall, even 
+Popular evaluation tools such as {\tt trec\_eval}\footnote{\url{trec.nist.gov/trec_eval/}}  compute many more evaluation metrics than IR researchers typically have time or space to analyze and report. Even for the most knowledgeable and diligent researcher, it is challenging to decide which small subset of metrics should be reported to best characterize a given IR system's performance. Of course, presenting only a few metrics cannot fully characterize system performance. Information is thus lost in publication, and some interested reader will be disappointed to find a particular desired metric missing, especially when trying to baseline a new method for a given metric, or when conducting a meta-review comparison of prior work.
+
+To compute a different metric of interest, one strategy is to try to reproduce prior work. However, this is often difficult (and sometimes impossible) in practice, as the written description of a method is often incomplete and even shared sourcecode can be difficult or impossible for others to run, especially as compilers, programming languages, and operating systems change. Another strategy is to share system outputs, enabling others to compute any metric of interest for those outputs. While Armstrong et al.~\cite{armstrong2009improvements} proposed and deployed  a central repository\footnote{\url{www.evaluatIR.org}} to store IR system runs, their proposal did not achieve broad buy-in from IR researchers and was ultimately abandoned. Realistically, it seems such broad buy-in is unlikely unless eventually mandated by research funding agencies. A similar situation exists in the field of biomedical literature mining \cite{hirschman2002accomplishments,de2002literature}, where lack of shared data has generated a large body of research in mining published papers to infer additional information. With published papers being the most standard and enduring record of research studies, the capacity to predict an arbitrary metric of interest given only one or more other metric scores, easily obtained from published studies, could be quite valuable in practice.
+
+% As has been lamented there \cite{bairoch2009future}:
+% \begin{quotation}
+% It is quite depressive to think that we are spending millions in grants for people to perform experiments, produce new knowledge, hide this knowledge in a often badly written text and then spend some more millions trying to second guess what the authors really did and found.
+% \end{quotation}
+% Nonetheless, this largely continues to be the state of affairs today, with much work on literature mining. Our task is relatively easier since we simply wish to predict unreported evaluation metrics from reported ones.
+
+%\footnote{Personal communication with Alistair Moffat} 
+% Therefore, it would be very useful if we could simply plug in whatever metric scores are reported and predict any other arbitrary metric with some reported confidence interval. Having such a predictor would allow us to compare prior work based on unreported measures.
+%Moreover, wouldn't it be nice if one could simply plug in whatever metric scores are reported and predict any other arbitrary metric with some reported confidence interval?
+
+Another potential application of such prediction could be to decrease the massive cost of evaluation by enabling prediction of high-cost measures using low-cost measures. That is, instead of collecting many relevance judgments to calculate a particular high-cost measure (e.g. MAP@1000), we would rather collect fewer judgments,  calculate any number of low-cost measures (e.g. P@10, MAP@10, nDCG@10) and predict a high-cost measure of interest. 
+%This can enable us to decrease the pool depth and still calculate measures requiring larger pools.
+
+
+%Therefore researchers report IR systems' effectiveness with varying evaluation measures. This makes it difficult to make fair comparisons between IR systems if different evaluation metrics are reported for each. We may have to re-run those IR systems and re-generate results, which may be problematic especially when executables are not available. Therefore, it is essential to be able to make fair comparisons between systems by just using evaluation measures reported by their authors.
+
+%Each metric provides different information about systems' effectiveness~\cite{aslam2005maximum}.
+%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%There is a lot of inconsistencies between these metrics \cite{webber2008precision} and each metric provide varied amount of  information \cite{aslam2005maximum}. 
+%It is not easy to decide one or two evaluation metrics that can represent search engine performance as well as users satisfaction\cite{webber2008precision}. One reason of this indeterminate situation is varied user information needs\cite{turpin2006user}. In some scenario user wants to find few relevant document to his/her query(precision oriented tasks), whereas in some other scenario user wants to find the relevant document as well as some facts to his/her query(question-answering task)\cite{turpin2006user}. 
+%Therefore, in general practice the choice of evaluation measure to evaluate information retrieval system depends on search scenario. 
+%But most of the IR systems are evaluated based on a set of highly reported performance metric. It consist of MAP, RR, NDCG, P@10, P@100, GmMAP, infAp, Rprec and bpref. 
+
+%It is not clear how these metrics are related and if we can predict one evaluation measure from another. In this paper, we demonstrate that it is possible to predict one evaluation measure from another provided they are highly correlated. This will also help in deciding what metric will provide maximum information if we can evaluate information retrieval system on few measures. 
+
+To address this challenge, we first investigate the correlation between a wide range of evaluation metrics. Using runs submitted to 8 TREC tracks, we compute  23 evaluation measures for every track, system, and topic in order to assemble a large database of paired metric scores. We then calculate Pearson correlation between each evaluation measure pairs. In our extensive experiments, we find out that many metrics are strongly correlated (i.e., $\rho>0.9$) such as:
+\begin{itemize}
+\item \emph{average precision} (AP),  \emph{R-Precision} (R-Prec), and bpref
+\item RBP(p=0.5) and RR 
+\item RBP(p=0.95), RBP(p=0.8), P@10 and P@20
+\item nDCG@20 and RBP(0.8).
+\end{itemize}
+%
+%nDCG@20 \& RBP(p=0.8), P@10 \& RBP(p=0.8), P@20 \& RBP(p=0.95).
+%This  showed  that MAP (or simply AP in topic-wise correlation), RPrec, bpref, and \emph{geometric mean average precision} (GMAP) are highly correlated. 
+%
+Following this, we report use of linear regression to predict one  metric given 1-3 other metrics. We explore prediction of 12 measures and evaluate our prediction model on 3 test collections. Results show we can accurately predict:
+\begin{itemize}
+\item MAP given nDCG and R-Prec
+\item P@10 given RBP(p=0.5)  and RBP(p=0.8)
+\item RBP(p=0.5) given RR and RBP(0.8)
+\item RBP(p=0.8) given P@10, RBP(p=0.5) and RBP(p=0.95)
+\end{itemize}
+%
+%AP, RPrec and   GMAP scores accurately using a strongly correlated evaluated metric, such as bpref. 
+Therefore, if a system's performance is reported  with these measures, we can still reliably predict its performance on the respective measure. 
+
+Finally, we investigate prediction of high-cost measures using low-cost measures. We show we can accurately predict  RBP(p=0.95) at evaluation depth of 1000 and 100 given  measures computed at depth 30, which shows the promise of this strategy for lowering evaluation cost.
+
+Contributions of our work include:
+\begin{itemize}
+\item We analyze correlation between 23 metrics, using more recent collections than prior work. This includes \emph{expected reciprocal rank} (ERR) and RBP using graded relevance judgments, whereas relevant prior work used only binary relevance judgments for these metrics.
+%have never been studied by prior work using graded relevance judgments while we use graded relevance judgments in our investigation.
+
+\item We show that accurate prediction of metrics can be achieved  using only 2-3 other metrics. Further improvements can be expected using more sophisticated prediction models and larger training data.
+
+\item We show that our prediction model can also be used to decrease the cost of evaluation by predicting  high-cost measures using low-cost measures. 
+\end{itemize}
+
+
+%The remainder of this paper is organized as follows. 
+Section~\ref{section:related-work} discusses the prior  work. Section~\ref{section:data} describes the data used in our experiments.
+%discuss about how the data was obtained and what data was used in the study and the methods we used for computing the correlation between pairs of evaluation metric. 
+Section~\ref{section:correlation}  and~\ref{section:prediction} present correlation and prediction of  evaluation metrics, respectively. Finally, we conclude in Section~\ref{section:conclusion}.
+%we have discussed about the results we obtained and what it implies. Finally, the conclusion section suggests the outcome of the study and discuss about the limitation of study and ways to extend this work in future. 
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Related Work}
+\label{section:related-work}
+
+%Corresponding to the scenario, IR system performances are measured by many different set of evaluation metrics. Many of these metrics are highly correlated to each other and researchers has also explored this domain and have tried to obtain information this correlation implicitly provides. But, none of them talk about the possibility of predicting one evaluation measure from another. 
+In order to  better understand similarity between evaluation metrics, several studies have investigated correlation between  them.
+
+Tague-Sutcliffe and Blustein~\cite{sutcliffe95} investigate correlation between 7 measures on TREC-3 data and show that R-Prec and AP are strongly correlated. This high correlation between R-Prec and MAP is also confirmed by Buckley and Voorhees~\cite{buckley2005retrieval} using Kendall's $\tau$ on TREC-7. %Aslam et al.\cite{aslam2005geometric} investigate why RPrec and AP are strongly correlated.
+%Webber et al.~\cite{webber2008precision} 
+%recommend that reporting simple metrics such as P@10 with complex metrics such as MAP and DCG is redundant. 
+Baccini et al.~\cite{baccini2012many} measure correlations between 130 measures calculated by {\tt trec\_eval} using data from the TREC-(2-8) ad hoc task and group them into 7 clusters based on correlation.  Sakai~\cite{sakai2007reliability} compares 14 graded-level and 10 binary level metrics  using three different data sets from NTCIR. In another work~\cite{sakai2007properties}, Sakai studies correlation between P($^+$)-measure, O-measure, normalized weighted reciprocal rank and RR, and concludes that %RR does not have strong correlation with others while 
+they are highly correlated each other except RR. Egghe~\cite{Egghe2008856} investigates the correlation between precision, recall, fallout and miss.  Ishioka~\cite{ishioka2003evaluation} explores relation between  F-measure, break-even point, and 11-point averaged precision. 
+Thom et al.~\cite{thom2007comparison} also studies correlation between 5 evaluation measures using TREC Terabyte Track 2006.
+None of these works cover ERR and RBP; we investigate correlation of 23 measures including ERR and RBP.
+
+
+Jones et al.~\cite{jones2015features} examine disagreement between 14 evaluation metrics including ERR and RBP  using TREC-(4-8) ad hoc tasks, and  TREC Robust 2005 and 2006 tracks. However, they use only binary relevance judgments in their analysis, which makes ERR identical to RR, whereas we consider graded relevance judgments. % None of the prior works mentioned above uses web search collections. 
+In addition, the most recent test collections used in this related prior work is TREC Robust Track 2006 and Terabyte Track 2006. In contrast, we consider more recent TREC test collections (i.e. Web Tracks 2010-2014).
+
+A primary contribution of our work is investigating prediction of evaluation measures. While Aslam et al.~\cite{aslam2005geometric} also proposes predicting evaluation measures, they require a corresponding retrieved ranked list as well as another evaluation metric. They conclude that they can infer accurately user-oriented measures (e.g.\ P@10) from system-oriented measures (e.g.\ AP, R-Prec). In contrast, we predict evaluation measure of a system given only other evaluation measures  without requiring the corresponding ranked lists. 
+
+%test collections that prior work hasn't used such as TREC-9 Web Track, TREC-8 Spoken Document Retrieval Track. 
+%In addition to correlation, we focus on prediction of one evaluation metric using others, which has never been done by any prior work.
+
+
+%paraphrease: Buckley and Voorhees~\cite{buckley2005retrieval} calculate the pairwise correlations between 7 measures using the Kendall coefficient on TREC7. They show that the correlations are greater than 0.6 and that the highest correlation is between R-Precision and MAP.
+
+
+%from bagai
+%paraphrase: Egghe~\cite{Egghe2008856} studies the correlation between precision, recall, fallout and miss.
+
+%has done work of clustering all the 130 measures calculated by trec\_eval software and creating a subset of most useful metrics based on the homogeneous clusters of them. They studied the correlation between performance measures using Pearson correlation plot (Euclidean distance) and Hierarchical clustering. 
+
+%how simple and complex evaluation metrics provides the similar or better performance measure of IR systems. Therefore, they suggested that simple evaluation metrics like P@10 is redundant.
+%%%
+%Tague-Sutcliffe and Blustein [34] show that R-precision and average precision are strongly correlated when considering TREC3 ad hoc data; this has been confirmed, for example, in [36]. Aslam et al. [3] study further these two measures and shows, using TREC8 ad hoc, that this strong correlation is possibly related to the fact that two measures geometrically approximate the surface which is located below the recall-precision curve.
+%Sakai [30] compares measures based on Boolean document relevance and measures based on graduated relevance; he shows that recall based on a graduated relevance is strongly correlated with average precision
+%%%
+
+%Timothy et al.~\cite{jones2015features} explain the disagreement between a pair of highly correlated evaluation metrics in terms of task features. The author also analyses the effect of change in discount factor on the performance of evaluation metric.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MK: not related to our work
+%While Aslam et al.~\cite{aslam2005maximum} talks about varied information and reliability of different IR evaluation metric in terms of their entropy. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MK I don't think that this work is related to our work
+%Yilmaz et al.~\cite{yilmaz2010choice} has worked on choice of evaluation measure for IR systems. The author discusses how some evaluation metrics are more informative than others~\cite{aslam2005maximum} and therefore the choice of evaluation metric can be a bottleneck in optimizing the IR system. They suggest that optimizing the retrieval system on a more informative metric may also optimize the system for a metric that evaluates the user satisfaction. They have advised that new research should be in the development of more informative evaluation measures. 
+
+%These earlier studies are based on dataset from TREC, NTCIR and a subset of most reported evaluation metrics. The earlier works mostly discuss about effectiveness, choice and number of evaluation metric needed to evaluate IR system. But, none of them talks about prediction of one evaluation metric using others. We have used a subset of most reported evaluation metrics to study the correlation between them but we have also tried the idea of predicting one evaluation measure using others. 
+
+\section{Experimental Data}\label{section:data}
+In order to investigate correlation and prediction of evaluation measures, we used the submitted runs and relevance judgments of Web Tracks (WT) of TREC-2000, 2010-2014 and Robust Track (RT) of TREC-2004. We consider only {\em ad hoc} retrieval. \textbf{Table~\ref{data}} lists the test collections used in our study. 
+
+\begin{table}[H]
+\centering
+\caption{TREC Test Collections Used in Our Study.}
+\begin{tabular}{|c|p{4cm}|c|p{1.5cm}|}
+\hline
+      \bf Test Collection           		  & \bf Document Collection & \bf \# Systems & \bf Topics \\ \hline \hline
+WT2000~\cite{hawking2000overview}		 &	WT10g		&    105   	&  451-500\\ \hline
+WT2001~\cite{voorhees2001overview}      &	WT10g		&  97     	& 501-550 \\ \hline
+RT2004~\cite{voorhees2004overview}   &	TREC disks 4\&5, minus the Congressional Record		&     110  	&  301-450, 601-700\\ \hline
+WT2010~\cite{trec2010}      & ClueWeb'09		&  55     	& 51-99 \\ \hline
+WT2011~\cite{trec2011}     &	ClueWeb'09		&  62     	& 101-150 \\ \hline
+WT2012~\cite{trec2012}      &	ClueWeb'09		&  48     	& 151-200 \\ \hline
+WT2013~\cite{trec2013}      &	ClueWeb'12		&  59     	& 201-250 \\ \hline
+WT2014~\cite{trec2014}      &	ClueWeb'12		&  30     	& 251-300 \\ \hline
+\end{tabular}
+\label{data}
+\end{table}
+
+
+Using the system runs submitted to these selected TREC tracks and their respective relevance judgments, we calculated 9 different evaluation metrics, including AP,  bpref~\cite{buckley2004retrieval}, ERR~\cite{chapelle2009expected}, nDCG, P@K,  RBP~\cite{moffat2008rank}, \emph{recall} (R), RR~\cite{voorhees1999trec}, and R-Prec. 
+We used various cut-off thresholds for the metrics. The cut-off threshold for a particular metric is shown by "@" sign followed by the threshold value (e.g. P@10, R@100). Unless stated, we set the cut-off threshold to 1000, which is {\tt trec\_eval}'s default.
+The cut-off threshold for ERR is set to 20 because it has been used as one of the official measures in WT2014. 
+RBP  uses a parameter, called \emph{p}, representing the probability of a user desiring to see the next retrieved page. %That is, higher $p$ value means that the users are more likely to see pages retrieved at lower ranks, requiring deeper evaluation.
+In our calculations, we test  0.5, 0.8 and 0.95 for the $p$ parameter, which are also the $p$ values explored by Moffat and Zobel~\cite{moffat2008rank}. Using these metrics, we generated two datasets:
+
+\begin{itemize}
+\item \textbf{Topic-Wise (TW) Dataset:} We calculated each metric mentioned above for each system for each separate topic. We used 10, 20, 100 and 1000 cut-off thresholds for AP, nDCG, P@K and R@K. In total, we calculated 23 evaluation measures. 
+
+\item \textbf{System-Wise (SW) Dataset:} We calculated each metric mentioned above for each system, averaging over all topics in the corresponding test collection. For AP score, in addition to MAP, we also calculated \emph{GMAP} (i.e.\ geometric mean of AP). 
+%While this is closer to how IR metrics are typically reported (i.e., as averages across topics), this averaging loses some important variability in metrics that the TW dataset usefully captures.   
+\end{itemize}
+
+In order to calculate RBP and ERR, we used the RBP implementation provided by its authors\footnote{http://people.eng.unimelb.edu.au/ammoffat/rbp\_eval-0.2.tar.gz} and the ERR implementation\footnote{https://github.com/trec-web/trec-web-2014} provided by TREC. For the rest of the performance measures, we used {\tt trec\_eval 9.0}. As in any large dataset, various runs had missing data that resulted in only a subset of evaluation measures being computed. In such cases, we filtered out any such suspicious null or zero values. We also detected runs that have identical ranked lists in WT2013 and WT2014 test collections and filtered out identical submissions. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Correlation of Measures}\label{section:correlation}
+ We studied the correlation of measures using the TW dataset instead of the SW dataset to avoid losing any information by averaging scores across topics. In particular, we  calculated Pearson correlation between measures across different topics using system runs in all test collections mentioned in Table~\ref{data}. 
+The  correlation results are shown in \textbf{Figure~\ref{topic_wise_heatmap}}.
+
+\begin{figure}[h]
+%\vspace{-18pt}
+\centerline{\includegraphics[width=1\textwidth]{heatmap_pearson_query_wise.png}} 
+\caption{Pearson Correlation between Metrics} 
+\label{topic_wise_heatmap}
+%\vspace{-18pt}
+\end{figure}
+
+There are several observations we can make from these results. First, R-Prec has high correlation with bpref, MAP and nDCG@100, confirming prior work's findings that MAP and R-Prec are highly correlated~\cite{sutcliffe95,buckley2005retrieval,aslam2005geometric}. Second, RR is strongly correlated  with RBP(p=0.5) and its correlation with RBP measures decreases as the $p$ parameter of RBP increases. This is because as $p$ increases, RBP becomes more of a deep-rank metric while RR metric ignores the documents ranked after the first relevant document. %Third, AP  scores at different cut-offs are generally highly correlated. 
+%Interestingly, AP scores have very low correlation with P@100 and P@1000, in contrast, high correlation with R@10 and R@20. 
+Third, nDCG@20, which is used as one of the official metrics of WT2014, is  highly correlated with RBP(p=0.8). This finding indirectly verifies that nDCG@20 is an appropriate measure for web search tasks, connecting with Park and Zhang's~\cite{park2007distribution} suggestion that p=0.78 is an appropriate  value of RBP for modeling behaviour of web users. 
+%Talk about rbp-8 was used as metric for web collections
+Fourth, nDCG is highly correlated with MAP and R-Prec and its correlation with R@K consistently increases as $K$ increases. 
+Fifth, %RBP measures with different  $p$ parameters are generally highly correlated. Surprisingly, 
+ most correlated  with RBP(p=0.8) and RBP(p=0.95) are P@10 ($\rho=0.97$) and P@20 ($\rho=0.98$), respectively. 
+Sixth, Sakai and  Kando~\cite{Sakai2008} report that RBP(p=0.5) basically ignores relevant documents ranked lower than 10. Our results are consistent with this finding such that the maximum Pearson correlation between RBP(p=0.5) and  nDCG@K is obtained when K=10, and this correlation decreases as K increases.
+Finally, among all measures, P@1000 is the least correlated one with others, suggesting that it captures an    effectiveness measure of IR systems that no other metric does.
+
+
+
+\section{Prediction of  Metrics}\label{section:prediction}
+In this section, we  describe our prediction model and experimental setup,  and report results of experiments we conducted to investigate prediction of evaluation measures. 
+
+\subsection{Prediction Model \& Experimental Setup}\label{sec_model}
+One key goal of our work is to predict a system's missing evaluation measure using reported ones. Thus,
+we build a linear regression model  using only evaluation measures  of systems as features.  We use the SW dataset in our experiments for prediction because studies generally report their average performance over a set of topics, instead of reporting their performance for each topic.
+We use data extracted from WT2000, WT2001, RT2004, WT2010 and WT2011 as the training dataset. WT2012, WT2013 and WT2014 are used to evaluate our prediction model. In order to evaluate the prediction accuracy, we report $R^2$ and  Kendall's $\tau$ correlation. %We also measure RMSE but do not report due to space limitation.
+%. In evaluation IR, we are also interested in the ranking of systems. Therefore, we also report  Kendall's $\tau$ correlation between ranking of systems based on actual performance and of based on predicted performance.
+
+ 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{comment}
+\begin{table}
+\centering
+\begin{tabular}{|l|c|c|c|c|c|c|c|c|c|c|c|}
+\hline
+&\multicolumn{7}{|c|}{\bf Dependent\ Variables} & \multicolumn{2}{c|}{\bf AP} &  \multicolumn{2}{c|}{\bf NDCG} \\ \hline
+\bf Row&  \bf AP & \bf NDCG & \bf RPrec & \bf R@100 &\bf bpref & \bf RR & \bf P@10 & \bf RMSE & \bf $R^2$ & \bf RMSE & \bf $R^2$\\ \hline
+1 & \ding{108} &  & & & & & & - & - & \bf 0.112	  & \bf 0.679	\\ \hline
+2 & & \ding{108} & & & & & & 0.076 & 0.602 & -  & -	\\ \hline
+3 & &  & \ding{108} & & & & & 0.052 & 	0.809  &   0.123 &	0.614	\\ \hline
+4 & &  &  & \ding{108} & & & &  0.086	& 0.482 &   0.157	&	0.373 	\\ \hline
+5 & &  &  & & \ding{108} & & &  0.155 &	-0.676  &   0.180 &	0.173 	\\ \hline
+6 & &  &  & & & \ding{108} & &  0.132 &	-0.217  &   0.202 &	-0.045 	\\ \hline
+7 & &  &  & & & & \ding{108} &  0.141 &	-0.383  &   0.209	& -0.117	\\ \hline
+8 & & \ding{108}  & \ding{108} & & & &  &  0.047 &	0.848  &   - &	- 	\\ \hline
+9 & \ding{108} &   & \ding{108} & & & &  &  - &	-  &   0.115&	0.665 	\\ \hline
+10 &  &   & \ding{108} &\ding{108} &  & &   &  0.048&	0.841	  &  0.118 &	0.642	 	\\ \hline
+11 &  &   & \ding{108} & \ding{108} & \ding{108}  & &  &   0.066 &	0.697	  &  \bf  0.112	& \bf 0.679	 	\\ \hline
+
+12 &  &   & \ding{108} & \ding{108} & \ding{108} & \ding{108} &  &  0.066 &	0.699	  &   0.115 &	0.661	 	\\ \hline
+
+13 &  &   & \ding{108} & \ding{108} &\ding{108}  &  \ding{108}&\ding{108}  &   0.066 & 0.695	  &   0.119	& 0.636 	\\ \hline
+14 &  & \ding{108}  & \ding{108} & \ding{108} &  &  &  & \bf 0.044	& \bf 0.865	  &   -	& -	\\ \hline
+15 & \ding{108} &   & \ding{108} & \ding{108} & \ding{108}  &  &  & -	& -  &   0.114 & 0.669	\\ \hline
+
+%1&\ding{108}&  &\ding{108}&\ding{108}&\ding{108}&\ding{108}& \ding{108}& 0.867 \\ \hline
+%2&\ding{108}&  &\ding{108}&\ding{108}&\ding{108}& \ding{108}& & 0.851 \\ \hline
+%3&\ding{108}&  &\ding{108}&\ding{108}&\ding{108}& & & 0.85 \\ \hline
+
+\end{tabular}
+\vspace{1em}
+\caption{Topic-wise Prediction}
+\label{trec892_query}
+\end{table}
+\end{comment}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Prediction Using Varying Number of Measures}\label{section_predict_with_k_measures}
+
+In this section, we explore the best predictors for 12  evaluation measures including  R-Prec, bpref, RR, ERR@20, MAP, GMAP, nDCG, P@10, R@100, RBP(0.5), RBP(0.8) and RBP(0.95).  Researchers can report different combinations of evaluation measures, yielding a huge number of cases we might consider. In order to reduce our search space, we investigate which $N$ evaluation measure(s) are the best predictors for a particular measure and vary N from 1 to 3. Specifically, in prediction of a particular measure, we try all combinations of size $N$ using the remaining 11 evaluation measures on WT2012 and pick the one that yields the best Kendall's $\tau$ correlation. Then, the selected combination of measures are used for predicting the respective measure on WT2013 and WT2014. The experimental results are shown in  \textbf{Table~\ref{system_3_labels}}.  Kendall's $\tau$ scores higher than 0.9 (a traditionally-accepted threshold for an acceptable correlation~\cite{voorhees2000variations}) are bolded. 
+\begin{comment}
+
+\end{}
+\begin{table}[H]
+\centering
+\begin{tabular}{|p{1.7cm}|p{2.2cm}|p{1.9cm}|p{0.9cm}|c|p{0.9cm}|c|p{0.9cm}|c|}  \hline
+ \multirow{2}{1.8cm}{\bf Predicted Metric} & \multirow{2}{2cm}{\bf Dependent Variables} & \multirow{2}{2cm}{\bf Coefficients}  & \multicolumn{2}{c|} {\bf WT2012}  &  \multicolumn{2}{c|} {\bf WT2013}  & \multicolumn{2}{c|}{\bf WT2014} \\ \cline{4-9}
+ & & & $\tau$ & RMSE & $\tau$ 	& RMSE & $\tau$ & RMSE \\ \hline \hline
+ R-Prec	& R@100	& 0.592 &	0.899&	0.025&	0.871&	0.027	&\bf 0.935&	0.066\\ \hline
+ bpref	& nDCG 		&	0.475	&0.805	&0.070&	0.885	&0.073&\bf 	0.915&	0.132	\\ \hline
+ RR		& RBP(0.5) &1.117&	0.782&	0.033&	0.806	&0.026&	0.810&	0.035	 \\ \hline
+ ERR		& RR		&0.182&	0.764&	0.119	&0.734&	0.024	&0.704&	0.056\\ \hline
+ MAP 	& R-Prec		&	1.010&	0.885	&0.023	&0.824	&0.023&	\bf 0.952	&0.028 \\ \hline
+ GMAP 	& bpref	&		0.622&	0.729&	0.044	&0.704	&0.055&	0.739&	0.069 \\ \hline
+ nDCG 	& bpref		&1.493&	0.805	&0.133	&0.885	&0.132&	\bf 0.915&	0.195	\\ \hline
+ P@10 	& RBP(0.8)&0.946&	0.884	&0.022	&0.832	&0.022	&0.866&	0.028	\\ \hline
+ R@100 	& R-Prec		&1.428	&0.899	&0.046&	0.871	&0.052&	\bf 0.935	&0.102 \\ \hline
+ RBP(0.5)  & RR		&0.866&	0.782&	0.029	&0.806	&0.022&	0.810&	0.034\\ \hline
+ RBP(0.8)  & P@10		&1.046&	0.884	&0.023	&0.832&	0.023&	0.866&	0.028 	\\ \hline
+ RBP(0.95) & R-Prec	& 0.932	&0.824	&0.055&	0.651	&0.067&	0.607&	0.151\\ \hline
+\end{tabular}
+\caption{System-wise Prediction Using One Metric (N=1)}
+\label{system_1_label}
+\end{table}
+
+\end{comment}
+\begin{comment}
+\begin{table}[H]
+\centering
+\begin{tabular}{|p{1.75cm}|p{2cm}|p{0.9cm}|c|p{0.9cm}|c|p{0.9cm}|c||c|c|}  \hline
+ \bf Dependent Variable & \bf Independent Variables  & \multicolumn{2}{c|} {\bf WT2012}  &  \multicolumn{2}{c|} {\bf WT2013}  & \multicolumn{2}{c||}{\bf WT2014}  & \multicolumn{2}{p{2cm}|}{\bf Coefficients \& intercept} \\ \hline
+ \multicolumn{1}{|c|}{y}	& 	 \multicolumn{1}{|c|}{$x_1$}	& $\tau$& $R^2$ & $\tau$& $R^2$ & $\tau$ 	& $R^2$  &  $c_1$ & $m$   \\ \hline \hline
+ R-Prec		& R@100			&0.899	&0.708	& 0.871	&0.624	&\bf 0.935	&	0.019 & 0.592 \\ \hline
+ bpref		& nDCG 			&0.805	&-0.693	& 0.885	&0.079	&\bf 0.915	&	-1.174 & 0.475	\\ \hline
+ RR			& RBP(0.5) 		&0.782	&0.904	& 0.806	&0.927	&	0.810	&	0.878	&1.117 \\ \hline
+ ERR		& RR			&0.764	&-1.874	&0.734	&0.293	&0.704		&	-1.004 &0.182 \\ \hline
+ MAP 		& R-Prec		&0.885	&0.754	&0.824	&0.667	&\bf 0.952	&0.819 &1.010\\ \hline
+ GMAP 		& bpref			&0.729	&-1.216	&0.704	&-2.982	&	0.739	&	-1.034 &0.622 \\ \hline
+ nDCG 		& bpref			&0.805	&-2.101	&0.885	&-0.217	&\bf 0.915	&	-2.008	&1.493\\ \hline
+ P@10 		& RBP(0.8)		&0.884	&0.942	&0.832	&0.895	&0.866		&	0.893 &0.946	\\ \hline
+ R@100 		& R-Prec		&0.899	&0.423	& 0.871	&0.232	&\bf 0.935	&-1.075 &1.428 \\ \hline
+ RBP(0.5) 	& RR			&0.782	&0.901	&0.806	&0.921	&	0.810	&	0.878 &0.866\\ \hline
+ RBP(0.8)  	& P@10			&0.884	&0.932	&0.832	&0.885	&	0.866	&	0.894  &1.046	\\ \hline
+ RBP(0.95) 	& R-Prec		&0.824	&0.346	& 0.651	&-0.786	&	0.607	&	-2.401 & 0.932\\ \hline
+\end{tabular}
+\caption{System-wise Prediction Using One Metric (N=1). $y=x_1*c_1 + m$. Kendall's $\tau$ correlations higher than 0.9 are bolded.}
+\label{system_1_label}
+\end{table}
+\end{comment}
+
+
+%First, the prediction accuracy varies across test collections and we achieve the highest average $\tau$ correlation of $3\times 12=36$ cases ($0.878$) on WT2012, as expected. 
+
+\textbf{bpref.} We achieve the highest $\tau$ correlation and interestingly the worst $R^2$ using only nDCG on WT2014. This shows that while predicted measures are not accurate, rankings of systems based on predicted scores can be highly correlated with the actual ranking. We observe the same pattern of results in prediction of RR on WT2012 and WT2014,  R-prec on WT2013 and WT2014,  R@100 on WT2013, and  nDCG in all three test collections. 
+
+\textbf{GMAP \& ERR.} GMAP and ERR seem to be the most challenging measures to predict because we could never reach 0.9 $\tau$ correlation in any of the prediction cases of these two measures.  %Our model's prediction performance for ERR is the worst on average among 12 measures .
+ Initially, $R^2$ scores we achieve for ERR consistently increase in all three test collections as we use more evaluation measures for prediction, suggesting that we can achieve  higher prediction accuracy using more independent variables.
+
+\textbf{MAP.} We can predict MAP with very high prediction accuracy and achieve higher than 0.9 $\tau$ correlation in all three test collections using R-Prec and nDCG as predictors. As we use RR as the third predictor, $R^2$ increases in all cases and $\tau$ correlation slightly increases on average (0.924 vs.\ 0.922).
+
+\textbf{nDCG.} Interestingly, we achieve the highest $\tau$ correlations using only bpref; $\tau$   decreases as  more evaluation measures are used as independent variables.  Even though we reach high $\tau$ correlations for some cases (e.g. 0.915 $\tau$ on WT2014 using only bpref),   nDCG seems to be one of the hardest measures 
+to predict. 
+
+\textbf{P@10.} Using RBP(0.5) and RBP(0.8), which are both highly correlated measures with P@10, we are able to achieve very high $\tau$ correlation %(0.912 on average) 
+and   $R^2$ %(0.983 on average) 
+in all three test collections (0.912 $\tau$ and 0.983 $R^2$ on average). We reach nearly perfect prediction accuracy ($R^2=0.994$) on WT2012.
+
+
+\textbf{RBP(0.5).} In all three prediction cases, RR is selected  as one of the independent variables, as expected because of being the most correlated measure with RBP(0.5) (See Figure~\ref{topic_wise_heatmap}). While using only RR is not sufficient to reach 0.9 $\tau$ correlation, when we use also RBP(0.8) (the second most correlated measure) we reach very high prediction accuracy in all three test collections (0.919 $\tau$ and 0.924 $R^2$ on average).
+
+\textbf{RBP(0.8).} P@10 is the most correlated measure with RBP(0.8) and is selected as one of the independent variables in all cases, as expected. Using P@10 and RBP(0.5), we are able to achieve more than 0.9 $\tau$ correlation and more than $0.98$ $R^2$ in all test collections. Using  P@10, RBP(0.5) and RBP(0.95), we achieve the highest $R^2$ (0.998) and $\tau$(0.973) among all 108 cases (i.e., 3 test collections x  12 measures x 3 different independent variable sets).
+
+\textbf{RBP(0.95).} Compared to RBP(0.5) and RBP(0.8), we achieve noticeably lower prediction performance, especially on WT2013 and WT2014. On WT2012, which is used as the development set in our experimental setup, we reach high prediction accuracy when we use 2-3 independent variables.
+
+\textbf{R-Prec, RR and R@100.} In predicting these three measures, while we reach high prediction accuracy in many cases,  there is no independent variable group yielding high prediction performance on all three test collections.
+
+Overall,  we achieve high predicion accuracy for MAP, P@10, RBP(0.5) and RBP(0.8) on all test collections. 
+RR and RBP(0.8) are the most frequently selected independent variables (10 and 9 times, respectively). Generally, using a single measure is not sufficient to reach 0.9 $\tau$ correlation. However, we are able to achieve very high prediction accuracy using only 2 measures for many  scenarios. 
+
+
+\begin{comment}
+\begin{table}
+\centering
+%\begin{tabular}{|p{1.7cm}|p{2.2cm}|p{1.9cm}|p{0.9cm}|c|p{0.9cm}|c|p{0.9cm}|c|}  \hline
+% \multirow{2}{1.8cm}{\bf Predicted Metric} & \multirow{2}{2cm}{\bf Dependent Variables} & \multirow{2}{2cm}{\bf Coefficients}  & \multicolumn{2}{c|} {\bf WT2012}  &  \multicolumn{2}{c|} {\bf WT2013}  & \multicolumn{2}{c|}{\bf WT2014} \\ \cline{4-9}
+\begin{tabular}{|p{1.75cm}|l|l|c|c|c|c|c|c||c|c|c|}  \hline
+ \bf Dependent Variable & \multicolumn{2}{p{2.6cm}|}{\bf Independent Variables}  & \multicolumn{2}{c|} {\bf WT2012}  &  \multicolumn{2}{c|} {\bf WT2013}  & \multicolumn{2}{c||}{\bf WT2014}  & \multicolumn{3}{p{2cm}|}{\bf Coefficients \& intercept} \\ \hline
+ \multicolumn{1}{|c|}{y}	& 	 \multicolumn{1}{|c|}{$x_1$} & \multicolumn{1}{|c|}{$x_2$}	& $\tau$& $R^2$ & $\tau$& $R^2$ & $\tau$ 	& $R^2$  &  $c_1$ &  $c_2$ & $m$   \\ \hline \hline
+ R-Prec		& R@100 & RBP(.95)	 	& \bf .909	& 0.952	&	.820&0.882	&	.820	&	0.759 & 0.382 & 0.451 & x.xxx\\ \hline
+ bpref		& R-Prec & nDCG 		& .872		& -0.202&	.850&0.094	&	.824	&	-0.989 & 0.389 & 0.254	\\ \hline
+ RR			& RBP(.5) & RBP(.8)		&.869		&0.918	&	.809&0.919	&	.820	&	0.942 &1.515 & -0.475	 \\ \hline
+ ERR		& RR & RBP(0.8)			&.790		&-1.809	&	.777&0.392	&	.714	&	-0.686 &0.137& 0.063\\ \hline
+ MAP 		& R-Prec & nDCG 		& \bf .904	&0.894	&\bf .905&0.760&\bf .958	&	0.897 &0.820& 0.121\\ \hline
+ GMAP 		& nDCG & RBP(.5)		& .817		&0.877	&.777	&0.600	&	.767	&	0.818 &0.269& 0.145\\ \hline
+ nDCG 		& bpref & GMAP			& .803		&-0.079	&.809	&0.574	&	.872	&	0.024 &0.637& 1.377	\\ \hline
+ P@10 		& RBP(.5) & RDP(.8) 	& \bf .941	&0.994	&.882	&0.966	&\bf .914	&	0.988 &-0.393& 1.404		\\ \hline
+ R@100 		& R-Prec & GMAP			& .899		&0.433	&.871	&0.238	&\bf .940	&	-1.077 &1.407& 0.031 \\ \hline
+ RBP(.5)  	& RR & RBP(.8)		 	& \bf .938	&0.935	&.894	&0.934	& \bf .926	&	0.903 &0.416& 0.628	\\ \hline
+ RBP(.8)  	&  P@10 &RBP(.5)		& \bf .963	&0.997	&\bf .919&0.986&\bf .947	&	0.992 &0.673& 0.311	\\ \hline
+ RBP(.95) 	& bpref & P@10			& \bf .911	&0.952	&.718	&0.873	&.728		&	0.591 & 0.287& 0.538\\ \hline
+\end{tabular}
+\caption{System-wise Prediction Using 2 Metrics (N=2)}
+\label{system_2_labels}
+\end{table}
+\end{comment}
+
+%On average, using three predictors yield lower RMSE scores, comparing to using two or one predictor. Similarly, 
+%average $\tau$  score among all 12 metrics increases in all test collections, compared to $K=2$ and $K=1$ cases. 
+
+%@comparing Rprec with k=2 case, adding GMAP increased the tau in all collections and decreased RMSE. 
+
+%RR appears in 7 cases,
+
+\begin{comment}
+\begin{table}[H]
+\begin{tabular}{|p{1.7cm}|p{2.2cm}|p{1.9cm}|p{0.9cm}|c|p{0.9cm}|c|p{0.9cm}|c|}  \hline
+ \multirow{2}{1.8cm}{\bf Predicted Metric} & \multirow{2}{2cm}{\bf Dependent Variables} & \multirow{2}{2cm}{\bf Coefficients}  & \multicolumn{2}{c|} {\bf WT2012}  &  \multicolumn{2}{c|} {\bf WT2013}  & \multicolumn{2}{c|}{\bf WT2014} \\ \cline{4-9}
+ & & & $\tau$ & RMSE & $\tau$ 	& RMSE & $\tau$ & RMSE \\ \hline \hline
+ R-Prec	& GMAP, R@100, RBP(0.95) &	0.239,\ \ \ \  0.318, \ \ \ \  0.378	 &	 \bf 0.924	 &	0.008	 &	0.833	 &	0.013 &		0.841 &		0.028 \\ \hline
+ bpref	& R-Prec, nDCG, R@100	&	0.920, 0.490, -0.632 &		\bf 0.906 &		0.045	 &	0.844 &		0.045 &		0.866 &		0.070 \\ \hline
+ RR		& ERR, RBP(0.5), RBP(0.8)&	0.844, 1.428, -0.576	 &	0.876  &		0.080 &		0.818 &		0.027	 &	\bf 0.915 &		0.042 \\ \hline
+ ERR		& RR, R@100, RBP(0.8) &		0.147, -0.023, 0.068 &		0.796 &		0.116	 &	0.741 &		0.021 &		0.704	 &	0.048 \\ \hline
+ MAP		& R-Prec, RR, nDCG &		0.928, -0.062, 0.124 &		\bf 0.924 &		0.014 &		\bf 0.901	 &	0.019 &		\bf 0.947 &		0.018 \\ \hline
+ GMAP	& RR, nDCG, RBP(0.95)  &		0.081, 0.293, 0.046	 &	0.817	 &	0.010 &		0.748 &		0.019 &		0.794 &		0.019 \\ \hline
+ nDCG	& bpref, GMAP, RBP(0.95) &		0.597, 1.361, 0.047	 &	0.794 &		0.079 &		0.801	 &	0.080 &		0.850	 &	0.114 \\ \hline
+ P@10	& RR, RBP(0.5), RBP(0.8) &		0.036, -0.448, 1.421 &		\bf 0.946	 &	0.007	 &	0.885	 &	0.012 &		\bf 0.914  &		0.010 \\ \hline
+ R@100	& R-Prec, RR, ERR	 &	1.768, -0.217, 0.176 &		0.881	 &	0.063 &		0.823 &		0.048 &		\bf 0.935	 &	0.105 \\ \hline
+ RBP(0.5)	& RR, nDCG,  RBP(0.8)	 &	0.423, -0.033, 0.649	 &	\bf 0.936&	0.027&	0.882	&0.023	&\bf 0.942&	0.033 \\ \hline
+ RBP(0.8)	& P@10, RBP(0.5), RBP(0.95)	 &	0.526, 0.347, 0.148	 &	\bf 0.973 &	0.004	 &\bf   \bf  0.916	 &0.007	 & \bf  0.968	 &0.005 \\ \hline
+ RBP(0.95)	& bpref, P@10, RBP(0.8)	 &	0.267, 0.740, -0.183	 &	\bf 0.911	 &0.012	 &0.720	 &0.018	 &0.744 &	0.049 \\ \hline
+\end{tabular}
+\caption{System-wise Prediction Using 3 Metrics (N=3)}
+\label{system_3_labels}
+\end{table}
+\end{comment}
+\begin{comment}
+\begin{table}[H]
+\begin{tabular}{|p{1.75cm}|l|l|l||c|c|c|c|c|c||c|c|c|c|}  \hline
+ \bf Dependent Variable & \multicolumn{3}{c|}{\bf Independent Variables}  & \multicolumn{2}{c|} {\bf WT2012}  &  \multicolumn{2}{c|} {\bf WT2013}  & \multicolumn{2}{c||}{\bf WT2014}  & \multicolumn{4}{p{2cm}|}{\bf Coefficients \& intercept} \\ \hline
+ \multicolumn{1}{|c|}{y}	& 	 \multicolumn{1}{|c|}{$x_1$} & \multicolumn{1}{|c|}{$x_2$} & 	 \multicolumn{1}{|c|}{$x_3$}	& $\tau$& $R^2$ & $\tau$& $R^2$ & $\tau$ 	& $R^2$  &  $c_1$ &  $c_2$ &$c_3$& $m$   \\ \hline \hline
+ 
+ R-Prec	& GMAP & R@100 & RBP(.95) 	&\bf .924	& 0.970	& .833		& 0.914 & .841 	&	0.825 & 0.239& 0.318& 0.378 &x.xxx \\ \hline
+ bpref	& R-Prec& nDCG& R@100		&\bf .906 	& 0.284	& .844 		& 0.645 & .866 	&	0.390  & 0.920& 0.490& -0.632 \\ \hline
+ RR		& ERR& RBP(.5)& RBP(.8)		&.876  		& 0.437 & .818 		& 0.924	&\bf .915 	&	0.824 & 0.844& 1.428& -0.576 \\ \hline
+ ERR	& RR& R@100& RBP(.8) 		&.796 		& -1.728& .741 		& 0.478 & .704	 	&	-0.473 & 0.147& -0.023& 0.068 \\ \hline
+ MAP	& R-Prec& RR& nDCG 			&\bf .924 	& 0.916 &\bf .901	& 0.779 &\bf .947 	&	0.922 & 0.928& -0.062& 0.124 \\ \hline
+ GMAP	& RR& nDCG& RBP(.95)  		&.817	 	& 0.882 & .748 		& 0.514 & .794 	&	0.854 & 0.081& 0.293& 0.046\\ \hline
+ nDCG	& bpref& GMAP& RBP(.95) 	&.794 		& -0.113& .801	 	& 0.556 & .850	 	&	-0.032 & 0.597& 1.361& 0.047\\ \hline
+ P@10	& RR& RBP(.5)& RBP(.8) 		&\bf .946	& 0.994	& .885	 	& 0.968 &\bf .914  &	0.987 & 0.036& -0.448& 1.421 \\ \hline
+ R@100	& R-Prec& RR& ERR	 		&.881	 	& -0.104 & .823 	& 0.355 &\bf .935	&	-1.187 & 1.768& -0.217& 0.176\\ \hline
+ RBP(.5)& RR& nDCG&  RBP(.8)	 	&\bf .936	& 0.916	& .882		&0.917	&\bf .942	&	0.885 & 0.423& -0.033& 0.649\\ \hline
+ RBP(.8)& P@10& RBP(.5)& RBP(.95)	&\bf .973 	& 0.998	& \bf .916	&0.990	&\bf .968	&	0.997 & 0.526& 0.347& 0.148\\ \hline
+ RBP(.95)& bpref& P@10& RBP(.8)		&\bf .911	& 0.967	& .720	 	&0.868	& .744 	&	0.639 & 0.267& 0.740& -0.183\\ \hline
+\end{tabular}
+\caption{System-wise Prediction Using 3 Metrics (N=3)}
+\label{system_3_labels}
+\end{table}
+\end{comment}
+
+\begin{comment}
+\begin{table}[H]
+\begin{tabular}{|p{1.75cm}|l|l|l||c|c|c|c|c|c||c|c|c|c|}  \hline
+ \bf Dependent Variable & \multicolumn{3}{c|}{\bf Independent Variables}  & \multicolumn{2}{c|} {\bf WT2012}  &  \multicolumn{2}{c|} {\bf WT2013}  & \multicolumn{2}{c||}{\bf WT2014}  & \multicolumn{4}{p{2cm}|}{\bf Coefficients \& intercept} \\ \hline
+ \multicolumn{1}{|c|}{y}	& 	 \multicolumn{1}{|c|}{$x_1$} & \multicolumn{1}{|c|}{$x_2$} & 	 \multicolumn{1}{|c|}{$x_3$}	& $\tau$& $R^2$ & $\tau$& $R^2$ & $\tau$ 	& $R^2$  &  $c_1$ &  $c_2$ &$c_3$& $m$   \\ \hline \hline
+ 
+ R-Prec	& GMAP & R@100 & RBP(.95) 	&\bf .92	& 0.97	& .83		& 0.91 & .84 	&	0.83 & 0.24& 0.32& 0.38 &x.xx \\ \hline
+ bpref	& R-Prec& nDCG& R@100		&\bf .91 	& 0.28	& .84 		& 0.65 & .87 	&	0.39  & 0.92& 0.49& -0.63 \\ \hline
+ RR		& ERR& RBP(.5)& RBP(.8)		&.88  		& 0.44 & .82 		& 0.92	&\bf .92 	&	0.82 & 0.84& 1.43& -0.58 \\ \hline
+ ERR	& RR& R@100& RBP(.8) 		&.80 		& -1.73& .74 		& 0.48 & .70	 	&	-0.47 & 0.15& -0.02& 0.07 \\ \hline
+ MAP	& R-Prec& RR& nDCG 			&\bf .92 	& 0.92 &\bf .90	& 0.78 &\bf .95 	&	0.92 & 0.93& -0.06& 0.12 \\ \hline
+ GMAP	& RR& nDCG& RBP(.95)  		&.82	 	& 0.88 & .75 		& 0.51 & .79 	&	0.85 & 0.08& 0.29& 0.05\\ \hline
+ nDCG	& bpref& GMAP& RBP(.95) 	&.79 		& -0.11& .80	 	& 0.56 & .85	 	&	-0.03 & 0.6& 1.36& 0.05\\ \hline
+ P@10	& RR& RBP(.5)& RBP(.8) 		&\bf .95	& 0.99	& .89	 	& 0.97 &\bf .91  &	0.98 & 0.04& -0.45& 1.42 \\ \hline
+ R@100	& R-Prec& RR& ERR	 		&.88	 	& -0.10 & .82 		& 0.36 &\bf .94	&	-1.19 & 1.77& -0.22& 0.18\\ \hline
+ RBP(.5)& RR& nDCG&  RBP(.8)	 	&\bf .94	& 0.92	& .88		&0.92	&\bf .94	&	0.89 & 0.42& -0.03& 0.65\\ \hline
+ RBP(.8)& P@10& RBP(.5)& RBP(.95)	&\bf .97 	& 0.99	& \bf .92	&0.99	&\bf .97	&	0.99 & 0.53& 0.35& 0.15\\ \hline
+ RBP(.95)& bpref& P@10& RBP(.8)		&\bf .91	& 0.97	& .72	 	&0.87	& .74 	&	0.64 & 0.27& 0.74& -0.18\\ \hline
+\end{tabular}
+\caption{System-wise Prediction Using 3 Metrics (N=3)}
+\label{system_3_labels}
+\end{table}
+\end{comment}
+
+\begin{table}
+%\begin{adjustbox}{angle=90}
+\begin{tabular}{|p{1.75cm}|c|c|c|c|c|c|c|c|c|}  \hline
+ \multirow{2}{1.75cm}{\bf Predicted Metric} & \multicolumn{3}{c|}{\bf Independent Variables}  & \multicolumn{2}{c|} {\bf WT2012}  &  \multicolumn{2}{c|} {\bf WT2013}  & \multicolumn{2}{c|}{\bf WT2014}   \\ \cline{5-10}
+ 	& 	  \multicolumn{3}{c|}{}	& $\tau$& $R^2$ & $\tau$& $R^2$ & $\tau$ 	& $R^2$  \\ \hline \hline
+ \multirow{3}{1cm}{bpref}	& nDCG 	& - 	 & -		&0.805		&-0.693	& 0.885	&0.079	&\bf 0.915	&	-1.174 \\ \cline{2-10}
+ 							& nDCG 	& R-Prec & - 		&0.872		& -0.202& 0.850	&0.094	&	0.824	&	-0.989  	\\ \cline{2-10}
+  							& nDCG 	& R-Prec & R@100	&\bf 0.906 	& 0.284	& 0.844 & 0.645 & 0.866 	&	0.390   \\\hline\hline
+\multirow{3}{1cm}{ERR}		& RR & - 	& -				&0.764		&-1.874	&0.734	&0.293	&0.704		&	-1.004 \\ \cline{2-10}
+							& RR & RBP(0.8)		& - 	&0.790		&-1.809	&	0.777&0.392	&	0.714	&	-0.686 \\ \cline{2-10}
+ 							& RR& RBP(0.8) & R@100		&0.796 		& -1.728& 0.741 		& 0.478 & 0.704	 	&	-0.473  \\ \hline\hline
+\multirow{3}{1cm}{GMAP} 	& bpref	& - 	& -			&0.729		&-1.216	&0.704	&-2.982	&	0.739	&	-1.034 	\\ \cline{2-10}
+ 							& nDCG & RBP(0.5)	& - 	& 0.817		&0.877	&0.777	&0.600	&	0.767	&	0.818  \\ \cline{2-10}
+							& nDCG& RBP(0.95)  & RR 		&0.817	 	& 0.882 & 0.748 		& 0.514 & 0.794 	&	0.854 \\ \hline\hline
+\multirow{3}{1cm}{MAP} 		& R-Prec & - 	& -			&0.885		&0.754	&0.824	&0.667	&\bf 0.952	&0.819 \\ \cline{2-10}
+  							& R-Prec & nDCG 	& - 	& \bf 0.904	&0.894	&\bf 0.905&0.760&\bf 0.958	&	0.897  \\ \cline{2-10}
+ 							& R-Prec& nDCG  & RR		&\bf 0.924 	& 0.916 &\bf 0.901	& 0.779 &\bf 0.947 	&	0.922  \\ \hline\hline
+\multirow{3}{1cm}{nDCG} 	& bpref& - 	& -				&0.805		&-2.101	&0.885	&-0.217	&\bf 0.915	&	-2.008		\\ \cline{2-10}
+  							& bpref & GMAP		& - 	& 0.803		&-0.079	&0.809	&0.574	&	0.872	&	0.024  \\ \cline{2-10}
+ 							& bpref& GMAP& RBP(0.95) 	&0.794 		& -0.113& 0.801	 	& 0.556 & 0.850	 	&	-0.032 \\ \hline\hline
+\multirow{3}{1cm}{P@10} 	& RBP(0.8)	& - 	& -		&0.884		&0.942	&0.832	&0.895	&0.866		&	0.893 	\\ \cline{2-10}
+  						 	& RBP(0.8) & RBP(0.5) & - 	& \bf 0.941	&0.994	&0.882	&0.966	&\bf 0.914	&	0.988 	\\ \cline{2-10}
+ 							& RBP(0.8)& RBP(0.5) & RR 	&\bf 0.946	& 0.994	& 0.885	 	& 0.968 &\bf 0.914  &	0.987 \\ \hline\hline
+\multirow{3}{1cm}{RBP(0.5)}	& RR	& - 	& -			&0.782		&0.901	&0.806	&0.921	&	0.810	&	0.878 	\\ \cline{2-10}
+  							& RR & RBP(0.8)	& - 	 	& \bf 0.938	&0.935	&0.894	&0.934	& \bf 0.926	&	0.903 	\\ \cline{2-10}
+ 							& RR&  RBP(0.8) & nDCG	 	&\bf 0.936	& 0.916	& 0.882		&0.917	&\bf 0.942	&	0.885 \\ \hline\hline
+\multirow{3}{1cm}{RBP(0.8)}	& P@10	& - 	& -			&0.884		&0.932	&0.832	&0.885	&	0.866	&	0.894  \\ \cline{2-10}
+   							&  P@10 &RBP(0.5)	& - 	& \bf 0.963	&0.997	&\bf 0.919&0.986&\bf 0.947	&	0.992 	\\ \cline{2-10}
+				 			& P@10& RBP(0.5)& RBP(0.95)	&\bf 0.973 	& 0.998	& \bf 0.916	&0.990	&\bf 0.968	&	0.997 \\ \hline\hline
+\multirow{3}{1cm}{RBP(0.95)}& R-Prec& - 	& -			&0.824		&0.346	& 0.651	&-0.786	&	0.607	&	-2.401 	\\ \cline{2-10}
+ 							& bpref & P@10		& - 	& \bf 0.911	&0.952	&0.718	&0.873	&0.728		&	0.591 \\ \cline{2-10}
+							& bpref& P@10& RBP(0.8)		&\bf 0.911	& 0.967	& 0.720	 	&0.868	& 0.744 	&	0.639\\ \hline\hline
+\multirow{3}{1cm}{R-Prec}	& R@100 & - 	& -	&0.899	&0.708		& 0.871	&0.624	&\bf 0.935	&	0.019 \\ \cline{2-10}
+ 							& R@100 & RBP(0.95)	& - & \bf 0.909		& 0.952	&	0.820&0.882	&	0.820	&	0.759 \\ \cline{2-10}
+ 							& R@100 & RBP(0.95) & GMAP 	&\bf 0.924	& 0.970	& 0.833		& 0.914 & 0.841 	&	0.825  \\ \hline\hline
+\multirow{3}{1cm}{RR} 		& RBP(0.5) & - 	& -			&0.782		&0.904	& 0.806	&0.927	&	0.810	&	0.878		\\ \cline{2-10}
+							& RBP(0.5) & RBP(0.8)	& - 	&0.869		&0.918	&	0.809&0.919	&	0.820	&	0.942  	 \\ \cline{2-10}
+							& RBP(0.5)& RBP(0.8) & ERR	&0.876  	& 0.437 & 0.818 		& 0.924	&\bf 0.915 	&	0.824  \\ \hline\hline
+\multirow{3}{1cm}{R@100} 	& R-Prec& - 	& -			&0.899		&0.423	& 0.871	&0.232	&\bf 0.935	&-1.075 	\\ \cline{2-10}
+ 							& R-Prec & GMAP		& - 	&0.899		&0.433	&0.871	&0.238	&\bf 0.940	&	-1.077  \\ \cline{2-10}
+  							& R-Prec& RR& ERR	 		&0.881	 	& -0.104 & 0.823 	& 0.355 &\bf 0.935	&	-1.187 \\ \hline
+\end{tabular}
+%\end{adjustbox}
+\caption{System-wise Prediction Using Varying Number of Metrics. Kendall's $\tau$ scores higher than 0.9 are bolded.}
+\label{system_3_labels}
+\end{table}
+
+
+
+
+
+%using only R@100 yield the best prediction performance for R-Prec ()  RPrec best one is  only R@100. 
+
+%bpref --> ndcg,rprec,r100
+%RR --> ERR, rbp5 rbp8 --> constantly increase
+%ERR --> RR ,rbp08
+%map --> rprec, ndcg, rr
+%gmap ndcg, rbp0.5
+%ndcg --? bpref, constantly decreases
+%P@10 -->rr,rbp05 , rbp08
+%r100 -->rece, gmap
+%usng nDCG is the best for bpref
+
+\subsection{Prediction of High-Cost Measures with Low-Cost Measures}
+
+Our prediction results  encouraged us to investigate  whether we could also predict high-cost measures using low-cost measures. We focus on P@1000, P@100, MAP@1000, MAP@100, nDCG@1000, nDCG@100,  RBP@1000, and RBP@100 as the high-cost measures.
+As the low-cost measures, we calculate precision, bpref, ERR, infAP\cite{yilmaz2006estimating}, MAP, nDCG and RBP scores of systems when \emph{evaluation depth} (D) is varied from 10 to 50. We specifically use bpref and infAP since they are designed for evaluating systems with incomplete  relevance judgments. We set the $p$ parameter of RBP to 0.95.
+For a particular evaluation depth, we calculate  the powerset of the 7 measures mentioned above (excluding the empty set). Subsequently, in a similar approach in Section~\ref{section_predict_with_k_measures}, we find which elements of the powerset are the best predictors of the high-cost measures on WT2012. The set of low-cost measures that yields the maximum $\tau$ score for a particular high-cost measure is also used for predicting the respective measure on WT2013 and WT2014. We repeat this process for each evaluation depth value (i.e. 10, 20, ..., 50)  separately in order to see impact of the cost on the prediction. The results are shown in \textbf{Figure~\ref{figure_low_to_high_cost}}.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[b]{\textwidth}
+        \includegraphics[width=\textwidth]{fig_1000.png}
+        \caption{Judgment Depth of High-Cost Measures is 1000}
+        \label{figure_low_to_high_cost_1000}
+    \end{subfigure}
+    \begin{subfigure}[b]{\textwidth}
+        \includegraphics[width=\textwidth]{fig_100.png}
+        \caption{Judgment Depth of High-Cost Measures is 100}
+         \label{figure_low_to_high_cost_100}
+     \end{subfigure}
+     \caption{Prediction of High-Cost Measures Using Low-Cost Measures}
+     \label{figure_low_to_high_cost}
+     %\vspace{-15pt}
+\end{figure}
+
+
+For depth 1000 (Figure~\ref{figure_low_to_high_cost_1000}), we achieve higher than 0.9 Kendall's $\tau$ correlation  and higher than 0.98 $R^2$
+for RBP in all cases when evaluation depth of low-cost measures is 30 or more. %We achieve 0.986 $R^2$ on average over three test collections in predicting  RBP@1000 when D=30 for low-cost measures.
+%Looking into which metrics are selected for predicting RBP@1000,  precision, infAP, nDCG and RBP@30 for D=30 case, precision, MAP, nDCG, RBP@40 for D=40 case, and precision, ERR, infAP, nDCG and  RBP@50 for D=50, are selected. 
+While we are able to reach 0.9 $\tau$ correlation for MAP on WT2012, prediction of P@1000 and nDCG@1000 measures performs poorly and never reaches a high $\tau$ correlation. 
+As expected, the performance of prediction increases when evaluation depth of high-cost measures are decreased to 100 (Figure~\ref{figure_low_to_high_cost_1000} vs. Figure~\ref{figure_low_to_high_cost_100}). 
+
+Overall, RBP seems the most predictable measure using the low-cost measures while precision is the least predictable one. This is because MAP, nDCG and RBP give more weight to documents at higher ranks, which are also evaluated by the low-cost measures. On the other hand, in calculation of precision, we consider only the number of relevant documents and ignore the ranks. 
+
+
+%highest coeffcienct is P 
+
+%on MAP, achieve .9 onlyon wt2012
+%40: bpref,err,rbp
+%50:p1000 and map
+%p100 reaches 0.888 when jupdment depth is 50 on WT2012
+%all othes reaches 0.9
+
+
+\begin{comment}
+%%%%%%%%%%%%%%%%%%%%%%%
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|l|l|l|l|l|l|l|p{1cm}|p{1cm}|}
+\hline
+&\multicolumn{2}{|l|}{Dep.\ Var.} & \multicolumn{5}{l|}{Independent Variable} & \multicolumn{2}{|c|}{$R^2$}  \\ \hline
+Row&\rotatebox[origin=c]{90}{AP} & \rotatebox[origin=c]{90}{Rprec} & \rotatebox[origin=c]{90}{Rprec} & \rotatebox[origin=c]{90}{Bpref} & \rotatebox[origin=c]{90}{RRank} & \rotatebox[origin=c]{90}{P@10} & \rotatebox[origin=c]{90}{P@100} & Predict w/ STD & Predict w/ DTD \\ \hline
+
+1&\ding{108}&  &\ding{108}&\ding{108}&\ding{108}&\ding{108}& \ding{108}& 0.959 & 0.867 \\ \hline
+2&\ding{108}&  &\ding{108}&\ding{108}&\ding{108}&\ding{108}& & 0.959 & 0.851 \\ \hline
+3&\ding{108}&  &\ding{108}&\ding{108}&\ding{108}& & & 0.959 & 0.85 \\ \hline
+4&\ding{108}&  &\ding{108}&\ding{108}& & & & 0.956  & 0.851 \\ \hline
+5&\ding{108}&  &\ding{108}& & & & & 0.925 & 0.811 \\ \hline
+6&\ding{108}&  & &\ding{108}&\ding{108}&\ding{108}& \ding{108}& 0.959 & 0.863\\ \hline
+7&\ding{108}&  & & &\ding{108}&\ding{108}& \ding{108}& 0.662  & 0.422\\ \hline
+8&\ding{108}&  & & & &\ding{108}& \ding{108}& 0.63  & 0.451\\ \hline
+9&\ding{108}&\ding{108}& &\ding{108}&\ding{108}&\ding{108}& \ding{108}& 0.962 & 0.89 \\ \hline
+10&\ding{108}&\ding{108}& & &\ding{108}&\ding{108}& \ding{108}& 0.962 & 0.48 \\ \hline
+11&\ding{108}&\ding{108}& & \ding{108}& &\ding{108}& \ding{108}& 0.962 & 0.89 \\ \hline
+12&\ding{108}&\ding{108}& & \ding{108}&\ding{108}&\ding{108}& & 0.961 & 0.884 \\ \hline
+13&\ding{108}&\ding{108}& & \ding{108}&\ding{108}& &\ding{108}& 0.96 & 0.89 \\ \hline
+14&\ding{108}&\ding{108}& & \ding{108}&\ding{108}& & & 0.959 & 0.883 \\ \hline
+%\ding{108}&\ding{108}& & &\ding{108}& &\ding{108}& 0.52 \\ \hline   -MK Removing this since we have results for one case but not for the other case
+\end{tabular}
+\caption{Topic Wise Prediction}
+\label{trec89_query}
+\end{table}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{comment}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusion}
+\label{section:conclusion}
+In this work, we investigated correlation and prediction of evaluation measures using data from 8 TREC test collections covering ad hoc search task for web documents and news articles. 
+%MAP and R-Prec are highly correlated measures, confirming prior works' findings. RR and RBP(0.5)
+
+We first calculated the correlation between 23 evaluation measures. We found that the following measure groups are strongly correlated each other: 1) MAP \& R-Prec \& nDCG, 2) RR \& RBP(0.5), 3) nDCG@20 \& RBP(0.8), 4) P@10 \&  P@20 \& RBP(0.8) \& RBP(0.95). Subsequently, we built a linear regression model to predict a system's evaluation measure using its other  measures and investigated prediction of 12 measures. We found out that we can  predict  MAP, P@10, RBP(0.5) and RBP(0.8) accurately.
+Finally, we investigated prediction of high-cost measures using low-cost measures and  showed that we can   predict RBP(0.95) with high accuracy using measures with evaluation depth of 30.
+
+%We observed that in order to predict MAP, RPrec and GMAP  accurately, we need highly correlated  measures with them in the feature set. Usign only P@10, P100 and RR are not very effective to predict MAP, AP, RPrec and GMAP measures.  
+
+%Various researchers have studied the IR system performance evaluation metrics using data from TREC and NTCIR. They discussed about the effectiveness, correlation and choice of performance measures. In this paper, we have examined the prediction of one evaluation measure using others. 
+
+%Using massive data form TREC, we first showed the correlation between pairs of evaluation metrics and then predicted highly correlated metric using one another up-to a high level of accuracy. We can predict MAP using Rprec and Bref and P@10 using P@100. 
+
+%Therefore, with the help of experiments and results in this paper we can conclude it is possible to predict one evaluation metric using other. Therefore, we can have a smaller subset of most reported metrics and we can get information about other metrics form them. 
+
+In the future, we plan to deepen our investigation using more data from different tasks and exploring other evaluation metrics and prediction models. 
+
+%In our future work, we would like to do the similar experiments and study the results on various tasks and systems individually and their effect on each other. We would also study the effect of using data from more than one source. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%\section*{Acknowledgments}
+%\vspace{10pt}
+%\noindent{\bf Acknowledgments}. 
+%\small
+%This work was made possible by NPRP grant\# NPRP 7-1313-1-245 from the Qatar National Research Fund (a member of Qatar Foundation). The statements made herein are solely the responsibility of the authors. We thank the Texas Advanced Computing Center (TACC) at the University of Texas at Austin for computing resources enabling this research.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bibliographystyle{splncs}
+{\small
+\bibliography{References}{}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\end{document}
+

@@ -1,0 +1,250 @@
+
+                                                                                                                      
+
+
+
+
+
+
+
+
+
+
+{Deep Reinforcement Learning of Cell Movement in the Early Stage of { Embryogenesis}
+}
+
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Recent developments in cutting-edge live microscopy and image analysis provide an unprecedented opportunity to systematically investigate individual cells' dynamics and quantify cellular behaviors over extended period of time.  Systematic single-cell analysis of  has led to the highly desired quantitative measurement of cellular behaviors . Based on 3D time-lapse imaging, the entire cell lineage can be automatically traced, and quantitative measurements can be made on every cell to characterize its developmental behaviors . These massive recordings, which contain hundreds to thousands of cells over hours to days of development, provide a unique opportunity for cellular-level systems behavior recognition as well as simulation-based hypothesis testing.
+
+Agent-based modeling (ABM) is a powerful approach to analyze complex tissues and developmental processes .  In our previous effort, an observation-driven, agent-based modeling and analysis framework was developed to incorporate large amounts of observational/phenomenological data to model the individual cell behaviors with straightforward interpolations from 3D time-lapse images . With the ultimate goal being to model individual cell behaviors with regulatory mechanisms, tremendous challenges still remain to deal with the scenarios where regulatory mechanisms lag data collection and potential mechanistic insights need to be examined against complex phenomena.  
+
+Directional cell movement is critical in many physiological processes during { development, including morphogenesis, structure restoration, and nervous system formation. It is known that, in these processes, cell movements can be guided by gradients of various chemical signals, physical interactions at the cell-substrate interface and other mechanisms . It remains an open and interesting challenge as to what and how one could learn about the rules and mechanisms of cell movement from the movement tracks recorded in live imaging. 
+
+This paper presents a new approach to study cell movement by adopting deep reinforcement learning approaches within an agent-based modeling framework. Deep reinforcement learning is good at dealing with high-dimensional inputs and can optimize complex policies over primitive actions , which naturally aligns with the complex cell movement patterns occurred during { embryogenesis. Even in some biological scenarios where regulatory mechanisms are not completely studied, deep neural networks can be adopted to characterize the cell movement within an embryonic system. The neural network takes information from 3D time-lapse images as direct inputs, and the output is the cell's movement action optimized under a collection of regulatory rules. Since deep reinforcement learning can optimize the cell migration path over considerable temporal and spatial spans in a global perspective, it overcomes the local optimization problem encountered by traditional rule-based, agent-based modeling that uses greedy algorithms.
+
+
+We tested our model through two representative scenarios during  embryogenesis: { and {. In the first case, we proposed two hypotheses for the intercalation of Cpaaa, and simulation results indicated that Cpaaa experienced an active directional movement towards the anterior, which is caused by the continuous effects from a longer distance, rather than a passive process in which it is squeezed to the target location by its neighbors' movements. In the second case, the frequently occurring "leader-follower" mechanism was also supported by the simulation results of the asymmetry rearrangement. In summary, this framework presents a reverse engineering perspective to investigate regulatory mechanisms behind a certain developmental process: By formulating the reward functions as the representation of regulatory mechanisms, different hypotheses can be tested via reinforcement learning procedures. By comparing the extent of similarities between the simulation cell migration paths and the observation data, such hypotheses can either be supported or rejected, which can facilitate new explanations of certain cell movement behaviors. The model can also be used to study cell migration paths in { mutants or other metazoan embryo/tissue systems when related data are given.
+
+
+
+In our modeling framework, an individual cell is modeled as an agent that contains a variety of information on its fate, size, division time, and group information. For a wild-type { simulation, the cell fate and division information can be directly derived from predefined observation datasets. For more complicated cases that involve gene mutation and manipulation, the developmental landscape can be incorporated for the purpose of modeling . More detailed design information on the agent-based model can be found in . In this study, the cellular movements are treated as results of inherited and genetically controlled behaviors regulated by inter- or intracellular signals, and these cell movements are also constricted by the neighbor cells and the eggshell. 
+
+We further assume that the migration path of an individual cell is the optimal path that a cell can use to migrate under a collection of regulation networks and/or constraints within a physical environment. Then we can transform the cell movement problem into a neural network construction and learning problem using observational and/or predefined rules. Therefore, neural networks can be constructed inside each cell to represent its behaviors, and the reinforcement learning method can be used to train the neural networks from 3D time-lapse imaging (with information on locations of cells, their neighbor lists, and other cell interactions after automated cell lineage tracing ). After training, the neural networks can determine a feasible and optimal cell migration path in a dynamic embryonic system, but the migration path is still controlled and constrained by the underlying regulation networks and the physical environment. 
+
+While the regulation networks can be defined at cellular, group, tissue, or even embryonic levels, only the individual cell movement and group movement are examined and modeled in this study. 
+
+
+
+Two basic kinds of individual cell movements are investigated. The first movement pattern is directional movement, in which the regulation network presents strong signals (such as morphogen gradient or planar cell polarity ) and results in directional individual cell movements. The second type of cell movement, defined as passive cell movement, represents the scenarios in which no explicit movement patterns are observed when the signals from regulation networks are weak or canceled out.
+
+
+At this stage, with strong regulation signals from regulation networks, cell movement is mainly controlled by the potential destination and physical pressures from neighbor cells or the eggshell. The destination of cell movement can be defined as a spatial location or region within the embryonic system when regulatory mechanisms are not well studied, or it can be defined as a location next to a specific cell. 
+
+
+At this stage, without strong overall regulation mechanisms, cell movement is mainly controlled by the physical pressures between neighbor cells or the eggshell. Therefore, it is defined as passive cell movement with a high level of randomness. 
+
+
+
+In a  embryonic system, individual cells can also be a part of functional group with group-specific communication and regulation mechanisms. In collective cell migration, all the cell movements are directional. However, depending on the role of cell movement, the cells in collective migration can be further categorized as leading cells and following cells. 
+
+
+
+
+An ABM platform was adopted to present fundamental cell behaviors, including cell fate, division, and migration for a wild-type { in which all cell fates are predefined. The framework, which retains two fundamental characteristics (cell movement and division) for  early embryogenesis is illustrated in Fig. . We use the terminologies ``intelligent cell'' and ``dumb cell'' to represent the cell that learns its migration path, and those move based on the observation dataset, respectively. At each time step, each cell first moves to its next location determined by either the output action from the neural network (if the cell is an ``intelligent cell'') or the observation data (if the cell is a ``dumb cell''). After that, if it is at the right time for division, a new cell is hatched. A global timer is updated when all the cells have acted at a single time step, and such a loop repeats until the end of the process.
+
+
+
+
+As mentioned in the Modeling Approach section, cell movement has been modeled as a reinforcement learning process  in which an agent (cell) interacts with the environment (other cells in the embryo and the eggshell) to achieve predefined goals. In an individual cell movement case, an intelligent cell always tends to seek the optimal migration path towards its destination based on the regulatory rules. At each discrete time step , the cell senses its environmental state  from the embryo and selects an action , where the set of  includes the candidate actions at that state. The embryo returns a numerical reward  to the cell as an evaluation of that action based on the state. Finally, the cell enters the next state  and repeats the process until a terminal condition is triggered. The intelligent cell's objective is to maximize the overall rewards collected during the process. The whole process is demonstrated in Fig. .
+
+
+
+Traditionally, tabular-based Q-learning approaches were largely used for reinforcement learning tasks with modest amounts of input states. However, a dynamic agent-based embryogenesis model usually contains hundreds of cells that act at high temporal and spatial resolutions. Millions of different states are generated during a single embryogenesis process, which cannot be handled by traditional tabular-based Q-learning algorithms. Furthermore, a traditional Q-learning algorithm requires large computational resources and can not be tightly integrated within an agent-based modeling framework for large-scale simulations with high-dimensional inputs. Recent breakthroughs in reinforcement learning that incorporate deep neural networks as mapping functions allow us to feed in high-dimension states and obtain the corresponding Q-values that indicate a cell's next movement . Such a deep Q-network (DQN) outperforms most of the previous reinforcement learning algorithms.
+
+
+
+We implemented a DQN customized for cell movement modeling. It contains two main loops: a cell migration loop and a network training loop (Fig. ). At each time step in the cell migration loop, a state tracker is used for collecting the input state as a representation of the environmental conditions (details in Section ). An -greedy strategy is implemented to balance the exploration and exploitation. Specifically,  is a hyperparameter in . A random number  is sampled from a uniform distribution  each time before the selection of an action. If , the intelligent selects a random action, obtains a reward and moves to the next location. Otherwise, the movement action is calculated by feeding the input state to the neural network. Such a process repeats until a terminal condition is triggered. For the training loop, the DQN is established based on traditional Q-learning algorithms. Rather than searching a Q-table to find the maximal value of , Q-values are obtained through a neural network parameterized by a set of weights . The training samples are the tuples  gathered from the migration loop. The update process (Eq. ()) can be achieved by minimizing the loss function  (Eq. ()) and backpropagating the loss through the whole neural network to update  by  . Therefore, the intelligent cell will gradually select better actions as the training process proceeds.
+
+
+
+
+
+
+where  is the learning rate and  is the discount factor, which determines the present value of future rewards .
+
+In order to improve the system's performance, we utilized two mechanisms, i.e., experience replay  and target network , in the framework. Experience replay cuts off the correlation (which is one of the sources of instabilities) between samples by storing the movement tuples  in a replay memory and sampling them randomly during the training process. This is because the capacity of the replay buffer is much larger than the number of samples generated in a single process (from the beginning to a terminal state), and the randomly selected samples for training at each time will come from various processes, which are much less related with each other than those consecutive samples from a single process. In a DQN with a single neural network, the target for gradient descent is always shifting as  is updated at each time step. Therefore, rather than calculating the future maximal expected reward  and updating the weights in a single neural network, a target network, which has the same architecture as the original network (called the online network in the new scenario) but parameterized with , was implemented for the calculation of . The weights  remains unchanged for all  iterations until they are updated with  from the online network. This mechanism reduces the oscillations and improve the stabilities of the framework. The improved process is represented in Eq. ().
+
+
+
+
+The neural network, which is fed with the environmental state and outputs a Q-value for each action, contains three hidden layers, with 512, 1024, and 1024 nodes, respectively. The Rectified Linear Units (ReLU) was implemented as the activation function after all the hidden layers except for the output layer. The details of the hyperparameter selection can be found in the Supplementary Material S1.1.
+
+
+In the reinforcement learning scenario, the regulatory mechanisms that guide cell movements can be transformed to reward functions as an evaluation of how well a cell moves during a certain period of time based on those mechanisms. For the physical constraints of the cell movement, we defined the following two rules:
+
+
+: Cells cannot squeeze too much with each other. The closer two cells are, the larger penalty (negative reward) they receive.
+
+: Cells cannot break through the eggshell. The closer the cell is to the eggshell, the larger penalty (negative reward) it receives.
+
+
+For both of the above rules, as a threshold of distance is reached, a terminal condition is triggered and the process ends and restarts. For the directional cell movement, an explicit destination is given as a simplified third rule when other regulatory mechanisms are missing:
+
+
+: A cell always seeks the optimal path towards its target location.
+
+
+This rule can be replaced as more specific regulatory mechanisms are discovered (e.g., following a leading cell or becoming the neighbor of a certain cell), or new hypotheses are formulated. Details of the reward settings are illustrated in Section 4 and Supplementary Material S1.2.
+
+
+The automated cell lineage tracing technology was utilized to obtain the information of cells' identities and locations from 3D time-lapse microscopy images. These information were used to model the non-intelligent cells' (dumb cells') movement. Because the temporal resolution of our observation data is one minute, and an ABM simulation often requires a much smaller tick interval, a linear interpolation was implemented between two consecutive samples to calculate the next locations of these cells. Additionally, we added a random noise for each movement by sampling it from a normal distribution whose mean value and standard deviation were averaged from the locations of the cells of 50 wild-type  embryos .
+
+
+For the intelligent cell, an -greedy strategy was implemented, which makes it not only act based on past experiences to maximize the accumulated rewards most of the time but also gives it a small chance to randomly explore unknown states. Usually, the value of  is set to increase (the probability of random exploration decreases) as the training process proceeds. This is because the demands of exploration narrows down as the intelligent cell moves towards the destination. The selection of  varies from case to case and the details are demonstrated in the Supplementary Material S1.1. In the following sub-sections, we give a description of the settings of the intelligent cell's input states and output actions.
+
+
+
+Representing the input state accurately and efficiently is a key issue for the deep reinforcement learning framework of cell movement. Besides the location of the intelligent cell, which is indispensable, an intuitive assumption is that its neighbors, which represent the environment, should be incorporated to form the input state. We implemented a neighbor determination model (which takes a set of features of two cells, such as the distance between them, their radii, etc., and determines whether they are neighbors with each other with machine learning algorithms)  in a conservative manner for this purpose. Specifically, we extracted a number of candidate cells that might influence the intelligent cell with a relatively loose condition, so that more cells would be selected to guarantee that the input state is sufficiently represented. This was done by running the agent-based model in a non-reinforcement learning mode (all cells move based on the observation data) and recording the neighbors of the intelligent cell at each time step. Finally, we combined the locations of all these cells (selected accumulatively in the whole process) in a fixed order as the input for the neural network.
+
+
+It is intuitive to give the intelligent cell as many candidates of actions as possible (or a continuous action space) so that it can make the most eligible choice during the simulation. The diversity of the action includes different speeds and directions. However, the number of output nodes grows exponentially as we take looser strategies to select the action. Based on our extensive experiments, we discovered that an enumeration of eight directions of action, with  between each of them, is good enough for this scenario. Moreover, we fixed the speed based on an estimation of the average movement speed during the embryogenesis, which was measured from the observation data.
+
+Finally, we give an example of a specific evaluation step for a single action selection process (Fig. ). We collect all the locations of the selected cells by the neighbor determination model, concatenate them to form a vector in a fixed order, and feed it into the neural network. The output of the neural network are the Q-values (i.e., a probability for selecting each action). The action that corresponds to the maximal probability (or a random action as the -greedy suggested) is selected as the intelligent cell's next movement.
+
+
+
+The agent-based model was implemented with Mesa, which is an ABM framework in Python 3+. We used Python's GUI package Tkinter for the purpose of visualization. The cell movement behavior model was built with 3D coordinates, and certain slice of the whole embryo was visualized in a 2D manner to illustrate where emergent behaviors specifically happen. We used Pytorch to achieve reinforcement learning algorithms with the advantage of GPU acceleration during the training process. The reinforcement learning architecture was integrated as part of the agent-based model. All the computations were executed in a {DELL Precision workstation, configured with a 3.6 GHz 4-core {Intel {Xeon CPU, 64 GB main memory, and a 16-GB {NVIDIA {Quadro P5000 GPU.
+
+
+Live 3D time-lapse images of  embryogenesis data were used to study cell movement. Cell lineage  was traced by Starrynite II  and manually corrected in Acetree . Acetree was also used to visualize the observation data. Detailed information on live imaging can be found in the Supplementary Material S2. 
+
+Two special { biological phenomena, { and {, were investigated.  The first case is a remarkable process during { early morphogenesis of dorsal hypodermis. Cpaaa is born at the dorsal posterior. About 10 minutes later after its birth, Cpaaa moves towards the anterior and intercalates into two branches of ABarp cells, which will give rise to left and right seam cells, respectively. The intercalation of Cpaaa is consistent among wild-type embryos. It leads to the bifurcation of ABarp cells and the correct positioning of seam cells. The second case is {. It is a significant development scenario:  At the 4-cell stage, the left-right symmetry is broken after the skew of ABa/ABp spindle. The right cell  ABpr is positioned more posterior than the left cell ABpl. At the AB64 (64 AB cells, 88 total cells) stage, the movement of ABpl and ABpr cells start to restore the spatial symmetry, i.e., ABpl cells move towards the posterior and ABpr cells move towards the anterior. By 350-cell stage, ABpl and ABpr cells are again in symmetry on the AP axis. This asymmetry rearrangement achieves a superficially symmetric body plan .
+
+The embryo is considered to be an ellipsoid for the volume estimation. The mounting technique aligns the DV axis in the embryo with the z-axis of the data , and the lengths of the other two axes (AP and LR) are obtained by finding the minimum and maximum cell positions along them . For the estimation of the cell radius, the ratio of the cell volume to the entire embryo is determined based on its identity. Then, the radius is estimated by considering a cell as a sphere .
+
+We utilized linear functions to define the rewards in our simulations. Specifically, for the  rule, a penalty  (negative reward) is exerted as the distance between two cells reached a threshold. As their distance becomes smaller, the penalty linearly grows until a terminal threshold is reached (Eq. ()). Similarly, for the  rule, the penalty is calculated based on the distance between the intelligent cell and the eggshell. Finally, for the  rule, bigger positive rewards are given as the cell moves towards the destination. Details are demonstrated in Supplementary Material S1.2.
+
+
+where d is the distance between two cells and  and  represent the highest and lowest bounds of the distance between two cells where a penalty is generated.  and  indicate the range of the penalty.
+
+ Embryogenesis}
+
+The ABM environment was initialized with the observation data from live imaging with automated cell lineage tracing. We first tested the performance of our ABM framework. The ABM platform was configured to track the movements of the intercalation cell, namely, Cpaaa in the first process, for the purpose of illustration. Although the embryo we measured had a length of 30 m in the dorsal-ventral axis, we only considered the space that is 5-9 m to the dorsal side, where Cpaaa's intercalation happens. The entire space was visualized by projecting all cells in this space to the center plane (7 m to the dorsal side). Based on the result (Fig. ) we found that the movement path of Cpaaa is consistent with that in the 3D time-lapse images. The visualized cell sizes are largely consistent with the observation data, except the fact that a few of them, especially located in the planes that are far away from the center plane, have slightly different sizes visually. However, those differences have an insignificant impact on cell movement modeling. 
+
+
+
+Unlike supervised learning tasks, such as classification and regression, evaluating the performance is quite challenging in deep reinforcement learning tasks. We followed the evaluation metric in  to quantify the general performance of the system. The total rewards a cell collects in a single movement path generally goes upward, but tends to be quite noisy since very tiny changes in the weights of the neural network results in large changes in the actions a cell chooses  (Fig. ). Training loss tends to oscillate over time (Fig. ), and the reason behind this is the implementation of the experience replay and the target network, which cut off the correlation between training samples. Finally, we extracted a set of states by running the model in a non-reinforcement learning way and collecting the state cells' locations. We then fed these predefined states to the neural network during the training process. It turns out that the average action values of these states grows smoothly during the training process (Fig. ). We did not encounter any divergence problems, though the convergence of DQN is still an active research area. Sometimes, we experienced a few unstable training scenarios, but these problems could be solved by implementing a learning rate decay strategy.
+
+[!tpb]
+
+}
+
+}
+
+}
+
+
+
+
+
+We examined our hypotheses of individual cell movement in the { case (see Section ). Specifically, we tested (1) whether Cpaaa's intercalation results from an active directional movement or a passive movement, and (2) whether a passive movement mechanism is sufficient for explaining the migration path of Cpaaa's neighbors. In this case, the observed fact is that during the first four minutes of the process, the intercalating cell Cpaaa moves randomly. After extensive divisions of the ABarp cells, Cpaaa changes its behavior to a directional movement until the end of the process. The signal triggering the switch may come from the newborn ABarp cells. 
+
+In the directional cell movement process, unexpected regularization signals or irregular movement patterns have to be considered. In our study, we defined the possibility of selecting a directional movement from the neural network by a ratio between 0 and 1. The value of zero means a completely random movement, and the value of one means a completely directional cell movement.
+
+ case}
+We trained individual neural networks (parameters were initialized by random sampling from a Gaussian distribution.) for directional and passive movements with different sets of regulatory mechanisms. Specifically, we trained the neural network for passive movement with the { and { rules, and the one for directional movement with an addition of the { rule. The different behaviors of Cpaaa (random movement for the first four minutes and directional movement after that) were controlled by manipulating the probability of random movement  in the action selection procedure. The results of the simulation of Cpaaa with the { rule (Fig. (b)) show that during the first four minutes, the intelligent cell didn't have an explicit destination and, to a large extent, acted randomly. After that, Cpaaa switched its behavior and began to move directionally to the destination, as well as kept proper distances from its neighbors and the eggshell. The whole migration path largely reproduced that in the live microscopy images (Fig. (a)). However, when we trained Cpaaa without the { rule, it failed to identify the migration path and fell into a suboptimal location where it kept proper distances with its neighbors (Fig. (c)). We also trained a neighbor of Cpaaa, namely, Caaaa, as a passive movement cell during the process (Fig. (d)), and its migration path in this scenario also reproduced that in the images, which indicated that Caaaa played a passive role during Cpaaa's intercalation.
+
+For the verification of the generality of the model, random noises were added to the initial positions of all the cells (including the intelligent cell) and to all the migration paths of the dumb cells during the training process. It turns out that the neural networks could still provide the most proper actions under a large variety of input states after the policy converges, though the optimization process took longer to converge than that in the scenarios without random noises. 
+[!tpb]
+
+{2.1
+
+
+
+
+
+}
+
+
+{2.1
+
+
+
+
+
+
+}
+
+
+{2.1
+
+
+
+
+
+
+}
+
+
+{2.1
+
+
+
+
+
+
+}
+
+ case. (a) Observation results visualized by Acetree from 3D time-lapse images. (b) Simulation results of the intercalating cell Cpaaa with the { rule. (c) Simulation results when training Cpaaa only with the { and { rules, without the { rule, which indicate that Cpaaa fell into a suboptimal location. (d) Simulation results of the cell Caaaa, a neighbor of Cpaaa. Red, yellow, and green circles represent the intelligent cell, input state cells, and non-related cells, respectively. The white circle indicates the destination of the intelligent cell. All four sets of data were collected at the following time steps: 0, 4, 8, 12, 17, and 22 (minutes from the beginning of the simulation).}
+
+
+
+
+
+We found that qualitatively, the intelligent cell Cpaaa adopted a similar migration path to the destination with the directional movement setting, as compared to the observation case (Fig. (a)), though from the 13th to 19th minute, the observation movement of Cpaaa went towards the anterior faster than the simulation path. The difference between the simulation and observation results indicates that extra regulatory mechanisms (such as cell adhesion, or intermediate sub-mechanisms, see the Discussion section) could be considered to control cell movement during the whole { process. On the other hand, without the { rule, Cpaaa's simulated path is quite far away from the observed path (Fig. (b)). We used the mean square error (MSE) as a quantitative measurement of the simulated path and the observed path. It turns out that the MSE in Fig. (a) is much smaller than that in Fig. (b) (4.05 vs. 237.60). In conclusion, the above results show that Cpaaa's intercalation is regulated by an active directional movement mechanism, which is strongly influenced by the { rule (or its alternatives), rather than by a passive movement mechanism. Moreover, another interesting finding is that the standard deviation of the migration path of Cpaaa with the { rule is controlled in a proper range, whereas that of the path without the { rule diverges as time goes by. Such a result indicates that the intelligent cell achieves an error correction mechanism in its migration path to the destination. 
+
+
+
+
+In this experiment, we trained the neural network to test the cell movement in group migration via the case of {. Rather than explicitly pointing out the destination, we let the intelligent cell (ABplpaapp) follow the leading cell (ABplppaa, or its daughter cells). The reward setting was then modified accordingly: When the distance between the leading cell and the following cell is in a proper range, a positive reward is given. The results (Fig. (b)) show that ABplpaapp always moves following the leading cell, and keeps proper distances from its neighbors. Although we did not identify which cell is the leading cell, the intelligent cell will gradually figure out which nearby cell is the leading cell through the training process, because following the leading cell will achieve a big reward. The results are consistent with the observation data (Fig. (a)), which shows the flexibility of our model by replacing the  rule with more concrete ones.
+
+
+
+
+
+
+In this study, we presented a novel approach to model cell movement using deep reinforcement learning within an agent-based modeling framework. Our study showed that neural networks can be adopted to characterize cell movement and that the deep reinforcement learning approach (i.e., DQN) can be used to find the optimal migration path of a cell under certain regulatory mechanisms. As comparing to the heuristic rule-based, agent-based models, with which macroscopical behaviors (such as tissue/organ morphogenesis) can be studied , this model provides a new point of view in which single cell movements can be defined and optimized over a considerable period of time. In the  case, we tested two hypotheses (active directional movement vs. passive movement) that might explain Cpaaa's migration towards the anterior by manipulating the reward settings (use the  rule or not). Simulation results rejected the passive movement assumption after comparisons between simulated and observed paths of Cpaaa. Such results indicated that target site specification (the  rule), as a simplified representation of morphogen gradient, is an effective approach for cell migration path learning, especially when regulatory mechanisms lag data collection. The  case demonstrated that the framework has the capability to generalize the  rule to more specific mechanisms (a leader-follower mechanism in this case) to explain certain cell movement behaviors. By comparing simulated cell migration path regulated by the proposed assumptions and the observed path in a reverse engineering perspective, this framework can be used for facilitating new hypotheses during certain developmental processes not only in , but in other tissues/organisms as well.
+
+This model captures the main aspects of cell movement and provides a new idea that represents cell behaviors with neural networks trained by deep reinforcement learning algorithms. More powerful models can be implemented in the following aspects: (1) Multi-agent reinforcement learning  can be used for studying cooperative/competitive cell behaviors by manipulating the rewards in the framework. Such an extension can provide further biological insights. For example, for the { case, we may investigate whether the certain group of cells (i.e., Cpaaa and its neighbors) works cooperatively (as a result of the intercalation of Cpaaa) or its neighbors actually act competitively with their own rules (but the regulatory rule of Cpaaa is over-dominant). More specifically, we observed that during the last few minutes of the process, the cell ABarpaapp moves to the posterior to become a neighbor of Cpaaa. It is interesting to study whether ABarpaapp helps Cpaaa to intercalate towards the anterior (cooperative behavior, give both cells rewards when the intercalation of Cpaaa is achieved.), or such a migration of ABarpaapp is just due to its dislocation (competitive behavior, ABarpaapp will not be rewarded when Cpaaa achieves the intercalation.). (2) The hierarchical regulatory mechanism is another area of interest. Although the  rule provides a simplified representation of morphogen gradient, it can be generalized with the formation of certain cell neighbor relationships. In the  case, the intelligent cell experiences a series of changes of neighbor relationships before reaching the target site. It is worth investigating whether these relationships play as significant sub-goals to serve the ultimate goal. As presented in , the deep Q-network performs poorly on hierarchical tasks. Such tasks require more advanced strategies that are obtained by prior knowledge, which can hardly be represented by the input state. Therefore, future work is immediately needed to implement hierarchical deep reinforcement learning architectures to meet such demands . (3) Other advanced training strategies and reinforcement learning algorithms are also worth investigating to improve the performance of the model, such as learning rate decay , continuous control , and asynchronous methods . (4) Finally, we hope to incorporate more biological domain knowledge in the model to simulate more complex cell movement behaviors. As one of our previous effort, we have developed a developmental landscape for mutated embryos . The mutated cell fate information from this research can be integrated as part of the input state to study a cell's migration path in a mutant. With fate-related adjustments of the regulatory mechanisms and the reward functions behind them, we can verified/rejected the hypotheses of certain cell movement behaviors in a mutant based on the extent of differences between the simulated path and the observed path. Furthermore, by comparing the simulation and observation paths, we can design more biological experiments for follow-up investigations. Other concepts, such as cell-cell adhesion, as environmental factors (like the { and the { rule) can also be incorporated to improve the performance of the model.
+
+
+In this paper, we successfully developed a cell movement modeling system by integrating deep reinforcement learning with an ABM framework. Our modeling system can learn a cell's optimal path under certain regulatory mechanisms, and thus it can examine hypotheses by comparing the similarities between the simulation cell migration paths and the observation data. These two capabilities, in turn, provide new opportunities to explore the large datasets generated by live imaging.
+
+
+This study is supported by an NIH research project grants (R01GM097576). Research in the Bao lab is also supported by an NIH center grant to MSKCC (P30CA008748). 
+
+{10}
+
+
+
+

@@ -1,0 +1,871 @@
+% This is LLNCS.DOC the documentation file of
+% the LaTeX2e class from Springer-Verlag
+% for Lecture Notes in Computer Science, version 2.4
+\documentclass{llncs}
+%\usepackage{llncsdoc}
+
+\usepackage{tikz}
+\usetikzlibrary{matrix,chains,positioning,decorations.pathreplacing,arrows}
+
+
+\usepackage{amsmath}
+\usepackage{subcaption}
+%\usepackage{subfig}
+
+\captionsetup{compatibility=false}
+\usepackage{array}
+%\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}}
+
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{siunitx}
+\usepackage{soul}
+\usepackage{wrapfig}
+\usepackage{enumitem}
+\usepackage{capt-of}
+
+%
+\begin{document}
+
+\title{Social Influence (Deep) Learning \\ for Human Behavior Prediction}
+% Use \titlerunning{Short Title} for an abbreviated version of
+% your contribution title if the original one is too long
+\author{Luca Luceri \inst{1}\inst{,}\inst{2}, Torsten Braun \inst{2}, Silvia Giordano \inst{1}}
+\institute{University of Applied Sciences and Arts of Southern Switzerland (SUPSI)
+\and University of Bern \\
+\email{luca.luceri@supsi.ch, braun@inf.unibe.ch, silvia.giordano@supsi.ch}}
+
+% Use \authorrunning{Short Title} for an abbreviated version of
+% your contribution title if the original one is too long
+%\institute{Luca Luceri, Alberto Vancheri, and Silvia Giordano \at University of Applied Sciences and Arts of Southern Switzerland (SUPSI), Via Cantonale 2C, 6928 Manno, Switzerland, \email{name.surname@supsi.ch}
+%\and Luca Luceri, and Torsten Braun \at University of Bern, Neubrückstrasse 10, 3012 Bern, Switzerland, \email{luca.luceri@students.unibe.ch, braun@inf.unibe.ch}
+%\thanks{This work is supported by the Swiss National Science Foundation via the SwissSenseSynergy project, grant number 154458.}
+%\titlerunning{On the Social Influence in Human Behavior}
+%\authorrunning{first author et al.}
+\maketitle
+
+%
+\begin{abstract}
+\vspace{-.5cm}
+Influence propagation in social networks has recently received large interest.
+In fact, the understanding of how influence propagates among subjects in a social network opens the way to a growing number of applications. Many efforts have been made to quantitatively measure the influence probability between pairs of subjects. 
+Existing approaches have two main drawbacks: $(i)$ they assume that the influence probabilities are independent of each other, and $(ii)$ they do not consider the actions not performed by the subject (but performed by her/his friends) to learn these probabilities.
+In this paper, we propose to address these limitations by employing a deep learning approach.
+We introduce a Deep Neural Network (DNN) framework that has the capability for both modeling social influence and for predicting human behavior.
+To empirically validate the proposed framework, we conduct experiments on a real-life (offline) dataset of an Event-Based Social Network (EBSN).
+Results indicate that our approach outperforms existing solutions, by efficiently resolving the limitations previously described.
+\vspace{-.3cm}
+\end{abstract}
+
+%
+\section{Introduction}
+Influence propagation in social networks has recently received large interest, both in academia and industry.
+%Despite the impact of influence on collective behavior has a long history of study, influence propagation in social networks has recently received huge interest, both in academia and industry.
+In fact, the understanding of how influence propagates in a social network opens the door to a wide range of applications, as targeted advertising, viral marketing, and recommendation.
+In this context, social networks play an important role as a medium for spreading processes \cite{newman2003structure,albert2002statistical}. 
+As an example, a new idea can spread through a social network in the form of ``word-of-mouth'' communication \cite{goldenberg2001talk}. 
+%Formally, influence propagation has been defined as a stochastic dynamic process running over an underlying social network \cite{domingos2001mining,richardson2002mining,kempe2003maximizing}. 
+In the last decade, particular attention has been devoted to the comprehension and modeling of the social influence phenomenon. 
+Social influence is recognized as a key factor that governs human behavior.
+It indicates the attitude of certain individuals to be affected by other subjects' actions and decisions.
+The idea is that the interaction with other individuals (or a group) may result in a change of subject's thoughts, feelings, or behavior. 
+In other words, a subject may take a decision, e.g., to buy a new product or to watch a TV show, when she/he sees her/his friends taking that decision. 
+%Social influence can reduce the amount of effort recommenders put into searching for products, increasing collective efficiency  of the market [13]. In [Taming], authors show how social influence can be used to make markets more predictable and efficient.
+%Every day people make a staggering number of choices about what to buy, what to read, where to eat, and what to watch. 
+
+%Considerable research has focused on finding the macro-level mechanisms of the social influence such as degree distributions, diameter, clustering coefficient, communities,
+%and small world effect [1, 8, 21, 28]. However, these methods provide us with limited insights into the micro-level dynamics of the social network such as how an individual user changes his behaviors (actions) and how a user?s action influences his friends. 
+%Social network analysis often focus on macro-level models such as degree distributions, diameter, clustering coefficient, communities, small world effect, preferential attachment, etc; work in this area includes [1, 11, 19, 23]. Recently, social influence study has started to attract more attention due to many important applications.
+A considerable amount of work has been conducted to investigate social influence and analyze its effect.
+%The former attempted to investigate and verify the existence of social influence (manca \cite{la2010randomization}). 
+%Most existing works have focused on validating the existence of influence.
+In \cite{singla2008yes} and \cite{anagnostopoulos2008influence}, the authors propose how to qualitatively measure the existence of social influence, whereas in \cite{crandall2008feedback} the correlation between social similarity and influence is examined.
+%The former attempted to investigate and verify the existence of social influence (manca \cite{la2010randomization}). 
+%Anagnostopoulos et al. (2008) gave a theoretical justification to identify influence as a source of social correlation when the time series of user actions are available. They proposed a shuffle test to prove the existence of social influence. 
+%Singla and Richardson (2008) studied the correlation between personal behaviors and their interests. They found that in online systems people who chat with each other (using instant messaging) are more likely to share interests (theirWeb searches are the same or topically similar), and the more time they spend talking, the stronger this relationship is. 
+%Crandall et al. (2008) further investigated the correlation between social similarity and influence.
+%King (1987) analyzed influence factor among paper citation networks.
+In \cite{luceri2017communities}, we introduce a novel interpretation of physical, homophily, and social community, as sources of social influence.
+Other relevant works focused on the problem of influence maximization \cite{domingos2001mining,richardson2002mining,kempe2003maximizing,kimura2007extracting}.
+%Domingos and Richardson \cite{domingos2001mining,richardson2002mining}, Kempe et al. \cite{kempe2003maximizing}, and Kimura et al. \cite{kimura2007extracting} study %the maximization of influence spread in the social network. the problem of influence maximization.
+This problem aims to find the most influential individuals in a social network in order to maximize the number of influenced subjects.
+Viral marketing is a strategy that exploits this idea to promote new products. %and reveals the valuable power of influence. 
+Kempe et al. \cite{kempe2003maximizing} focus on two fundamental propagation models, referred to as Independent Cascade (IC) model and Linear Threshold (LT) model.
+%Widely used information diffusion models in these studies are the independent cascade (IC) and the linear threshold (LT).
+%These two models focus on different information diffusion aspects. 
+In the IC model, each subject independently influences her/his friends with given influence probabilities. 
+In the LT model, a subject is influenced by her/his friends if the combination of their total influence probabilities exceeds a threshold. 
+Both models assume to have as input a social network whose edges are weighted by a measure of influence probability. However, these values are not known in practice and, thus, should be estimated. %by mining the history of subjects' actions.
+%The history of subject actions are used to perform this estimation.
+Many efforts have been made to quantitatively measure the influence strength between pairs of friends \cite{gruhl2004information,saito2008prediction,tang2009social,goyal2010learning,liu2012learning,fang2013predicting}. 
+%Some of these works model social influence at topic-level, i.e., considering influence among subjects with respect to topics.
+In particular, Goyal et al. \cite{goyal2010learning} and Saito et al. \cite{saito2008prediction} investigate how to learn the influence probabilities using only the history of subjects' actions.
+%Compared to these topic-level social influence, we are interested in modeling influence among subjects independently on the.
+% In this [SI Analysis in Large Scale Net] paper, we focus on measuring the strength of topic-level social influence quantitatively (they associate social influence with different topics).
+%Tang et al. [29] study the difference of the social influence on different topics and propose Topical Affinity Propagation (TAP) to model the topic-level social influence in social networks and develop a parallel model learning algorithm based on the map-reduce programming model. Goyal et al. [10] aims to learn the influence probabilities from historic users? actions. Compared with these social influence analysis works, we [social action tracking] simultaneously model the social network structure, user attributes, and user actions into a unified model.
+%Dietz et al. (2007) proposed a citation influence topic model to discover the influential strength between papers. 
+%Tang et al. (2009) introduced the problem of topic-based social influence analysis. 
+%And they proposed a Topical Affinity Propagation (TAP) approach to describe the problem via using a graphical probabilistic model. 
+%Tan et al. (2010) studied how to track and predict users? action according to a learning model. However, they did not consider the topic-level influence and the indirect influence. 
+%Tang et al. \cite{tang2009social} try to learn the influence probabilities according to the network structure and the similarity between nodes. 
+%However, these methods consider the social influence at the topic-level / social influence w.r.t. topics.
+%Tang et al. [19] introduce the problem of topic-based social influence analysis. Given a social network and a topic distribution for each user, the problem is to find topic-specific subnetworks, and topic-specific influence weights between members of the subnetworks. They propose a Topical Affinity Propagation (TAP) approach using a graphical probabilistic model. They also deal with the efficiency problem by devising a distributed learning algorithm under the Map-reduce programming model. Moreover, they also discuss the applicability of their approach to the expert finding problem.
+%
+%Independently and concurrently with us, Saito et al. [14] have studied the same problem we tackle in this paper, focussing on the Independent Cascade model of propagation. They formally define the likelihood maximization problem and then apply EM algorithm to solve it. While their formulation is elegant, it is not scalable to huge datasets like the one we are dealing in this work. This is due to the fact that in each iteration, the EM algorithm must update the influence probability associated to each edge.
+%These works investigate how to learn the influence probabilities from the history of subject's actions.
+Such approaches have two main drawbacks: $(i)$ they assume that the probability of friends influencing a subject are independent of each other, and $(ii)$ they do not consider the actions not performed by the subject (but performed by her/his friends) to learn the influence probabilities. %However, it may be relevant to take into account the actions not performed by the subject so as to detect the friends that really affect subjects' decisions. 
+
+In this paper, we propose to address the aforementioned drawbacks by employing a deep learning approach.
+Our objective is to learn subjects interplay for modeling social influence and predicting their behavior.
+%We apply the discovered influence to user behavior prediction. 
+%Extensive experiments in real social networks are conducted to evaluate the effect of influence in terms of user behavior prediction performance.
+We summarize our contributions as follows:
+\begin{itemize}
+\item We introduce a Deep Neural Network (DNN) framework that has the capability for both learning social influence and predicting human behavior. 
+To the best of our knowledge, our solution is the first architecture that accomplishes these two tasks in one shot. 
+\item We model social influence among subjects overcoming the assumptions introduced by previous works.
+%In such approaches, the probability of various friends influencing a subject are considered independent of each other.
+We design a DNN taking into account both $(i)$ the relationship between the subject and her/his friends and $(ii)$ the interactions among them. 
+%\item Threshold models
+Further, we learn social influence considering also the actions not performed by the subject (but performed by her/his friends) to understand who really affects subject's decisions.
+%\item To evaluate the performance of our approach, we conduct experiments on a dataset compare our proposed method against with
+%Compared to these approaches, we consider in the training phase subject behavior also in the cases of negative decisions, i.e., to not perform an action.
+\item We evaluate the performance of our approach using data from an Event-Based Social Network (EBSN). 
+This allows us to investigate social influence considering together \emph{online} (through the social network) and \emph{offline} (real-life) social interactions.
+%To our knowledge, this is the first attempt to evaluate social influence also in offline scenarios.
+Previous works conducted their experiments analyzing social influence only in Online Social Networks (OSNs).
+We compare our approach with existing solutions, achieving a remarkable improvement. %with respect to the state of the art.
+% achieving a prediction accuracy of 85\%, which corresponds to an improvement of x\%.% with respect to the state of the art. 
+\end{itemize}
+
+%\section{Related Works}
+
+\section{Problem Definition}
+\label{pro_def}
+In this paper, we aim to learn social influence in a social network in order to predict human behavior, in terms of decision and actions performed by individuals.
+%tackle the problem of learning the social influence among friends in order to predict human behavior in terms of decision and actions performed by individuals.
+Let $G=(V,E)$ be a directed graph, which represents the social network, where $V=\{u_1,u_2, \dots, u_N\}$ is the set of subjects and $E$ is the set of edges connecting them. % representing social connections among them.
+%Two subjects $(u_i,u_j)$ are considered \emph{friends} if  $(u_i,u_j) \in E$.
+Subject $u_j$ is considered a \emph{friend} of subject $u_i$ if $(u_j,u_i) \in E$.
+%We define \emph{friend} each node directly connected to 
+% nodes. 
+%The edge $(u,v) \in E$ if the nodes $u$ and $v$ are socially bonded. %tie among them.
+%Our objective can be formalized/formulated as follows.
+%Formalizing our objective, we want to find a function that maps social interaction and influence assign to each edge $(u,v) \in E$ the probability of influence $p_{u,v}$ .
+To model social influence we measure the strength of friends' influence on subject's actions.
+We define $A$ as the whole set of actions. %, and ${A}_{u_i} \subseteq A$ as the set of actions performed by subject $u_i \in V$. 
+%\footnote{We will clarify later the actions we analyze in this work.}.
+For each action $a \in A$, each subject is either \emph{active}, if she/he has performed the action, or \emph{inactive}, otherwise. It should be noticed that inactive subjects may become active, but not the opposite.
+We define $S_{u_i,a}$ as the set of active friends of $u_i$ for the action $a$.
+%We define ${A}_u$ as the set of events/locations attended by user $u \in V$.
+%We denote a user as \emph{active} if she/he performed the action, otherwise the user is denoted as \emph{inactive}.
+The objective is to predict whether a subject becomes active based on her/his active friends.
+To achieve this purpose, previous works determine the influence probability $p_{u_i}(S_{u_i,a})$, i.e., the influence exerted on subject $u_i$ by the active friends $S_{u_i,a}$, by exploiting the history of $u_i$ actions.
+%As we mentioned above, 
+The main assumption in these works is that the probability of various friends influencing $u_i$ are independent of each other.
+%Thereby, in such works, this probability is computed as
+Thereby, the probability $p_{u_i}(S_{u_i,a})$ is computed as
+%\begin{equation}
+$p_{u_i}(S_{u_i,a})=1-\prod_{u_j\in S_{u_i,a}}(1-p_{u_j,u_i})$,
+%\end{equation}
+where $p_{u_j,u_i}$ is the influence probability of $u_j$ on $u_i$.
+
+As an example, Figure \ref{ego} represents the social network of subject $u_5$.
+%A ego network is the social network of a subject, called ego. Only subjects directly connected to the ego are present in this network.
+To simplify the reading, only the incoming edges of node $u_5$ are represented.
+Each edge is weighted by the influence probability $p_{u_j,u_i}$. A red node represents an inactive subject.
+The decision of $u_5$ to perform an action $a$ is a function (Eq. (1)) of the active friends ($u_1,u_2,u_4$) and related influence probabilities. 
+%In this instance, $p_{u_5}(S_{u_5,a})=0.8$, as only friends $u_1,u_2$ and $u_4$ are active.
+\begin{figure*}
+	\vspace{-.3cm}
+        \centering
+        \resizebox{0.6\textwidth}{!}{%
+        \begin{subfigure}[b]{0.47\textwidth}
+        \centering
+               \begin{tikzpicture}[auto, node distance=2cm, every loop/.style={},
+                    thick,node/.style={circle,draw},other node/.style={circle,draw,red,dashed}, main node/.style={circle,draw, dashed}]
+
+  \node[main node] (1) {\Large $u_1$};
+  \node[node] (5) [below of=1] {\Large $u_5$};
+  \node[main node] (2) [left of=5] {\Large $u_2$};
+  \node[other node] (3) [below of=5] {\Large $u_3$};
+  \node[main node] (4) [right of=5] {\Large $u_4$};
+
+  \path[every node/.style={font=\sffamily\large}, ->]
+    (1) edge node [right] {0.7} (5)
+	%edge node[right] {0.8} (2)
+%        edge [loop above] node {0.1} (1)
+    (2) edge node {0.4} (5)
+    	% edge [bend left]  node[left] {0.7} (1)
+%        edge node {0.3} (4)
+%        edge [loop left] node {0.4} (2)
+%        edge [bend right] node[left] {0.1} (3)
+    (3) edge node [right] {0.8} (5)
+      %  edge [bend right] node[right] {0.2} (5)
+    (4) edge node {0.2} (5);
+%        edge [loop right] node {0.6} (4)
+%        edge [bend right] node[right] {0.2} (1);
+\end{tikzpicture}
+
+                \caption{}
+                \label{ego}
+        \end{subfigure}\hfill%   
+        \begin{subfigure}[b]{0.47\textwidth}
+        \centering
+              \begin{tikzpicture}[auto, node distance=2cm, every loop/.style={},
+                   thick,node/.style={circle,draw},other node/.style={circle,draw,red,dashed}, main node/.style={circle,draw, dashed}]
+
+  \node[main node] (1) {\Large$u_1$};
+  \node[node] (5) [below of=1] {\Large$u_5$};
+  \node[main node] (2) [left of=5] {\Large$u_2$};
+  \node[other node] (3) [below of=5] {\Large$u_3$};
+  \node[main node] (4) [right of=5] {\Large$u_4$};
+
+  \path[every node/.style={font=\sffamily\large}, ->]
+    (1) edge node [right] {0.7} (5)
+	edge node[right] {0.8} (2)
+%        edge [loop above] node {0.1} (1)
+    (2) edge node {0.4} (5)
+    	 edge [bend left]  node[left] {0.7} (1)
+%        edge node {0.3} (4)
+%        edge [loop left] node {0.4} (2)
+%        edge [bend right] node[left] {0.1} (3)
+    (3) edge node [right] {0.8} (5)
+      %  edge [bend right] node[right] {0.2} (5)
+    (4) edge node {0.2} (5);
+%        edge [loop right] node {0.6} (4)
+%        edge [bend right] node[right] {0.2} (1);
+\end{tikzpicture}
+
+                \caption{}
+                \label{ego2}
+        \end{subfigure}\hfill  
+}%    
+        \caption{Example of influence probabilities in a social network}
+	\label{ego_all}
+	\vspace{-.5cm}
+\end{figure*}
+
+Existing approaches learn the probability $p_{u_j,u_i}$, $\forall (u_j,u_i) \in E$, from the actions performed by both $u_j$ and $u_i$. 
+In particular, they consider $u_i$ as influenced by $u_j$ if the latter performed the action before the former.
+Such approaches have two main drawbacks. %, as mentioned above.
+The probability of friends influencing a subject are considered independent of each other. This assumption may not be always true, especially when two friends of a subject are in turn friends, as for the nodes $u_1$ and $u_2$ in the example of Figure \ref{ego2}. 
+%As a result of this assumption, they consider as equivalent the two networks in Figure \ref{ego_all}, as they do not take into account friends' relationships.
+The fact that subject $u_1$ and $u_2$ are both active can differently affect subject $u_5$ decision.
+In this instance, the joint probability of influencing $u_5$ should be higher if compared to the combination of the independent probabilities (Eq. (1)). 
+Further, previous works in the literature learn the influence probability by considering only the actions performed by the subject (\emph{positive samples}).
+However, it may be relevant to take into account the actions not performed by the subject (\emph{negative samples}), but performed by her/his friends, so as to understand who really affects subject's decisions. 
+As an example, we consider the scenario where subject $u_5$ does not buy a certain product, while some of her/his friends do. In this instance, considering also negative samples can improve the influence modeling, as $u_5$ may be affected by the friends that share the same \emph{negative} decision.
+%The fact that a subject performed the same actions of another individual does not represent a proof of influence. 
+%In this instance, considering also negative samples may help to understand and model the influence process.
+%As an example, Figure \ref{ego_neg} depicts the influence probabilities of subject $u_5$ when considering only positive samples (Figure \ref{ego_neg1}) and only negative samples (Figure \ref{ego_neg2}). Dashed lines are used to indicate influence probabilities in negative samples.
+%It should be noticed that $u_3$ has high influence probability only in positive samples, thus, we cannot assume she/he highly influences $u_5$.
+%Conversely, subject $u_1$ has high influence probability both in positive and negative samples.
+%For this reason, we consider also negative samples in our approach.
+%It should be noticed that $u_1$ has high influence probability both in positive and negative samples, thus, we can assume she/he highly influences $u_5$. Conversely, subject $u_3$ has high influence probability only in positive samples.
+
+%\begin{figure*}
+%        \centering
+%\resizebox{0.7\textwidth}{!}{%
+%        \begin{subfigure}[b]{0.47\textwidth}
+%        \centering
+%               \begin{tikzpicture}[auto, node distance=2cm, every loop/.style={},
+%                    thick,node/.style={circle,draw},other node/.style={circle,draw,red,dashed}, main node/.style={circle,draw, dashed}]
+%
+%  \node[main node] (1) {$u_1$};
+%  \node[node] (5) [below of=1] {$u_5$};
+%  \node[main node] (2) [left of=5] {$u_2$};
+%  \node[main node] (3) [below of=5] {$u_3$};
+%  \node[main node] (4) [right of=5] {$u_4$};
+%
+%  \path[every node/.style={font=\sffamily\small}, ->]
+%    (1) edge node [right] {0.7} (5)
+%	%edge node[right] {0.8} (2)
+%%        edge [loop above] node {0.1} (1)
+%    (2) edge node {0.4} (5)
+%    	% edge [bend left]  node[left] {0.7} (1)
+%%        edge node {0.3} (4)
+%%        edge [loop left] node {0.4} (2)
+%%        edge [bend right] node[left] {0.1} (3)
+%    (3) edge node [right] {0.8} (5)
+%      %  edge [bend right] node[right] {0.2} (5)
+%    (4) edge node {0.2} (5);
+%%        edge [loop right] node {0.6} (4)
+%%        edge [bend right] node[right] {0.2} (1);
+%\end{tikzpicture}
+%
+%                \caption{Positive samples}
+%                \label{ego_neg1}
+%        \end{subfigure}\hfill%   
+%        \begin{subfigure}[b]{0.47\textwidth}
+%        \centering
+%              \begin{tikzpicture}[auto, node distance=2cm, every loop/.style={},
+%                    thick,node/.style={circle,draw},other node/.style={circle,draw,red,dashed}, main node/.style={circle,draw, dashed}]
+%
+%  \node[main node] (1) {$u_1$};
+%  \node[node] (5) [below of=1] {$u_5$};
+%  \node[main node] (2) [left of=5] {$u_2$};
+%  \node[main node] (3) [below of=5] {$u_3$};
+%  \node[main node] (4) [right of=5] {$u_4$};
+%
+%  \path[every node/.style={font=\sffamily\small}, ->,dashed]
+%    (1) edge node [right] {0.8} (5)
+%	%edge node[right] {0.8} (2)
+%%        edge [loop above] node {0.1} (1)
+%    (2) edge node {0.3} (5)
+%    	 %edge [bend left]  node[left] {0.7} (1)
+%%        edge node {0.3} (4)
+%%        edge [loop left] node {0.4} (2)
+%%        edge [bend right] node[left] {0.1} (3)
+%    (3) edge node [right] {0.2} (5)
+%      %  edge [bend right] node[right] {0.2} (5)
+%    (4) edge node {0.3} (5);
+%%        edge [loop right] node {0.6} (4)
+%%        edge [bend right] node[right] {0.2} (1);
+%\end{tikzpicture}
+%
+%
+%                \caption{Negative samples}
+%                \label{ego_neg2}
+%        \end{subfigure}\hfill      
+% }%
+%        \caption{Example of influence probabilities with positive and negative samples}
+%	\label{ego_neg}
+%\end{figure*}
+
+Previous works differ from each other for the way the probabilities $p_{u_j,u_i}$ are estimated.
+In this paper, we study the LT models proposed by Goyal et al. \cite{goyal2010learning} and the IC model of Saito et al. \cite{saito2008prediction}. %as they learn influence probabilities using only the history of subjects' actions. 
+Other works in the literature model social influence at topic-level, i.e., considering influence among subjects with respect to a set of OSN topics.
+%Compared to these topic-level social influence, 
+We are not only interested in online scenarios, thus, we aim to model social influence among subjects independently of the topics.
+%We are interested in modeling social influence among subjects in real-life scenarios, thus, independently on the topics of a OSN.
+In the LT models of Goyal et al., a node becomes active if $p_{u_i}(S_{u_i,a}) \geq \theta$, where $\theta$ is the activation threshold. 
+%A limitation of this approach is that they set a unique threshold for every subject in the set $V$. An alternative approach may consider to learn and adapt the threshold for each subject according to her/his history.
+They propose different probabilistic models to capture the influence probability $p_{u_j,u_i}$, referred to as Bernoulli Distribution (BD), Jaccard Index (JI), Partial Credits - Bernoulli (PC-B), and Partial Credits - Jaccard (PC-J). We do not describe them in details for the lack of space.
+% They employed a variant of the LT model and estimated the parameter values by four different methods, all of which are directly computed from the frequency of the events in the observed data. Their approach is efficient, but it is more likely ad hoc and lacks in theoretical evidence
+%They also introduce a Discrete Time (DT) model, which changes the influence probabilities with time.
+In the IC model of Saito et al., each active subject independently influences her/his inactive friends with influence probabilities estimated by maximizing a likelihood function with the Expectation Maximization (EM) algorithm.
+
+
+\section{Proposed Solution}
+This work addresses the aforementioned drawbacks by formalizing a deep learning approach for modeling social influence and predicting subject's behavior.
+%To accomplish this task, we do not consider influence probabilities as independent, and we employ both positive and negative samples. 
+In this section, we present the proposed approach based on a DNN architecture.
+
+%In this section, we present the proposed solution for modeling social influence and predicting subject's behavior.
+%We employ a deep learning approach based on a Deep Neural Network (DNN) architecture.
+
+\subsection{Deep Neural Network (DNN)}
+In recent years, deep learning \cite{lecun2015deep,schmidhuber2015deep} has found successful application in a growing number of areas. %ranging from speech and image recognition to natural language processing and computer vision, as well as other fields not directly related to Artificial Intelligence (AI) applications.
+%This is confirmed by the intensive research and development that has been carried out during the last years in numerous fields. 
+A DNN is able to approximate any continuous function by learning the relationships embedded in the input data. 
+Thereby, it replaces the manual feature extraction procedure by building up a complex hierarchy of concepts through the multiple layers of the network to automatically extract discriminative and abstractive features of data \cite{he2017neural}.
+A DNN is defined by a combination of three layers: input layer $(\mathbf{x})$, hidden layers $(\mathbf{h}_1,\mathbf{h}_2, \dots, \mathbf{h}_L)$, and output layer $(\mathbf{y})$.
+These layers are fully connected in a weighted way as follows
+\vspace{-0.1cm}
+\[
+    \mathbf{h}_j= 
+\begin{cases}
+    \phi_j(\mathbf{x}\mathbf{W}_{xh_{j}})& \text{if } j= 1 \\
+    \phi_j(\mathbf{h}_{j-1}\mathbf{W}_{h_{j-1}h_{j}})& \text{if } 1<j\leq L
+\end{cases} 
+\vspace{-0.2cm}
+\]
+\begin{equation*}
+\mathbf{y}= \phi_o(\mathbf{h}_{L}\mathbf{W}_{h_{L}y}) \ ,
+%\vspace{-0.1cm}
+\end{equation*}
+where $\mathbf{W}_{kl}$ indicates the weights of the connections between layer $k$ and $l$, while $\phi_j$ is a non-linear activation function (e.g., sigmoid, ReLU, tanh, softmax) of each hidden node at layer $j$, and $\phi_o$ is a non-linear activation function of each output node.
+%Figure \ref{dnn} depicts a simple DNN with $L=1$ and one output node.
+The predictive model of a DNN can be formulated as $\hat{\mathbf{y}}=f(\mathbf{x}|\Theta)$, where 
+$\hat{\mathbf{y}}$ denotes the predicted output, $\Theta$ represents the model parameters (i.e., the inter-layers weights), and $f$ indicates the function that maps the input $\mathbf{x}$ to the output $\hat{\mathbf{y}}$ based on the DNN architecture, i.e., $f(\mathbf{x})=\phi_o( \phi_{L}(\dots\phi_{2}(\phi_{1}(\mathbf{x}))\dots))$.
+%- where the output of one layer serves as the input of the next one. 
+%In other words, the DNN output depends on the input, and on the weights learned during the training.
+
+
+\subsection{Social Influence Deep Learning}
+\begin{wrapfigure}{r}{0.4\textwidth}
+ \vspace{-.8cm}
+%\centering
+    \resizebox{0.4\textwidth}{!}{%
+\begin{tikzpicture}
+[   cnode/.style={draw=black,fill=#1,minimum width=3mm,circle},
+]
+
+    \node[cnode=red,label=0:\Large $\hat{y}_{u_i,a}$] (s) at (5,-5.4) {};
+    \node at (1,-4) {$\vdots$};
+     \node at (1,-9) {$\vdots$};
+    \node at (3,-5.5) {$\vdots$};
+    
+    \foreach \x in {1,...,4}
+    {   \pgfmathparse{\x<4 ? \x : "N"}
+        %\node[cnode=blue,label=180:$x_{\pgfmathresult}$] (x-\x) at (1,{-\x-div(\x,4)}) {};
+        \node[cnode=blue,label=180:\Large $x_{\pgfmathresult}$] (x-\x) at (1,{-\x-div(\x,4)}) {};
+%        \node[cnode=gray,label=90:$\varphi_{\pgfmathresult}$] (p-\x) at (3,{-\x-div(\x,4)}) {};
+%        \draw (p-\x) -- node[above,sloped,pos=0.3] {$\omega_{\pgfmathresult}$} (s);
+    }
+    
+        \node[cnode=blue,label=180:\Large $x_{N+1}$] (x-5) at (1,{-5-1-div(1,4))}) {};
+        \node[cnode=blue,label=180:\Large $x_{N+2}$] (x-6) at (1,{-5-2-div(2,4))}) {};
+        \node[cnode=blue,label=180:\Large $x_{N+3}$] (x-7) at (1,{-5-3-div(3,4))}) {};
+      	\node[cnode=blue,label=180:\Large $x_{2N}$] (x-8) at (1,{-5-2-div(12,4))}) {};
+      %\draw[decorate,decoration={brace,mirror},xshift=-4pt] (x-1) -- node[left=20pt] {Inputs} (x-3);
+      \draw [decorate,decoration={brace,amplitude=10pt},xshift=4pt,yshift=-3.5cm] (-0.8,-1.9) -- (-0.8,2.8) node [black,midway,xshift=-1.4cm] {\Large $\mathbf{v}_{u_i}^U$};
+      \draw [decorate,decoration={brace,amplitude=10pt},xshift=4pt,yshift=-5.5cm] (-0.8,-4.8) -- (-0.8,-0.2) node [black,midway,xshift=-1.4cm] {\Large $\mathbf{v}_{u_i}^{F_{a}}$};
+
+
+    \foreach \x in {1,...,6}
+    {   \pgfmathparse{\x<6 ? \x : "m"}
+        %\node[cnode=blue,label=180:$x_{\pgfmathresult}$] (x-\x) at (0,{-\x-div(\x,4)}) {};
+        \node[cnode=gray,label=0:\Large $h_{\pgfmathresult}$] (p-\x) at (3,{-1.5-\x-div(\x,4)}) {};
+        \draw (p-\x) -- node[above,sloped,pos=0.3] {} (s);
+    }
+    
+    
+    \foreach \x in {1,...,8}
+    {   \foreach \y in {1,...,6}
+        {   \draw (x-\x) -- (p-\y);
+        }
+    }     
+ \end{tikzpicture}
+ }%
+  \vspace{-.1cm}
+ \caption{DNN Framework}
+ \label{dnn}
+ \vspace{-.6cm}
+\end{wrapfigure}
+In this work, we address the limitations of existing approaches by learning the interplay among subjects using a DNN.
+The proposed approach has the capability for both modeling social influence and predicting human behavior in one shot.
+It should be noticed that the DNN does not explicitly produce a mathematical model, but it learns abstractive feature to implicitly model and learn the interaction of the data in input.
+%We adopt this architecture to model the subject-friends interaction and predict the subject behavior 
+%- to exploit the relationships embedded in the inputs.
+%- we adopt a multi-layer representation to model a subject?friends interaction, 
+%In the following, we describe the architecture of the DNN we implemented to accomplish our purposes.
+Our task can be formulated as the problem of predicting whether subject $u_i$ performed action $a$ as a function of the active friends $S_{u_i,a}$.
+We address this task as a binary classification problem.
+Thereby, the output $y_{u_i,a}$ of the DNN is a Boolean variable that is equal to 1 if $u_i$ performed $a$, and is 0 otherwise.
+%The decision of $u$ to perform $a$ as a function of the active friends $S_{u,a}$ can be formulated as a classification problem.
+%Therefore, the output $y$ of the DNN is a Boolean variable that is equal to 1 if the subject performed the action, 0 otherwise.
+%\[
+%y=f(S_u)=
+%\begin{cases}
+%	1& \text{if the subject performed the action}\\
+%	0& \text{otherwise}
+%\end{cases}
+%\]
+%\end{equation}
+%where $\theta$ represents the model parameters and $S_u$ the active friends of $u$.
+%We train the network using the history of subject actions. %in the training set.
+The input layer consists of two vectors $\mathbf{v}_{u_i}^U$ and $\mathbf{v}_{u_i}^{F_{a}}$ that indicate subject $u_i$ and her/his active friends for the action $a$, respectively.
+%This layer changes according to the considered subject $u$ and the action $a$.
+%To define the input layer we introduce the vector $\mathbf{subjects}$ of length $N=|V|$, which is a list of the subjects in the set $V$. 
+%This vector is important to define the order of the inputs of the DNN.
+%The input layer is composed of two concatenated vectors referred to as $\mathbf{one\_hot}_u$ vector and $\mathbf{active\_friends}_{u,a}$ vector, respectively.
+Both of them have length $N=|V|$.
+%, and the $i-th$ element of both vectors is related to subject $u_i$.
+The former is a one-hot vector that uniquely identifies each subject $u_i \in V$.
+%One-hot encoding is widely used in machine learning to distinguish each element of a set. 
+The vector consists of all \emph{zeros} with the exception of a single \emph{one} that identifies one element of the set.
+In this instance, subject $u_i$ is represented by the vector $\mathbf{v}_{u_i}^U$, which has only the $i^{th}$ element equal to one.
+%For each subject $u$, we can compute the $\mathbf{active\_friends}_{u,a}$ vector.
+The latter represents the active friends of subject $u_i$ for the action $a$.
+The $j$-th element of $\mathbf{v}_{u_i}^{F_{a}}$ corresponds to subject $u_j$ and it equals one only if $u_j$ is active and $(u_j,u_i) \in E$, otherwise is equal to 0.
+%
+%computed according to this rule: 
+%\[
+%   \mathbf{v}_{u_i}^{F_{a}}(j)= 
+%\begin{cases}
+%    %0& \text{if } \mathbf{one\_hot}(j)= 1 \\
+%    %0& \text{if } (\mathbf{subjects}(j),u) \notin E 
+%    1& \text{if } (u_j,u_i) \in E \  \mathrm{and} \ u_j \mathrm{\  is \ active} \\
+%    0& \text{otherwise }
+%    \end{cases} 
+%\]
+These two vectors are first concatenated and then fed into a multi-layer architecture, as depicted in Figure \ref{dnn}.
+For the sake of simplicity, a DNN with only one hidden layer ($L=1$) is depicted. 
+In our experiments, we design a network with a tower structure, where the bottom layer is the largest and the number of nodes of each successive layer is half of its precedent.
+In such a way, higher layers with few nodes can learn more abstractive features from the input data \cite{he2016deep,he2017neural}.
+Details about the implementation will be given in Section \ref{impl}.
+%The predictive model of the proposed DNN framework can be formulated as $\hat{y}_{u_i,a}=f(\mathbf{v}_{u_i}^U,\mathbf{v}_{u_i}^{F_{a}}|\Theta)$. 
+%The predicted output $\hat{y}_{u_i,a}$ of the proposed DNN framework can be expressed as $\hat{y}_{u_i,a}=f(\mathbf{v}_{u_i}^U,\mathbf{v}_{u_i}^{F_{a}}|\Theta)$. 
+The training is performed by minimizing the binary cross-entropy loss between $\hat{y}_{u_i,a}$ and $y_{u_i,a}$, where $\hat{y}_{u_i,a}=f(\mathbf{v}_{u_i}^U,\mathbf{v}_{u_i}^{F_{a}}|\Theta)$ is the predicted output of our DNN framework.
+
+The rationale of this approach is based on the attempt of overcoming the drawbacks of previous works described in Section \ref{pro_def}.
+%The proposed solution addresses those limitations as follows.
+%We summarize our motivation in the following.
+%\begin{itemize}
+%\item 
+We model social influence by considering the inter-dependencies among friends. In fact, according to the DNN architecture presented above, we take into account both $(i)$ the relationship between the subject and her/his friends and $(ii)$ the interactions among them.
+% friends interaction in the subject decision to perform an action. 
+We accomplish this task by placing the social network in a neural network, letting the DNN learn the influence strengths and the interplay among the subjects in the social network.
+%In such a way, we overcome the assumption of independent influence probabilities. %introduced by existing works.
+%\item 
+We learn social influence including in the training phase also actions not performed by the subject. 
+%These negative samples may be important to understand who really affects subject's decisions, both positive and negative.s
+%As described above, the output $y_{u_i,a}$ is a Boolean variable that indicates whether $u_i$ performed action $a$. 
+For each subject, we train our DNN with an equal number of positive ($y_{u_i,a}=1$) and negative samples ($y_{u_i,a}=0$).
+%\item 
+In such a way, the DNN framework has the capability for both modeling social influence and predicting human behavior in one shot. %, by learning a function to infer subject's decision based on her/his active friends.
+%As opposite to the LT model proposed by Goyal et al., we do not fix a unique threshold for each subject to determine her/his activation, but the DNN automatically learns a function to predict subject's decision according to her/his active friends.  
+%\end{itemize}
+
+
+\section{Experimental Evaluation}
+To empirically evaluate our framework, we conduct experiments using data of an EBSN.
+This dataset allows us to investigate social influence considering both \emph{online} (through the social network) and \emph{offline} (real-life) social interactions.
+%To our knowledge, this is the first attempt to evaluate social influence also in offline scenarios.
+%Previous works conducted their experiments examining social influence only in OSNs.
+%Previous works conducted their experiments focusing only on social influence in \emph{Online} Social Networks (OSNs).
+% Differently from other works in literature, we evaluate the performance of our approach using real-life (\emph{offline}) data related to subject participation in social events. Previous works conducted their experiments focusing only on social influence in \emph{Online} Social Networks (OSNs).
+%An EBSN is a web platform where users can create events, promote them, and invite friends to participate.
+%Events range from small get-together activities, e.g., Sunday brunch or movie night, to bigger events, e.g., concerts or conferences \cite{liu2012event}. 
+%The rationale behind the choice of utilizing an EBSN is based on the intrinsic agglomerative power of the events. 
+%In fact, participating in an event represent a direct and explicit form of social interaction, other than a personal interest.
+%%Location-Based Social Networks (LBSNs), e.g., Foursquare, have been also used to reveal social interactions by means of adjacent check-ins.
+%%However, check-ins capture individual behavior \cite{noulas2011empirical} and subjects colocation might not imply interaction among them. 
+%An EBSN provides a social network service so as to connect friends and users with common interests.
+%In the event main page, a user can see the information related to the event, e.g., date, location, and description, along with the confirmed participants. This information may activate processes of social influence, which can drive user participation in the events \cite{georgiev2014call}.
+%%In our context, the participation in the events defines the actions set $A$ , while a subject is considered active if she/he decided to participate in the event $a \in A$. Thereby, our goal is to predict subject participation in social events according to her/his friends participation.
+
+\subsection{Dataset Description}
+An EBSN is a web platform where users can create events, promote them, and invite friends to participate.
+Events range from small get-together activities, e.g., Sunday brunch or movie night, to bigger events, e.g., concerts or conferences \cite{liu2012event}. 
+The rationale behind the choice of utilizing an EBSN is based on the intrinsic agglomerative power of the events. 
+In fact, participating in an event represent a direct and explicit form of social interaction, other than a personal interest.
+%Location-Based Social Networks (LBSNs), e.g., Foursquare, have been also used to reveal social interactions by means of adjacent check-ins.
+%However, check-ins capture individual behavior \cite{noulas2011empirical} and subjects colocation might not imply interaction among them. 
+An EBSN provides a social network service so as to connect friends and users with common interests.
+In the event main page, a user can see the information related to the event, e.g., date, location, and description, along with the confirmed participants. This information may activate processes of social influence, which can drive user participation in the events \cite{georgiev2014call}.
+
+In this study, we use a dataset from \emph{Plancast}, an EBSN for sharing upcoming plans with friends.
+Plancast allows users to subscribe each other providing direct connections among them. 
+Subscription is similar to the concept of \emph{following} in OSNs, e.g., Twitter. 
+%The user can directly follow friends' event calendars
+%: this mechanism allows the user to be aware of friends interests, events creation, and participation. 
+%When a user creates an event, subscribers are notified and can state their willingness to attend the event by RSVP (``yes'', ``no'' or ``maybe'').
+%Differently from Plancast, in EBSNs like \emph{Meetup}, users subscribe to groups according to their interests. Group membership does not imply any social tie between members, but only a common interest.
+%Therefore, Plancast provides a more straightforward and clear way to recognize online social relationships compared to other EBSNs. 
+We utilize a dataset \cite{liu2012event} that includes 93041 users and 401634 events, combined in 1702058 user subscriptions and 869200 user-event participations.
+%The dataset also lists the location of the events, in terms of $(latitude, longitude)$ coordinates.
+We restrict our analysis to the U.S., as most of the events have been organized there. We filter out users without any subscription and that attended less than 20 events. 
+We set this threshold in order to build, per each user, a reasonable training and test set to predict her/his behavior. 
+%Moreover, we take into account only events with at least 3 participants.
+
+%\subsection{Evaluation Criteria}
+%In order to evaluate the performance of different models, we employ True Positive Rate (TPR), False Positive Rate (FPR), and Accuracy as evaluation measures. These measure criterions are widely used in the evaluation of classification problem.
+%%Precision reports the ratio of the predicted satised question respect to the indeed rated satisfactory by users. 
+%%Recall evaluates the fraction of all the indeed rated satisfactory questions that are distinguished by the framework. 
+%We first denote four indicators to signify the derivations and the Terminology. We define TP as the true positive, TN as the true negative, FP as the false positive, FN as the false negative.
+%TPR measures the proportion of positives that are correctly identified as such, i.e., TPR=TP/(TP+FN).
+%FPR is computed as the ratio between the number of negatives wrongly categorized as positive and the total number of actual negative events, i.e., FPR=FP/(TN+FP).
+%Accuracy reflects the framework classification ability for the entire sample, i.e., Accuracy=(TP+TN)/(TP+TN+FP+FN).
+
+%Accuracy measures the fraction of the true classified documents that are relevant to the whole sample.
+
+\subsection{DNN Implementation}
+\label{impl}
+In this section, we describe how we implement and design our DNN framework.
+The actions set  $A$ is defined by the user-events participation in the EBSN dataset, while $A_{u_i} \subseteq A$ is the set of events attended by subject $u_i \in V$. 
+A subject is considered active for the event $a$ if she/he decided to participate in the event $a \in A$.
+%Finally, $A_{u_i} \subseteq A$ is the set of events attended by subject $u_i \in V$. 
+For each subject $u_i$, we randomly select $n_{u_i}$ events not attended by $u_i$ so as to consider also negative samples, where $n_{u_i}= |A_{u_i}|$.
+In order to limit overfitting and to reduce variability, we utilize a 10-fold cross validation to split the dataset into training and test set. We build the folds so as to
+preserve the percentage of positive and negative samples for each subject in the dataset.
+
+We implement our DNN framework in Keras \cite{chollet2017keras}, following a tower pattern composed of $L=3$ layers with $\{128,64,32\}$ nodes, respectively. We train the network for 25 epochs using RMSProp as optimization function, employing the ReLu as activation function at the hidden layers and the sigmoid as activation function at the output layer.
+Moreover, we apply a dropout technique, with a dropout equal to 0.1, to avoid overfitting.
+We tune these hyper-parameter performing a grid search on a validation set (10\% of the data).
+
+%The hyper-parameter optimization consists of an exhaustive searching through the following hyper-parameters space: initialization$\ =\{\mathrm{normal, uniform,}$ Glorot\}, activation function at the hidden layers $\phi_j=\{\mathrm{sigmoid,ReLU\}}$, activation function at the output layer $\phi_o=\{\mathrm{sigmoid,ReLU}\}$, optimizer$\ =\{\mathrm{RMSProp,}$ Adam\}, epochs$\ =\{$10,25\}, and batches$\ =\{$10,20\}.
+%Table \ref{hyp} depicts the six best accuracy results for the combinations of the above hyper-parameters. 
+%The hyper-parameters that achieve the best performance are chosen to conduct the evaluation of our proposed framework.
+%Thereby, our DNN uses ReLu as activation function at the hidden layers and sigmoid as activation function at the output layer.
+%We train the network for 25 epochs using RMSProp \cite{dauphin2015equilibrated} as optimization function.
+%Moreover, we apply a dropout technique \cite{srivastava2014dropout}, with a dropout equal to 0.1, to avoid overfitting.
+%\begin{table}[t]
+%\centering
+%\caption{Grid search for hyper-parameters optimization}
+%\label{hyp}       % Give a unique label
+%%
+%% Follow this input for your own table layout
+%%
+%\begin{tabular}{M{1.5cm}M{1.5cm}M{2cm}M{1.5cm}M{1.5cm}M{1.5cm}M{1.5cm}} %{ccccc}{p{1.5cm}p{2cm}p{2cm}p{2cm}}
+%\hline\noalign{\smallskip}
+% Accuracy & Batch Size & Initialization & Epochs & Optimizer & $\phi_j$ & $\phi_o$  \\
+% \hline\noalign{\smallskip}
+%%\noalign{\smallskip}\svhline\noalign{\smallskip}
+%86.7 & 20 & normal & 25 & RMSProp& ReLU & sigmoid \\    
+%86.6 & 10 & Glorot & 10 & RMSProp & ReLU & sigmoid \\
+%86.3 & 20 & Glorot & 10 & RMSProp & sigmoid & sigmoid \\
+%85.8 & 10 & Glorot & 10 & RMSProp & sigmoid & sigmoid \\
+%85.8 & 10 & Glorot & 10 & Adam & sigmoid & sigmoid \\
+%85.7 & 10 & Glorot & 10 & Adam & ReLU & sigmoid\\
+%\noalign{\smallskip}\hline\noalign{\smallskip}
+%\end{tabular}
+%%$^a$ Table foot note (with superscript)
+%\end{table}
+
+\subsection{Performance Comparison}
+To validate the performance of our approach, we compare our proposed method (DNN) with the following baseline algorithms: the LT models (BD, JI, PC-B, and PC-J) proposed by Goyal et al. \cite{goyal2010learning}, and the IC model of Saito et al. \cite{saito2008prediction}.
+To find the best threshold $\theta$ in the LT model, we measured two metrics: the Youden's index and the closest point to (0,1) in the Receiver Operating Characteristic (ROC) curve. We show only the performance related to the Youden's index as it achieves better results.
+To examine the performance of these models, we employ widely used metrics in the evaluation of classification problem: Accuracy, True Positive Rate (TPR), and False Positive Rate (FPR).
+
+\begin{table}[t]
+\centering
+\caption{Prediction performances comparison: DNN vs. LT models vs. IC model}
+\label{res}       % Give a unique label
+%
+% Follow this input for your own table layout
+%
+\begin{tabular}{M{1.3cm}M{1.2cm}M{1.2cm}M{1.2cm}M{1.2cm}M{1.2cm}M{1.2cm}} %{ccccc}{p{1.5cm}p{2cm}p{2cm}p{2cm}}
+\hline\noalign{\smallskip}
+ & DNN & BD & JI & PC-B & PC-J & IC  \\
+ \hline\noalign{\smallskip}
+%\noalign{\smallskip}\svhline\noalign{\smallskip}
+Accuracy & 85\% & 78\% & 77\%& 78\%& 77\% & 77\% \\    
+TPR & 75\% & 74\% & 75\%& 66\%& 61\% & 60\% \\
+FPR & 5\% & 14\% & 15\%& 6\%& 5\% & 5\% \\
+\noalign{\smallskip}\hline\noalign{\smallskip}
+\end{tabular}
+%$^a$ Table foot note (with superscript)
+\vspace{-.5cm}
+\end{table}
+Table \ref{res} depicts the performance of the different solutions.
+%\begin{table}
+%\caption{Prediction performances comparison: DNN vs. LT vs. IC}
+%\begin{tabular}{llll}
+%\hline\noalign{\smallskip}
+% & DNN & LT & IC\\
+%\noalign{\smallskip}
+%\hline
+%\noalign{\smallskip}
+%Accuracy & 85\% & 78\% & 75\% \\    
+%TPR & 75\% & 74\%  & 54\% \\
+%FPR & 5\% & 14\% & 4\% \\
+%\hline
+%\end{tabular}
+%\end{table}
+Results indicate that the DNN framework achieves the best Accuracy, TPR, and FPR.
+%According to the remarkable improvement, we empirically show that the proposed approach effeciently resolves the limitations related to the existing works.
+We empirically show that the proposed approach outperforms the baseline algorithms, by efficiently resolving the limitations related to the existing works.
+This result highlights the importance of $(i)$ the interplay among subject's friends, in terms of dependent influence probabilities, and of $(ii)$ the negative samples to detect influential friends and learn influence strengths. 
+Our DNN framework has the capability for both modeling social influence taking into account these aspects and for predicting human behavior, achieving remarkable results.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% START CAMERAREADY EDITING ########################
+%A possible drawback of the proposed approach concerns its scalability.
+%In case of a new friendship in the social network, the DNN needs to be updated and the training phase should be repeated.
+%This operation is computationally costly and it is not suitable for applications that require fast updates.
+%To overcome this issue, we propose to employ one \emph{Local}-DNN (L-DNN) for each subject. 
+%In such a way, new friendships in the social network involve only a subset of subjects, which in turn entail only the updates of some L-DNNs. 
+%According to this solution, the learning phase is less time-consuming as the training of the L-DNN of subject $u_i$ includes samples related only to subject $u_i$. 
+%Figure \ref{dnn_l} depicts the L-DNN architecture of subject $u_i$. It should be noticed that we design the input layer considering only the vector $\mathbf{v}_{u_i}^{F_{a}}$, as in this instance $\mathbf{v}_{u_i}^U$ does not convey any additional information.
+%%For the same reason, we have a performance loss with respect to the results obtained with a unique DNN.
+%Table \ref{ldnn} compares the performance of L-DNN with the results of DNN, IC, and BD for the LT models.
+%%previous results with the performance of this solution (L-DNN). % with the the monolithic one (DNN), the IC model, and the BD for the LT models.
+%L-DNN performs better than the baselines but clearly worse than the monolithic DNN.
+%This degradation is due to the fact that the DNN is trained utilizing the actions of all the $N$ subjects in the social network. In such a way, it captures the interactions among friends also when different subjects are considered. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% STOP CAMERAREADY EDITING ########################
+%\begin{figure}[t!]
+% \centering
+%    \resizebox{0.6\textwidth}{!}{%
+%\begin{tikzpicture}
+%[   cnode/.style={draw=black,fill=#1,minimum width=3mm,circle},
+%]
+%
+%    \node[cnode=red,label=0:$\hat{y}_{u_i,a}$] (s) at (6,-3) {};
+%    \node at (1,-4) {$\vdots$};
+%     %\node at (1,-9) {$\vdots$};
+%    \node at (3,-3.5) {$\vdots$};
+%    
+%    \foreach \x in {1,...,4}
+%    {   \pgfmathparse{\x<4 ? \x : "N"}
+%        %\node[cnode=blue,label=180:$x_{\pgfmathresult}$] (x-\x) at (1,{-\x-div(\x,4)}) {};
+%        \node[cnode=blue,label=180:$x_{\pgfmathresult}$] (x-\x) at (1,{-\x-div(\x,4)}) {};
+%%        \node[cnode=gray,label=90:$\varphi_{\pgfmathresult}$] (p-\x) at (3,{-\x-div(\x,4)}) {};
+%%        \draw (p-\x) -- node[above,sloped,pos=0.3] {$\omega_{\pgfmathresult}$} (s);
+%    }
+%    
+%%        \node[cnode=blue,label=180:$x_{N+1}$] (x-5) at (1,{-5-1-div(1,4))}) {};
+%%        \node[cnode=blue,label=180:$x_{N+2}$] (x-6) at (1,{-5-2-div(2,4))}) {};
+%%        \node[cnode=blue,label=180:$x_{N+3}$] (x-7) at (1,{-5-3-div(3,4))}) {};
+%%      	\node[cnode=blue,label=180:$x_{2N}$] (x-8) at (1,{-5-2-div(12,4))}) {};
+%      %\draw[decorate,decoration={brace,mirror},xshift=-4pt] (x-1) -- node[left=20pt] {Inputs} (x-3);
+%      \draw [decorate,decoration={brace,amplitude=10pt},xshift=4pt,yshift=-3.5cm] (-0.5,-1.9) -- (-0.5,2.7) node [black,midway,xshift=-1.4cm] {\footnotesize $\mathbf{v}_{u_i}^{F_{a}}$};
+%%      \draw [decorate,decoration={brace,amplitude=10pt},xshift=4pt,yshift=-5.5cm] (-0.5,-4.8) -- (-0.5,-0.2) node [black,midway,xshift=-1.4cm] {\footnotesize $\mathbf{v}_{u_i}^{F_{a}}$};
+%
+%
+%    \foreach \x in {1,...,3}
+%    {   \pgfmathparse{\x<3 ? \x : "m"}
+%        %\node[cnode=blue,label=180:$x_{\pgfmathresult}$] (x-\x) at (0,{-\x-div(\x,4)}) {};
+%        \node[cnode=gray,label=0:$h_{\pgfmathresult}$] (p-\x) at (3,{-.5-\x-div(\x,3)}) {};
+%        \draw (p-\x) -- node[above,sloped,pos=0.3] {} (s);
+%    }
+%    
+%    
+%    \foreach \x in {1,...,4}
+%    {   \foreach \y in {1,...,3}
+%        {   \draw (x-\x) -- (p-\y);
+%        }
+%    }     
+% \end{tikzpicture}
+% }%
+% \caption{Local-DNN Framework}
+% \label{dnn_l}
+%\end{figure}
+
+%%\vspace{0.5cm}
+%  \begin{minipage}{\textwidth}
+%  \begin{minipage}[b]{0.44\textwidth}
+%    %\centering
+%        \resizebox{1\textwidth}{!}{%
+%\begin{tikzpicture}
+%[   cnode/.style={draw=black,fill=#1,minimum width=3mm,circle},
+%]
+%
+%    \node[cnode=red,label=0:$\hat{y}_{u_i,a}$] (s) at (5,-3) {};
+%    \node at (1,-4) {$\vdots$};
+%     %\node at (1,-9) {$\vdots$};
+%    \node at (3,-3.5) {$\vdots$};
+%    
+%    \foreach \x in {1,...,4}
+%    {   \pgfmathparse{\x<4 ? \x : "N"}
+%        %\node[cnode=blue,label=180:$x_{\pgfmathresult}$] (x-\x) at (1,{-\x-div(\x,4)}) {};
+%        \node[cnode=blue,label=180:$x_{\pgfmathresult}$] (x-\x) at (1,{-\x-div(\x,4)}) {};
+%%        \node[cnode=gray,label=90:$\varphi_{\pgfmathresult}$] (p-\x) at (3,{-\x-div(\x,4)}) {};
+%%        \draw (p-\x) -- node[above,sloped,pos=0.3] {$\omega_{\pgfmathresult}$} (s);
+%    }
+%    
+%%        \node[cnode=blue,label=180:$x_{N+1}$] (x-5) at (1,{-5-1-div(1,4))}) {};
+%%        \node[cnode=blue,label=180:$x_{N+2}$] (x-6) at (1,{-5-2-div(2,4))}) {};
+%%        \node[cnode=blue,label=180:$x_{N+3}$] (x-7) at (1,{-5-3-div(3,4))}) {};
+%%      	\node[cnode=blue,label=180:$x_{2N}$] (x-8) at (1,{-5-2-div(12,4))}) {};
+%      %\draw[decorate,decoration={brace,mirror},xshift=-4pt] (x-1) -- node[left=20pt] {Inputs} (x-3);
+%      \draw [decorate,decoration={brace,amplitude=10pt},xshift=4pt,yshift=-3.5cm] (-0.5,-1.9) -- (-0.5,2.7) node [black,midway,xshift=-.8cm] {\footnotesize $\mathbf{v}_{u_i}^{F_{a}}$};
+%%      \draw [decorate,decoration={brace,amplitude=10pt},xshift=4pt,yshift=-5.5cm] (-0.5,-4.8) -- (-0.5,-0.2) node [black,midway,xshift=-1.4cm] {\footnotesize $\mathbf{v}_{u_i}^{F_{a}}$};
+%
+%
+%    \foreach \x in {1,...,3}
+%    {   \pgfmathparse{\x<3 ? \x : "m"}
+%        %\node[cnode=blue,label=180:$x_{\pgfmathresult}$] (x-\x) at (0,{-\x-div(\x,4)}) {};
+%        \node[cnode=gray,label=0:$h_{\pgfmathresult}$] (p-\x) at (3,{-.5-\x-div(\x,3)}) {};
+%        \draw (p-\x) -- node[above,sloped,pos=0.3] {} (s);
+%    }
+%    
+%    
+%    \foreach \x in {1,...,4}
+%    {   \foreach \y in {1,...,3}
+%        {   \draw (x-\x) -- (p-\y);
+%        }
+%    }     
+% \end{tikzpicture}
+% }%
+%    \captionof{figure}{L-DNN}
+%    \label{dnn_l}
+%  \end{minipage}
+%  \hspace{-.15cm}
+%  \begin{minipage}[b]{0.54\textwidth}
+%    \centering
+%    \begin{tabular} {M{1.5cm}M{.9cm}M{.9cm}M{.9cm}M{1.2cm}} %{ccccc}{p{1.5cm}p{2cm}p{2cm}p{2cm}}
+%\hline\noalign{\smallskip}
+% & DNN & BD & IC & L-DNN  \\
+% \hline\noalign{\smallskip}
+%%\noalign{\smallskip}\svhline\noalign{\smallskip}
+%Accuracy & 85\% & 78\% & 77\%& 82\% \\    
+%TPR & 75\% & 74\% & 61\%& 74\% \\
+%FPR & 5\% & 14\% & 5\%& 9\% \\
+%\noalign{\smallskip}\hline\noalign{\smallskip}
+%\end{tabular}
+%      \captionof{table}{L-DNN Performance}
+%      \label{ldnn}
+%    \end{minipage}
+%   \end{minipage}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% START CAMERAREADY EDITING ########################
+%\begin{figure}
+%
+%\parbox[t]{4cm}{\null
+%  \centering
+%  \resizebox{.45\textwidth}{!}{%
+%\begin{tikzpicture}
+%[   cnode/.style={draw=black,fill=#1,minimum width=3mm,circle},
+%]
+%
+%    \node[cnode=red,label=0:$\hat{y}_{u_i,a}$] (s) at (5,-3) {};
+%    \node at (1,-4) {$\vdots$};
+%     %\node at (1,-9) {$\vdots$};
+%    \node at (3,-3.5) {$\vdots$};
+%    
+%    \foreach \x in {1,...,4}
+%    {   \pgfmathparse{\x<4 ? \x : "N"}
+%        %\node[cnode=blue,label=180:$x_{\pgfmathresult}$] (x-\x) at (1,{-\x-div(\x,4)}) {};
+%        \node[cnode=blue,label=180:$x_{\pgfmathresult}$] (x-\x) at (1,{-\x-div(\x,4)}) {};
+%%        \node[cnode=gray,label=90:$\varphi_{\pgfmathresult}$] (p-\x) at (3,{-\x-div(\x,4)}) {};
+%%        \draw (p-\x) -- node[above,sloped,pos=0.3] {$\omega_{\pgfmathresult}$} (s);
+%    }
+%    
+%%        \node[cnode=blue,label=180:$x_{N+1}$] (x-5) at (1,{-5-1-div(1,4))}) {};
+%%        \node[cnode=blue,label=180:$x_{N+2}$] (x-6) at (1,{-5-2-div(2,4))}) {};
+%%        \node[cnode=blue,label=180:$x_{N+3}$] (x-7) at (1,{-5-3-div(3,4))}) {};
+%%      	\node[cnode=blue,label=180:$x_{2N}$] (x-8) at (1,{-5-2-div(12,4))}) {};
+%      %\draw[decorate,decoration={brace,mirror},xshift=-4pt] (x-1) -- node[left=20pt] {Inputs} (x-3);
+%      \draw [decorate,decoration={brace,amplitude=10pt},xshift=4pt,yshift=-3.5cm] (-0.5,-1.9) -- (-0.5,2.7) node [black,midway,xshift=-.8cm] {\footnotesize $\mathbf{v}_{u_i}^{F_{a}}$};
+%%      \draw [decorate,decoration={brace,amplitude=10pt},xshift=4pt,yshift=-5.5cm] (-0.5,-4.8) -- (-0.5,-0.2) node [black,midway,xshift=-1.4cm] {\footnotesize $\mathbf{v}_{u_i}^{F_{a}}$};
+%
+%
+%    \foreach \x in {1,...,3}
+%    {   \pgfmathparse{\x<3 ? \x : "m"}
+%        %\node[cnode=blue,label=180:$x_{\pgfmathresult}$] (x-\x) at (0,{-\x-div(\x,4)}) {};
+%        \node[cnode=gray,label=0:$h_{\pgfmathresult}$] (p-\x) at (3,{-.5-\x-div(\x,3)}) {};
+%        \draw (p-\x) -- node[above,sloped,pos=0.3] {} (s);
+%    }
+%    
+%    
+%    \foreach \x in {1,...,4}
+%    {   \foreach \y in {1,...,3}
+%        {   \draw (x-\x) -- (p-\y);
+%        }
+%    }     
+% \end{tikzpicture}
+% }%
+% \captionsetup{justification=centering}
+%  \captionof{figure}{L-DNN Framework}%
+%      \label{dnn_l}
+%}
+%\parbox[t]{9.4cm}{\null
+%\centering
+%  \vskip-\abovecaptionskip
+%  \captionof{table}[t]{L-DNN Performance}%
+%  \vskip\abovecaptionskip
+% \begin{tabular} {M{1.5cm}M{.9cm}M{.9cm}M{.9cm}M{1.2cm}} %{ccccc}{p{1.5cm}p{2cm}p{2cm}p{2cm}}
+%\hline\noalign{\smallskip}
+% & DNN & BD & IC & L-DNN  \\
+% \hline\noalign{\smallskip}
+%%\noalign{\smallskip}\svhline\noalign{\smallskip}
+%Accuracy & 85\% & 78\% & 77\%& 82\% \\    
+%TPR & 75\% & 74\% & 61\%& 74\% \\
+%FPR & 5\% & 14\% & 5\%& 9\% \\
+%\noalign{\smallskip}\hline\noalign{\smallskip}
+%\end{tabular}
+%\label{ldnn}
+%}
+%\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% STOP CAMERAREADY EDITING ########################
+\section{Conclusions}
+In this paper, we investigated social influence and how it impacts human behavior.
+We propose to address the limitations of existing approaches by employing a deep learning approach.
+%Existing approaches have two main drawbacks: $(i)$ they consider the influence probabilities independent of each other, and $(ii)$ they consider only positive decisions taken by the subjects to learn these probabilities.
+We introduced a DNN framework that has the capability for both modeling social influence and predicting human behavior.
+We implemented an architecture that allows the DNN to learn the interplay among friends and to consider both positive and negative samples.
+To empirically validate the proposed framework, we evaluated our approach using real-life data of an EBSN.
+Performances exhibit a significant improvement with respect to the state of the art, showing that the proposed approach efficiently resolves the limitations related to existing works.
+\vspace{-.25cm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% CAMERAREADY EDITING ########################
+%Future works will focus on the trade-off between performance and scalability. 
+%A possible solution may consider to aggregate subjects in $l$ communities so as to implement $l$ community-DNNs, where $l$ varies according to the number of communities extracted from the social network ($1\leq l \leq N$).
+%In such a way, friends interplay can be captured within the community-DNN and an update in the social network may involve only a few communities and, in turn, only a few community-DNNs. 
+
+
+\bibliographystyle{splncs.bst}
+% argument is your BibTeX string definitions and bibliography database(s)
+\bibliography{Paper203}
+
+\end{document}

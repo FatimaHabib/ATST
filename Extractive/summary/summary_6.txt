@@ -1,0 +1,3 @@
+ ~. However, one of the core challenges for nonlinear eigenvalue problems is the same as for linear eigenvalue problems:
+solution methods that are effective for small values of  do not necessarily scale well to very large-dimensional problems,
+where one is usually interested in finding a small number of specific, physically-important eigenvalue-eigenvector pairs. We refer to  as an  of , and either  or  as an . However, the two are different when  depends nonlinearly on . We set  and choose , .

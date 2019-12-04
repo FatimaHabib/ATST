@@ -1,0 +1,10 @@
+
+
+Influence propagation in social networks has recently received large interest.
+In fact, the understanding of how influence propagates among subjects in a social network opens the way to a growing number of applications. Many efforts have been made to quantitatively measure the influence probability between pairs of subjects. 
+Existing approaches have two main drawbacks:  they assume that the influence probabilities are independent of each other, and  they do not consider the actions not performed by the subject (but performed by her/his friends) to learn these probabilities.
+In this paper, we propose to address these limitations by employing a deep learning approach.
+We introduce a Deep Neural Network (DNN) framework that has the capability for both modeling social influence and for predicting human behavior.
+To empirically validate the proposed framework, we conduct experiments on a real-life (offline) dataset of an Event-Based Social Network (EBSN).
+Results indicate that our approach outperforms existing solutions, by efficiently resolving the limitations previously described.
+

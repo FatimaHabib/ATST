@@ -1,0 +1,135 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{softmax}
+
+
+{Conjecture}
+
+
+
+
+  
+  
+  
+}
+
+
+
+
+
+
+  School of Science and Technology   Nazarbayev University   {   Rustem Takhanov   School of Science and Technology   Nazarbayev University   { 
+
+
+
+
+
+
+
+A statistical language model (LM) is a model which assigns a probability to a sequence of words. It is used in speech recognition, machine translation, part-of-speech tagging, information retrieval and other applications. Data sparsity is a major problem in building traditional -gram language models, which assume that the probability of a word only depends on the previous  words. To deal with potentially severe problems when confronted with any -grams that have not explicitly been seen before, some form of smoothing is necessary.
+
+Recent progress in statistical language modeling is connected with neural language models (NLM), which tackle the data sparsity problem by representing words as vectors. Typically this is done twice: at input (to embed the current word of a sequence into a vector space) and at output (to embed candidates for the next word of a sequence). Especially successful are the models in which the architecture of the neural network between input and output is recurrent , which we refer to as recurrent neural network language models (RNNLM). 
+
+Tying input and output word embeddings in word-level RNNLM  is a regularization technique, which was introduced earlier  but has been widely used relatively recently, and there is  empirical evidence  as well as theoretical justification  that such a simple trick improves  language modeling quality while decreasing the total number of trainable parameters almost two-fold, since most of the parameters are due to embedding matrices. Unfortunately, this regularization technique is not directly applicable to subword-aware neural language models as they receive subwords at input and return words at output. This raises the following questions: Is it possible to reuse embeddings and other parameters in subword-aware neural language models? Would it benefit language modeling quality? We experimented with different subword units, embedding models, and ways of reusing parameters, and our answer to both questions is as follows: There are several ways to reuse weights in subword-aware neural language models, and none of them improve a competitive character-aware model, but some of them do benefit syllable- and morpheme-aware models, while giving significant reductions in model sizes. A simple morpheme-aware model that sums morpheme embeddings of a word benefits most from appropriate weight tying, showing a significant gain over the competitive word-level baseline across different languages and data set sizes.
+Another contribution of this paper is the discovery of a hands-on principle that in a multi-layer input embedding model, layers should be tied consecutively bottom-up if reused at output. 
+
+The source code for the morpheme-aware model is available at .
+
+
+ There has been a large number of publications in the last 2--3 years on subword-level and subword-aware NLMs, LMs rely on subword-level inputs and make predictions at the level of subwords;  LMs also rely on subword-level inputs but make predictions at the level of words.} especially for the cases when subwords are characters  or morphemes . Less work has been done on syllable-level or syllable-aware NLMs . For a thorough and up-to-date review of the previous work on subword-aware neural language modeling we refer the reader to the paper by  , where the authors systematically compare different subword units (characters, character trigrams, BPE, morphs/morphemes) and different representation models (CNN, Bi-LSTM, summation) on languages with various morphological typology. 
+
+ Reusing embeddings in word-level neural language models is a technique which was 
+used earlier  and studied in more details recently 
+. However, not much work has been done on reusing parameters in subword-aware or subword-level language models.   reused the { architecture of   to dynamically generate softmax word embeddings without sharing  parameters with an input word-embedding sub-network. They managed to significantly reduce the total number of parameters for large models trained on a huge dataset in English (1B tokens) with a large vocabulary (800K tokens) at the expense of deteriorated performance.  used similar approach to augment the output word representations with subword-based embeddings. They experimented with characters and morphological decompositions, and tried different compositional models (CNN, Bi-LSTM, concatenation) on Czech dataset consisting of 4.7M tokens. They were not tying weights  between input and output
+representations, since their preliminary experiments with tied weights gave worse results. 
+
+Our approach differs in the following aspects: we focus on the ways to { weights at output, seek both model size reduction  performance improvement in subword-aware language models, try different subword units (characters, syllables, and morphemes), and make evaluation on small (1M--2M tokens) and medium (17M--51M tokens) data sets across multiple languages.
+
+
+
+Let  be a finite vocabulary of words. We assume that words have already been converted into indices. Let  be an input embedding matrix for words --- i.e., it is a matrix in which the th row (denoted as ) corresponds to an embedding of the word .
+
+Based on word embeddings  for a sequence of words , a typical word-level RNN language model produces a sequence of states  according to
+
+The last state  is assumed to contain information on the whole sequence  and is further used for predicting the next word  of a sequence according to the probability distribution
+
+where  is an output embedding matrix,  is a bias term, and  is a state size of the RNN.
+
+
+One of the more recent advancements in neural language modeling has to do with segmenting words at input into subword units (such as characters, syllables, morphemes, etc.) and composing each word's embedding from the embeddings of its subwords. Formally, let  be a finite vocabulary of subwords, and let  be an input embedding matrix for subwords. Any word  is a sequence of its subwords , and hence can be represented as a sequence of the corresponding subword vectors:
+ 
+A subword-based word embedding model  with parameters  constructs a word vector  from the sequence of subword vectors (), i.e.
+
+which is then fed into a RNNLM () instead of a plain embedding . The additional parameters  correspond to the way the embedding model constructs the word vector: for instance, in the { model of  ,  are the weights of the convolutional and highway layers.
+
+ Another recent technique in word-level neural language modeling is tying input and output word embeddings:
+$$
+_^=_^$$
+under the assumption that . Although being useful for word-level language modeling , this regularization technique is not directly applicable to subword-aware language models, as they receive subword embeddings at input and return word embeddings at output. In the next section we describe a simple technique to allow reusing subword embeddings  as well as other parameters  in a subword-aware RNNLM.
+
+
+
+
+
+Let  be an output embedding matrix for subwords and let us modify the softmax layer () so that it utilizes  instead of the word embedding matrix . The idea is fairly straightforward: we reuse an embedding model () to construct a new word embedding matrix:
+
+and use  instead of  in the softmax layer (). Such modification of the softmax layer will be referred to as . The overall architecture of a subword-aware  RNNLM with subword-based softmax is given in Figure . Such a model allows several options for reusing embeddings and weights, which are discussed below.
+
+ As was shown by  , this can significantly reduce the total number of parameters for large models trained on huge datasets (1B tokens) with large vocabularies (800K tokens). However, we do not expect significant reductions on smaller data sets (1-2M tokens) with smaller vocabularies (10-30K tokens), which we use in our main experiments.
+
+)} can be done by setting  in (). This will give a significant reduction in model size for models with , such as the morpheme-aware model of  .
+
+)} can be done by setting . Unlike the previous option, this should significantly reduce sizes of models with , such as the character-aware model of  .
+
+)} can be done by setting
+ and  simultaneously in (). This should significantly reduce the number of trainable parameters in any subword-aware model. Here we use exactly the same word representations both at input and at output, so this option corresponds to the reusing of plain word embeddings in pure word-level language models.
+
+
+
+ All models are trained and evaluated on the PTB  and the WikiText-2  data sets. For the PTB we utilize the standard training (0-20), validation (21-22), and test (23-24) splits along with pre-processing per  . WikiText-2 is an alternative to PTB, which is approximately two times as large in size and three times as large in vocabulary (Table~).
+
+
+
+
+We experiment with existing representational models which have previously proven effective for language modeling.
+
+  is a character-aware convolutional model, which performs on par with the 2014--2015 state-of-the-art word-level LSTM model  despite having 60 is a simple concatenation of syllable embeddings suggested by  , which underperforms { but has fewer parameters and is trained faster.
+ is a summation of morpheme embeddings, which is similar to the approach of   with one important difference: the embedding of the word itself is not included into the sum. We do this since other models do not utilize word embeddings. 
+
+In all subword-aware language models we inject a stack of two highway layers  right before the word-level RNNLM as done by  , and the non-linear activation in any of these highway layers is a ReLU. The highway layer size is denoted by .
+
+
+Indeed,  faces less OOVs on unseen text, and thus generalizes better than . 
+
+
+According to Table , { comfortably outperforms the strong baseline { . It is interesting to see whether this advantage extends to non-English languages which have richer morphology. For this purpose we conduct evaluation of both  models on small (1M tokens) and medium (17M--51M tokens) data in five languages (see corpora statistics in Appendix~). Due to hardware constraints we only train the small
+models on medium-sized data. We used the same architectures for all languages and did not perform any language-specific tuning of hyperparameters, which are specified in Appendix . The results are provided in Table .
+
+
+
+Model sizes for  and , which were evaluated on non-English data sets, are given in Table~.  requires 45.
+
+
+

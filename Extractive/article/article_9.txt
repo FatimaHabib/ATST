@@ -1,0 +1,362 @@
+
+
+
+
+  
+
+
+
+
+
+
+
+{arg
+{arg
+
+
+
+{Theorem}
+{Definition}
+{Example}
+{Proposition}
+{Corollary}
+{Lemma}
+{Remark}
+{Claim}
+{Algorithm}
+
+{}
+{}
+{}
+{}
+{}
+{}
+{}
+{}
+{}
+{}
+{}
+
+
+{}
+{}
+{}
+{}
+{{}}
+{}
+{}
+{}
+{}
+{
+{}
+{
+{lcm}
+
+}
+
+        and M. F. Bollaufof Electrical  Engineering, City University of New York, College of Staten Island, Staten Island,
+NY 10314, USA e-mail: vavaishampayan@icloud.com}
+}
+{Vaishampayan and Bollauf}
+
+
+
+Lattices, lattice quantization, Communication complexity, distributed function computation, Voronoi cell, Babai cell, rectangular partition.
+
+
+
+
+{iven} a lattice~ for details.} , and , the  lattice point  which minimizes the Euclidean distance ,  is called the nearest lattice point to . The nearest lattice point problem is  to find  for each . 
+
+ Our objective is to study the communication cost of finding the nearest lattice point in a distributed network under the assumption that  is only available at node-, , in a network of  nodes.  We consider an interactive communication model in which nodes exchange information according to a pre-arranged protocol.  When communication ends, each node  has sufficient information to determine , an approximation to .  We restrict our work to lattices of dimension 2, since this captures most of the main geometric insights required for the analysis. 
+We view our problem as a distributed function computation problem, the function being the nearest lattice point to  and consider  communication protocols for the computation of this function. In an interactive protocol, a communication session is broken up into rounds and in each round a node is allowed to compute its message based on local information and all the information that it has received from other nodes in previous rounds. Interactive protocols are more powerful than one-way protocols~.
+
+The cost of communication for any function depends on the nature of the function, the error criterion used if an approximate solution is sought, and the correlation structure of the source. In order to pay attention to the function alone, we will assume throughout this work that the information available at each node is statistically independent.
+The main contributions of the paper are as follows. 
+
+
+
+Since the problem of finding the nearest lattice point can be viewed as a classification problem, where a class is the Voronoi cell of a lattice point, our results are of value for distributed classification problems in general. Given the current focus on data analytics and cloud computing, the communication costs of distributed classification problems  are expected to play an important role in practice.
+
+
+
+In a companion paper~ we have developed upper bounds for the communication complexity of constructing a specific rectangular partition for a given lattice along with a closed form expression for the error probability . The partition is referred to as a Babai partition and is an approximation to the Voronoi partition for a given lattice. 
+
+The probability of an event   is written  or , when the distribution is to be emphasized. The probability density function (pdf) of  is denoted by . The conditional pdf of  given  is denoted . The entropy function is denoted by , with argument being either a random variable or a probability distribution. The differential entropy function is denoted by  with similar convention regarding its argument. If , then we define ,  to be its projection on the th coordinate axis.
+
+The remainder of the paper is organized as follows. Previous work is reviewed in Sec.~, assumptions and a preliminary analysis are presented in Sec.~, the interactive model is analyzed and quantizer design is presented  for a single round of communication in Sec.~, and for an unbounded number of rounds of communication in Sec.~.  Numerical results and a discussion are in Sec.~. A summary and conclusions is provided in Sec.~.
+
+
+
+The problem considered here is related to the following bodies of prior work: interactive communication, distributed function computation, distributed hypothesis testing and quantization, in particular, asymptotic quantization theory. We briefly review prior work in each of these areas. Loosely speaking, communication complexity is the minimum amount of communication required to achieve a specific objective, whether it be distributed compression or distributed function computation.
+
+Two-party interactive communication is considered in a series of papers~,,~.  When worst-case complexity is considered, infinite message  complexity can be as small, but no better than, the logarithm of the one-message complexity, and the one-message complexity is the logarithm of the strong chromatic number of a graph that is derived from the support set of the joint distribution of the pair of random variables. It is also shown that two messages suffice to achieve communication within a constant factor of the best possible using an infinite number of messages. For the average case, when random variables are uniformly distributed over their support set, average case communication close to the conditional entropy can be acheived using four or more messages~.
+
+Given a function  of several variables, the communication complexity of computing  in a distributed setting is considered in~,~. 
+Early information theoretic work on communication complexity for distributed function computation includes~. In~   the problem of computing  at node- is considered and it is shown  that  bits are necessary and sufficient, where  is  a conditional entropy defined on  the characteristic graph of ,  and . A characterization of the two-message rate region is also provided.
+More recently, two terminal interactive communication is studied in considerable detail in~, , and the benefit of an unbounded number of messages is demonstrated. In particular tight bounds for computing  the Boolean AND function are obtained. 
+
+
+ If  and  are iid Gaussian with unit variance, with correlation coefficient , , the objective is to calculate  at node-, and only a single round of communication is allowed from node- to node- then node- must send  bits to achieve mean squared error distortion ~. If , the minimum rate required coincides with the rate for communicating  with mse distortion , as can be seen from the rate distortion function for the source.  If the objective is to determine  at both nodes with mse distortion , the minimum sum rate is , which is twice the rate required for calculating  at one node. Once again, when  this coincides with the minimum rate for sending  to  and  to , even if multiple rounds of interactive coding are allowed~.  
+
+
+ Our work is based on analysis techniques for quantization~, , some applications of which to detection problems have already appeared  in~,~ and ~. More recently, the design of fine scalar quantizers for distributed function computation with a squared error distortion measure is considered in~ and succeeding works. 
+
+
+
+While the problem considered in this paper is of fundamental importance, it also has potential applications to emerging systems for  network security and machine learning. 
+
+The need for large scale distributed systems has been noted, by security researchers, as a foil to distributed and coordinated attacks. Examples of such attacks and pre-cursors to attacks are distributed denial of service attacks ~,  distributed port scans and fragmented worms. This is enabled by the increased sophistication of attackers, who are able to commandeer multiple resources and attack a network in a distributed manner, so as to evade localized detection techniques.  A common feature of these attacks is that detection requires global information. The communication cost of detecting such attacks is high and the bottleneck is the network bandwidth, which is a few orders of magnitude smaller than  memory bandwidth~. 
+In response, researchers have considered the design of distributed, collaborative  intrusion detection systems and several survey papers on this important subject have appeared recently, e.g~,~.    
+
+A similar trend towards collaborative distributed systems is observed in the area of machine learning, e.g.~. Machine learning systems can serve as a subsystem in an intrusion detection system, but are also of interest in a host of other applications. Primitives provided in such systems include gradient and stochastic gradient descent, map-reduce (for developing divide and conquer strategies) and  graph parallel primitives. The problem of reducing the communications overhead in datacenter implementations of large scale machine learning problems has been addressed in several works, e.g.~.  As a specific example consider the design of a neural network classifier for data that is distributed across many physical locations~. The focus in ~ is on understanding the statistical performance of the proposed distributed learning algorithm---there is no explicit accounting of the communication cost of the proposed algorithm. Our work aims to fill this gap.
+
+Finally, we would like to note that when detecting an attack in a large network, the first attack is often very hard to detect. It is only after anomalous behavior is noted that an effort is made to discover the mode of the attack, after which an attack signature is obtained for preventing further spread. Thus, the  availability of network data that precedes the attack is crucial for discovering the mode of an unseen attack. Such data can take the form of counts of packets with specific source, destination IP addresses, as in~. However, since uncompressed network logs will consume a lot of network bandwidth, it makes sense to have available a compressed representation of  a  network log.    In the example of packet counts, lossy compression is an acceptable and necessary step in reducing the network bandwidth requirements. The emphasis on low delay is also important here. We may not have the luxury of accumulating data for a month at each sensor node, but may wish to encode data daily. 
+
+
+
+
+
+
+
+The problem considered here has applications to the above-mentioned distributed systems and our expectation is that the communication efficiencies obtained through their solution  will contribute to system efficiencies.
+
+
+
+
+
+
+Our analysis is for lattices in dimension 2. We summarize here, some of the necessary and relevant facts about two dimensional lattices. 
+ We will assume that generator matrix  of lattice  is of full rank (the associated lattice is called a full rank lattice) and has the upper triangular form 
+ 
+  where the columns of  are basis vectors for the lattice.   The associated quadratic form is . It is known that this form is reduced if and only if  and the three smallest values taken by  over  are , , and ~see e.g. Th. II, Ch. II, . Based on a result due to Voronoi, Th. 10, Ch. 21,~, it follows that the relevant vectors, i.e. the vectors which determine the faces of the Voronoi cell, are ,  and . We thus consider lattices with generator matrix  as above, with . From an additional symmetry, and in order to avoid indeterminate solutions we restrict   such that . Performance at the endpoints  and  can be obtained by taking limits. More generally, the generator matrix of the lattice is represented by matrix  with th column  , . Thus .  The  entry of V is , thus . The Voronoi cell  is defined as the set of all  for which  is the closest lattice point. When , we will write  as shorthand for .
+
+
+
+A fundamental region of a lattice  is a set with the property that distinct points in the set are distinct, modulo translations by lattice vectors. The volume of any fundamental region is . The Voronoi cell   is a  fundamental region for the lattice . For the lattice  with generator matrix  (),  it is not hard to show that any translate of the rectangle    is also a fundamental region for  and that these are the only axis-aligned rectangular fundamental regions for this lattice. Given a lattice  and  a rectangular fundamental region , a  partition of  of the form ,  will be referred to as a  of . A simple method for obtaining a fundamental rectangular partition is to partition  into rectangles for which   is constant,  where 
+
+ ( is the nearest integer to ). This partition is referred to as  the nearest-plane or Babai partition,  the lattice point 
+ 
+is referred to as the Babai point, the set of  mapped to  by () and () is called the Babai cell associated with , denoted . The Babai cell at the origin  is abbreviated .
+
+
+
+
+
+
+Our algorithm computes  in two stages, as illustrated in Fig.~.
+ In the first stage, a Babai partition of  is constructed. This  is accomplished by first sending  from node-2 to node-1 and then sending  from node-1 to node-2 calculated according to ().  At the conclusion of this stage of the protocol, both nodes have determined an approximate nearest lattice point, , thus localizing  to the Babai cell . In the second stage, we allow only a single round of communication. This round consists of sending a bin index  from node-1 to node-2 and another bin index  from node-2 to node-1. Computation of  and 's is explained later in this section. Different results are obtained depending on the order in which the  are communicated. Both possibilities are analyzed. At the end of the second stage, each node has determined  a better approximation to  than . We call this common lattice point .
+
+Let  and let  denote the error probability. The total number of bits communicated in Stages I and II is denoted by , , respectively and .
+Our  objective is to determine  the error probability as a function of . 
+
+Since  and  are assumed to be independent and the Babai cell satisfies , the pdf of  conditioned on the event   or equivalently  satisfies .   
+
+
+ 
+The Stage-I rate is given by , where  and the  are obtained in~(). For general probability distributions   must be obtained computationally. However, when the lattice is scaled by  (i.e. the generator matrix for the lattice is ) and    it is easy to show that the Stage-I rate satisfies~
+ 
+
+
+
+
+
+
+We now describe the scheme for the  order for the second stage. Node-1 partitions  into bins and sends a message to node-1 to indicate which bin  lies in, in effect partitioning  into  vertical rectangular strips. 
+Node-2 partitions each vertical rectangular strip into at most three parts using at most two horizontal cuts or thresholds. The location of each cut is determined by the location of the appropriate boundary wall of  a Voronoi cell. A typical situation is illustrated in Fig.~. 
+Here a rectangle is intersected by the boundary lines of the Voronoi cell , and is partitioned into three smaller rectangles. The partitioning of a rectangle into smaller rectangles is determined by the optimum decoding or decision rule,  which associates a   lattice point  with every rectangle in the final partition. Consider a rectangle  and let  be the lattice point that it is decoded to. From elementary considerations it follows that . Thus the optimum decision rule decodes region  to the lattice point whose Voronoi region has the largest probability of   intersection with . 
+
+
+Assume that the upper and lower boundary lines of  are described by  and , respectively, when .  In case one or more of the Voronoi boundary lines is absent,  and  coincide with the boundary of the Babai cell and the slopes are zero.   Let   have width  and let  and , both in ,  be as shown in Fig.~.  Then
+
+Pr[{2}(x_1)(u(x_1))+ & & (l(x_1))&  {4} (x_1)(u(x_1))+|l'(x_1)|p_{X_2|(l(x_1))
+
+and equality holds when . This determines the best location of two horizontal cuts for each vertical rectangular strip.
+We now describe the partition of  in a hierarchical manner, using random variables  and . The function  is constant on  sub-intervals of , for some .  describes the sub-interval that  lies in. The sub-interval indexed by  is special in that  is zero over this sub-interval and  for each . No further partitioning of a sub-interval  is required, and Stage-II communication ends. Each subinterval  is further partitioned into bins and the random variable  describes the bin index of the bin that  lies in.  
+Thus each bin  is indexed by , where  is the index of the Babai cell,  is the sub-interval index,  is the bin index relative to the sub-interval, and 
+
+P_e & = &   P_{(& =  & (1-P_{W_1}(0)) ({(1-P_{W_1}(0))}P(
+
+where  is given by averaging the minimum value achieved by () with appropriate bin size .
+
+The information rate from node-1 in Stage-II is . The sum information rate for all communication  (Stages I and II)  is given by 
+
+where, for convenience, we mention again that   and  are the random variables associated with communication in Stage-I, given by () and ,  and  are random variables associated with communication in Stage-II.
+
+
+
+Since the quantization in Stage-II is assumed to be fine (for a lattice at any scale), we can obtain useful approximations for . Specifically, for a realization of 
+
+where , the number of bins and , the th bin of the th sub-interval  of the Babai cell indexed by . Note that   may depend on  though this is not reflected in the notation.
+
+The partition constructed by node-2 is described next. Suppose  lies in the rectangle . As shown in Fig.~,   is partitioned into at most three rectangles labeled , . Define the probability distribution , where . Node-2 sends  bits to node-1 where
+
+where  lies in the th bin of the th sub-interval of the Babai cell indexed by , having length . 
+In order to derive limiting expressions for ()--(), we follow the approach in , , and introduce the bin-length function  and the point density function , where  is the number of bins that a sub-interval is partitioned into and  is the length of a bin that contains .
+Observe that  measures the density of bins at  within a sub-interval and integrates to unity over that sub-interval. Wherever needed  will be indexed by the Babai cell index  and sub-interval . 
+
+In terms of the point density function  and 
+
+we obtain
+
+P({cc}
+E(X_1)}{(X_1)N_{}0, & w_1 = 0,
+
+
+
+
+H(Z_1|{cc} 
+E(X_1) N_{}{p_{X_1|(X_1|0, & w_1 = 0,
+
+
+
+and
+
+Observe that () does not depend on .
+
+We minimize  with respect to the sum rate  in two steps. First we obtain a lower bound on  ()  through an application of Jensen's inequality~, ~,~. We follow this with another application of Jensen's inequality to determine the optimal rate allocation .
+Thus for 
+
+ &  & & (X_1)}{(X_1)N_{} &  (X_1)-(X_1)N_{ & (X_1) 
+and equality holds if and only if , for some constant . Let
+
+and let
+
+From () it follows that
+
+P_e  & (0)) (-H(Z_1|& (0))  (-H(Z_1|& (0))  (+h(X_1|{(1-P_{w_1}(0))}
+and equality holds when  for some constant .
+From here it follows directly that
+
+  }{(1-P_{W_1}(0))}} & &  (0))+ [+h(X_1|{1-P_{W_1}(0)}+{1-P_{W_1}(0)},
+
+
+where  is the expectation with respect to the probability distribution  defined in () and  is the differential entropy of the probability density .
+ 
+From () we see that in order to achieve  it is necessary that  for all  which have positive probability. This is impossible unless the bin size (the  dimension) is zero, which requires an infinite rate.
+ 
+
+
+
+Conditions for convergence in () are less stringent than those required in the analysis of quantizers under difference distortion measures since the error measure considered here is the error probability. It suffices to assume that the marginal pdf's satisfy smoothness conditions (53(a)-(c)) in~.
+
+
+
+
+
+
+
+
+
+We now specialize the analysis to the simplest case where we assume that  is uniformly distributed over . Thus  in () and the remaining terms are derived in the sequel. We note here that this analysis also applies in a limiting sense when applied to lattice  and . The only modification required is that  be computed using (). Thus the analysis presented here is applicable in the limiting case for general source distributions. The benefit is that it allows us to study explicity, the dependence on geometric parameters of the Babai and Voronoi cell.
+
+The Voronoi cell  and  Babai cell  are shown with all the significant boundary points and intervals   in Fig.~. We identify four thresholds , ,  and  and five intervals  , , ,  and  with lengths , , , . Let . Note that  in Fig.~. Let . Note that  in Fig.~. Let the height of the Babai cell be   .   Thus
+
+Then
+
+
+and
+
+Let random variable  which takes values  with probability . We thus obtain 
+
+}{1-P_{W_1}(0)}=& (0))}{4} {P_{W_1}(0)}(0)}{1-P_{W_1}(0)}}^2 (0)}{P_{W_1}(0)}(0)}{1-P_{W_1}(0)}}{(1-P_{W_1}(0))} =& {4} {L_0}{1-L_0}}^2 {L_j H}{1-L_0}}{(1-L_0)}.
+
+
+
+
+
+It is worth noting that for the special case considered here, namely,  uniformly distributed on , () can be obtained more directly by partitioning   into  equal-length intervals,  into  equal-length intervals,  into  interval,  into  equal-length intervals and   into  equal-length intervals~.
+
+
+
+
+
+
+Analysis is now presented for   order of communication.  The general formula () continues to apply here, but with ,  and   replacing , , and , respectively. We thus derive an expression for the special case with  uniformly distributed on , since this captures the essential geometric differences between the two orderings of communication in Stage-II. 
+
+The support for  is partitioned into  subintervals ,  and   and the bin that  lies in is communicated to node-1 by random variable . Conditioned on , random variable  indicates a bin for interval ,  that  lies in. Also let , the vertical () dimension of  and ,  as in Fig.~.
+
+Node-2 sends , the index of the bin that  lies in, and thus partitions  into horizontal strips. Node-1 then partitions each horizontal strip into at most three parts using at most two vertical cuts or thresholds, referred to as the left and right thresholds, and sends  to node-2. For a given , let  be the probability that  lies to the left of the left threshold (),  the probability that  lies to the right of the right threshold () and  the probability that  lies in between the two thresholds (). Let . 
+Then
+
+It follows that 
+
+
+
+
+
+
+
+
+We consider the possibility that the Babai partition constructed on  for some fixed offset vector  might lead to improved performance.   Notice that the lattice and Voronoi partition remain unchanged; only the rectangular partition has shifted. It suffices to restrict  to the rectangle  and with this restriction . For 2D lattice considered here . 
+
+
+First consider the 12 order to communication. We have already shown that the error probability decreases as  and thus the maximum rate of decay is obtained by choosing an offset  for which  is maximized.  In terms of the distances shown in Fig.~,  and  depend on the vertical offset . For , ,  and . Note that offset  corresponds to .  is maximized for any  which satisfies , as shown in Fig.~. Thus  is optimal in terms of rate of decay. A further optimization is possible in terms of the constant term. This has been calculated numerically and is shown in Fig.~(b). For the 12 order of communication  is optimum (for all  in ) and  results in significant improvements in the error probability.
+
+A similar, but simpler analysis for the reverse order shows that in this case the zero offset is indeed optimal, as shown in Fig.~(c).
+
+
+
+
+
+
+
+
+
+
+
+We now analyze the interactive model in which an infinite number of communication rounds are allowed. We provide an analysis under the assumption that  is uniformly distributed over . As we have noted earlier, the analysis with this restriction also applies when the lattice is fine, i.e. when , the volume of a fundamental region is small. The construction and  performance analysis is presented is described in Sec.~. The optimum offset is investigated in Sec.~.
+
+
+
+Node-2 communicates first. In Round-1, Node-2
+partitions the support of  into three intervals as in Sec.~ (see Figs.~ and ),  ,  and , and .  Let random variable  be the index of the interval in which   lies. In Round-1, upon receiving  and if  , Node-1 partitions the support of  into three intervals  ,  and  (see Fig.~). If , the support of  is partitioned into intervals . If , no partitioning step is taken. Random variable  describes the interval in which  lies. Let , . Let , . Let  and .
+
+We assume that for every round, upon sending , Node-  updates  by subtracting the lower endpoint of the interval that it lies in.
+
+The partition of  into rectangular cells after a single, and after two rounds of communication is  shown in Fig.~. Define a rectangular cell to be  if its interior does not contain a boundary of . 
+Of the seven rectangles in the partition at the conclusion of Round-1, all but four are error-free. If  lies in an error-free rectangle, communication halts after Round-1. Else a second round of communication occurs, during which a total of 2 bits are communicated. This process of partitioning and communication continues until each node determines that  lies in an error free rectangle of the current partition.   When the algorithm halts, . Let ,   denote the number of rounds, and number of bits communicated, respectively, when the algorithm halts. Let  and  denote averages over .
+
+
+
+ 
+
+
+With reference to Fig.~, define the probability distributions , with , , ,  and . In terms of parameters for the basis, , , ,   and for , ,  and  (replicated here for convenience).
+
+The sum rate for Stage-II communication is given by 
+
+
+
+
+The sum rate plotted in  in Fig.~, for the offset Babai partition shows that zero offset is optimal, consistent with the result for the 21 single-round result.
+
+
+The communication strategy is implicit in the proof. Note that the finite value for  is because of the rapid decrease with   of the probability of halting at  rounds.
+
+
+This result has  interesting implications when viewed in the context of distributed classification problems. Suppose we have an optimum two-dimensional classifier with separating boundaries that are not axis aligned and also a suboptimal classifier with separating boundaries that are axis aligned, e.g. a - tree. We expect the communication complexity of refining the approximate rectangular classifier to the optimum classifier to be finite.
+
+
+
+
+
+Performance results for all models are summarized in Fig.~, for  and .  Under the 1-round interactive model  the hexagonal lattice is not the worst case for the  sequence, but is for the  sequence. The large gap in performance at the same rate for the  and  sequences highlights the importance of selecting the sequence of order in which nodes communicate in this case. Under the infinite round interactive model, the hexagonal lattice is the worst case, with  bits.
+
+
+For the nearest lattice point problem, we have considered the problem of interactively computing the  nearest lattice point for a lattice in two dimensions. A two-party model of communication is assumed and expressions for the error probability have been obtained for a single round of communication (i.e. two messages). We have also considered an unbounded number of rounds of communication and shown that it is possible to achieve zero probability of error with a finite number of bits exchanged on average. In almost all cases, our results indicate that lattices which are better for quantization or for communication have a higher communication complexity.
+
+
+
+
+	
+	
+
+
+{1}
+
+
+
+
+
+

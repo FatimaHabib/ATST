@@ -1,0 +1,9 @@
+
+
+
+Contemporary software projects often utilize a  to share crucial information such as installation and usage examples related to their software. 
+Furthermore, these files serve as an important source of updated and useful documentation for developers and prospective users of the software.
+Nonetheless, both novice and seasoned developers are sometimes unsure of what is required for a good  file.
+To understand the contents of Results show that these packages contain common content themes (i.e., `usage', `install' and `license'). 
+Furthermore, we find that application-specific packages more frequently included content themes such as `options', while library-based packages more frequently included other specific content themes (i.e., `install' and `license'). 
+

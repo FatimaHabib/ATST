@@ -1,0 +1,739 @@
+\section{Introduction}
+
+Consider a stationary stochastic process $\{X_t\}_{t = 1}^{\infty}$, where each $X_t$ takes values in a finite alphabet $\cX$ of size $S$. The \emph{Shannon entropy rate} (or simply \emph{entropy rate}) of this process is defined as~\cite{Cover--Thomas2006}
+\begin{equation}
+\label{eqn.generalentropyratedef}
+\bar{H}  = \lim_{n\to \infty} \frac{1}{n} H(X^n),
+\end{equation}
+where \[H(X^n) = \sum_{x^n \in \cX^n} P_{X^n}(x^n) \ln \frac{1}{P_{X^n}(x^n)}\] is the \emph{Shannon entropy} (or \emph{entropy}) of the random vector $X^n = (X_1,X_2,\ldots,X_n)$ and $P_{X^n}(x^n) = \prob{X_1=x_1,\ldots,X_n=x_n}$ is the joint probability mass function. Since the entropy of a random variable depends only on its distribution, we also refer to the entropy $H(P)$ of a discrete distribution $P = (p_1,p_2,\ldots,p_S)$, defined as
+$
+H(P) = \sum_{i = 1}^S p_i \ln \frac{1}{p_i}.
+$
+
+The Shannon entropy rate is the fundamental limit of the expected logarithmic loss when predicting the next symbol, given the all past symbols. It is also the fundamental limit of data compressing for stationary stochastic processes in terms of the average number of bits required to represent each symbol \cite{Cover--Thomas2006,Cesa--Lugosi2006}. Estimating the entropy rate of a stochastic process is a fundamental problem in information theory, statistics, and machine learning; and it has diverse applications---see, for example, \cite{Shannon1951prediction, lanctot2000estimating,song2010limits,takaguchi2011predictability,wang2012random,krumme2013predictability}.
+
+There exists extensive literature on entropy rate estimation. It is known from data compression theory that the normalized codelength of any \emph{universal} code is a consistent estimator for the entropy rate as the number of samples approaches infinity. This observation has inspired a large variety of entropy rate estimators; see \textit{e.g.} \cite{Wyner--Ziv1989,Kontoyiannis--Algoet--Suhov--Wyner1998nonparametric,effros2002universal,Cai--Kulkarni--Verdu2004,Jiao--Permuter--Zhao--Kim--Weissman2013}.
+However, most of this work has been in the asymptotic regime \cite{shields1996ergodic,ciuperca2005estimation}. Attention to \emph{non-asymptotic} analysis has only been more recent, and to date, almost only for i.i.d.\ data. There has been little work on the non-asymptotic performance of an entropy rate estimator for dependent data---that is, where the alphabet size is large (making asymptotically large datasets infeasible) and the stochastic process has memory. An understanding of this large-alphabet regime is increasingly important in modern machine learning applications, in particular, \emph{language modeling}. There have been substantial recent advances in probabilistic language models, which have been widely used in applications such as machine translation and search query completion. The entropy rate of (say) the English language represents a fundamental limit on the efficacy of a language model (measured by its \textit{perplexity}), so it is of great interest to language model researchers to obtain an accurate estimate of the entropy rate as a benchmark. However, since the alphabet size here is exceedingly large, and Google's One Billion Words corpus includes about two million unique words,\footnote{This exceeds the estimated vocabulary of the English language partly because different forms of a word count as different words in language models, and partly because of edge cases in tokenization, the automatic splitting of text into ``words''.\label{foot:english-vocab}} it is unrealistic to assume the large-sample asymptotics especially when dealing with combinations of words (bigrams, trigrams, etc). It is therefore of significant practical importance to investigate the optimal entropy rate estimator with limited sample size.
+
+In the context of non-asymptotic analysis for i.i.d.\ samples, Paninski~\cite{Paninski2004} first showed that the Shannon entropy can be consistently estimated with $o(S)$ samples when the alphabet size $S$ approaches infinity. The seminal work of~\cite{Valiant--Valiant2011} showed that when estimating the entropy rate of an i.i.d.\ source, $n \gg \frac{S}{\log S}$ samples are necessary and sufficient for consistency.
+The entropy estimators proposed in \cite{Valiant--Valiant2011} and refined in \cite{Valiant--Valiant2013estimating}, based on linear programming, have not been shown to achieve the minimax estimation rate. Another estimator proposed by the same authors~\cite{Valiant--Valiant2011power} has been shown to achieve the minimax rate in the restrictive regime of $\frac{S}{\ln S} \lesssim n \lesssim \frac{S^{1.03}}{\ln S}$.
+Using the idea of best polynomial approximation, the independent work of~\cite{Wu--Yang2014minimax} and~\cite{Jiao--Venkat--Han--Weissman2015minimax} obtained estimators that achieve the minimax mean-square error $\Theta((\frac{S}{n \log S})^2 + \frac{\log^2 S}{n})$ for entropy estimation.
+The intuition for the $\Theta(\frac{S}{\log S})$ sample complexity in the independent case can be interpreted as follows: as opposed to estimating the entire distribution which has $S-1$ parameters and requires $\Theta(S)$ samples, estimating the scalar functional (entropy) can be done with a logarithmic factor reduction of samples. For Markov chains which are characterized by the transition matrix consisting of $S(S-1)$ free parameters, it is reasonable to expect an $\Theta(\frac{S^2}{\log S})$ sample complexity. Indeed, we will show that this is correct provided the mixing is not too slow.
+
+Estimating the entropy rate of a Markov chain falls in the general area of property testing and estimation with dependent data. The prior work \cite{kamath2016estimation} provided a non-asymptotic analysis of maximum-likelihood estimation of entropy rate in Markov chains and showed that it is necessary to assume certain assumptions on the mixing time for otherwise the entropy rate is impossible to estimate.
+There has been some progress in related questions of estimating the mixing time from sample path \cite{hsu2015mixing,levin2016estimating}, estimating the transition matrix \cite{FOPS16}, and testing symmetric Markov chains \cite{daskalakis2017testing}. The current paper makes contribution to this growing field. In particular, the main results of this paper are highlighted as follows:
+\begin{itemize}
+    \item We provide a tight analysis of the sample complexity of the empirical entropy rate for Markov chains when the mixing time is not too large. This refines results in~\cite{kamath2016estimation} and shows that when mixing is not too slow, the sample complexity of the empirical entropy does not depend on the mixing time. Precisely, the bias of the empirical entropy rate vanishes uniformly over all Markov chains regardless of mixing time and reversibility as long as the number of samples grows faster than the number of parameters. It is its variance that may explode when the mixing time becomes gigantic.
+    \item We obtain a characterization of the optimal sample complexity for estimating the entropy rate of a stationary reversible Markov chain in terms of the sample size, state space size, and mixing time, and partially resolve one of the open questions raised in~\cite{kamath2016estimation}. In particular, we show that when the mixing is neither too fast nor too slow, the sample complexity (up to a constant) does not depend on mixing time. In this regime, the performance of the optimal estimator with $n$ samples is essentially that of the empirical entropy rate with $n \log n$ samples.
+		As opposed to the lower bound for estimating the mixing time in \cite{hsu2015mixing} obtained by applying Le Cam's method to two Markov chains which are statistically indistinguishable, the minimax lower bound in the current paper is much more involved, which, in addition to
+	a series of reductions by means of simulation, relies on constructing two stationary reversible Markov chains with \emph{random} transition matrices \cite{bordenave2010spectrum}, so that the marginal distributions of the sample paths are statistically indistinguishable.
+		%connects the dual program of best polynomial approximation with random walk in a random environment, and goes through a series of reductions by means of simulation arguments.
+		%The minimax lower bound connects the dual program of best polynomial approximation with random walk in a random environment, and goes through a series of reductions from Markov to independent multinomial to independent Poisson model.
+    \item We construct estimators that are efficiently computable and achieve the minimax sample complexity. The key step is to connect the entropy rate estimation problem to Shannon entropy estimation on large alphabets with i.i.d.\ samples. The analysis uses the idea of simulating Markov chains from independent samples by Billingsley \cite{billingsley1961statistical} and concentration inequalities for Markov chains.
+
+    \item We compare the empirical performance of various estimators for entropy rate on a variety of synthetic data sets, and demonstrate the superior performances of the information-theoretically optimal estimators compared to the empirical entropy rate.
+
+    \item We apply the information-theoretically optimal estimators to estimate the entropy rate of the Penn Treebank (PTB) and the Google One Billion Words (1BW) datasets. We show that even only with estimates using up to 4-grams, there may exist language models that achieve better perplexity than the current state-of-the-art.
+\end{itemize}
+
+The rest of the paper is organized as follows. After setting up preliminary definitions in Section~\ref{sec.preliminaries}, we summarize our main findings in Section~\ref{sec.mainresults}, with proofs sketched in Section~\ref{sec.proof_sketch}. Section~\ref{sec.languagemodels} provides empirical results on estimating the entropy rate of the Penn Treebank (PTB) and the Google One Billion Words (1BW) datasets. Detailed proofs and more experiments are deferred to the appendices. 
+%the proofs of the main lemmas are presented in Section~\ref{sec.mainlemmasproof}. The proofs of the auxiliary lemmas are given in Section~\ref{sec.auxiliarylemmaproof}.
+
+\section{Preliminaries}
+\label{sec.preliminaries}
+
+Consider a first-order Markov chain $X_0,X_1,X_2,\ldots$ on a finite state space $\mathcal{X}= [S]$ with transition kernel $T$. We denote the entries of $T$ as $T_{ij}$, that is, $T_{ij} = P_{X_2|X_1}(j|i)$ for $i, j \in \cX$.
+Let $T_i$ denote the $i$th row of $T$, which is the conditional law of $X_2$ given $X_1=i$.
+ Throughout the paper, we focus on first-order Markov chains, since any finite-order Markov chain can be converted to a first-order one by extending the state space~\cite{billingsley1961statistical}.
+
+We say that a Markov chain is \emph{stationary} if the distribution of $X_1$, denoted by $\pi\triangleq P_{X_1}$, satisfies $\pi T=\pi$. 
+We say that a Markov chain is \emph{reversible} if
+%there exists a probability measure $\pi$ on $\mathcal{X}$ that
+it  satisfies the detailed balance equations,
+$
+\pi_i T_{ij}  = \pi_j T_{ji} 
+$ for all $i,j\in\cX$. 
+If a Markov chain is reversible, the (left) spectrum of its transition matrix $T$ contains $S$ real eigenvalues, which we denote as $1 = \lambda_1 \geq \lambda_2 \geq \cdots \geq \lambda_S \geq -1$. We define the \emph{spectral gap} and the \emph{absolute spectral gap} of $T$ as
+$
+\gamma(T) = 1 - \lambda_2$ and $\gamma^*(T) = 1 - \max_{i\geq 2} |\lambda_i|
+$, respectively, 
+and the \emph{relaxation time} of a reversible Markov chain as
+\begin{equation}
+\tau_{\mathrm{rel}}(T) = \frac{1}{\gamma^*(T)}.
+\end{equation}
+
+The relaxation time of a reversible Markov chain (approximately) captures its mixing time, which roughly speaking is the smallest $n$ for which the marginal distribution of $X_n$ is close to the Markov chain's stationary distribution. We refer to~\cite{montenegro2006mathematical} for a survey.
+
+We consider the following observation model. We observe a sample path of a stationary finite-state Markov chain $X_0,X_1,\ldots,X_n$, whose Shannon entropy rate $\bar{H}$ in~(\ref{eqn.generalentropyratedef}) reduces to
+\begin{align}
+\bar{H}
+= & ~ \sum_{i = 1}^S \pi_i \sum_{j = 1}^S T_{ij} \ln \frac{1}{T_{ij}} = H(X_1,X_2) - H(X_1) \label{eq:entropyratedef2}
+\end{align}
+where $\pi$ is the stationary distribution of this Markov chain. Let $\mathcal{M}_2(S)$ be the set of transition matrices of all stationary Markov chains on a state space of size $S$. Let $\mathcal{M}_{2,\text{rev}}(S)$ be the set of transition matrices of all stationary \emph{reversible} Markov chains on a state space of size $S$. We define the following class of stationary Markov reversible chains whose relaxation time is at most $\frac{1}{\gamma^*}$:
+\begin{equation}
+\mathcal{M}_{2,\text{rev}}(S, \gamma^*) = \{ T \in \mathcal{M}_{2,\text{rev}}(S), \gamma^*(T) \geq \gamma^*\}.
+\end{equation}
+The goal is to characterize the sample complexity of entropy rate estimation as a function of $S$, $\gamma^*$, and the estimation accuracy.
+
+Note that the entropy rate of a first-order Markov chain can be written as
+\begin{equation}
+\bar{H} = \sum_{i = 1}^S \pi_i H(X_2|X_1 = i). 
+\end{equation}
+Given a sample path $\mathbf{X} = (X_0,X_1,\ldots,X_n)$, let  $\hat{\pi}$ denote the empirical distribution of states, and the subsequence of $\mathbf{X}$ containing elements \emph{following} any occurrence of the state $i$ as
+$
+\mathbf{X}^{(i)} = \{ X_j:  X_j \in \mathbf{X}, X_{j-1} = i, j\in [n]\}.
+$
+A natural idea to estimate the entropy rate $\bar{H}$ is to use $\hat{\pi}_i$ to estimate $\pi_i$ and an appropriate Shannon entropy estimator to estimate $H(X_2|X_1 = i)$. We define two estimators: 
+\begin{enumerate}
+	\item The \emph{empirical entropy rate}: $\bar{H}_{\emp} = \sum_{i = 1}^S \hat{\pi}_i \hat H_{\mathsf{emp}}\!\left( \mathbf{X}^{(i)} \right)$. Note that $\hat{H}_{\emp}(\mathbf{Y})$ computes the Shannon entropy of the empirical distribution of its argument $\mathbf{Y} = (Y_1,Y_2,\ldots,Y_m)$.
+	\item Our entropy rate estimator: $\Hopt = \sum_{i = 1}^S \hat{\pi}_i \hat{H}_{\opt}\!\left (\mathbf{X}^{(i)} \right )$, where $\hat{H}_{\opt}$ is any minimax rate-optimal Shannon entropy estimator designed for i.i.d.\ data, such as those in~\cite{Valiant--Valiant2011power,Wu--Yang2014minimax,Jiao--Venkat--Han--Weissman2015minimax}.
+\end{enumerate} 
+
+%The theory of estimating Shannon entropy of a discrete distribution from i.i.d.\ data suggests that the MLE achieves bias order $\frac{S}{n}$ with $n$ samples from a distribution of alphabet size $S$ when $n \gtrsim S$, while the minimax rate-optimal ones achieve bias $\frac{S}{n\ln n}$ when $n\gtrsim \frac{S}{\ln S}$. The bias dominates when the number of samples $n$ is not too large.
+%\nbr{This paragraph seems disconnected from the rest. I do not know how to edit.}
+
+\section{Main results}
+\label{sec.mainresults}
+
+%As motivated by the results in the independent case, one might expect that bias dominates when $n$ is close to $S^2$ for the empirical entropy, and that the total error (including bias and variance) should not depend on the mixing properties when the mixing is not too slow. This intuition is supported by the following theorem.
+Our first result provides performance guarantees for the empirical entropy rate $\Hemp$ and our entropy rate estimator $\Hopt$: 
+
+\begin{theorem}\label{thm.mainresultsupper}
+Suppose $(X_0,X_1,\ldots,X_n)$ is a sample path from a stationary reversible Markov chain with spectral gap $\gamma$. If $S^{0.01}\lesssim n\lesssim S^{2.99}$ and $\frac{1}{\gamma} \lesssim \frac{S}{\ln n\ln^2 S } \wedge \frac{S^3}{n \ln n \ln^3 S}$, there exists some constant $C>0$ independent of $n,S,\gamma$ such that the entropy rate estimator $\Hopt$ satisfies:\footnote{The asymptotic results in this section are interpreted by parameterizing $n=n_S$ and $\gamma=\gamma_S$ and $S \to \infty$ subject to the conditions of each theorem.} as $S\to\infty$,
+\begin{align}
+P\left( |\Hopt - \bar{H}| \le C\frac{S^2}{n\ln S} \right) \to 1
+\end{align}
+
+Under the same conditions, there exists some constant $C'>0$ independent of $n,S,\gamma$ such that the empirical entropy rate $\Hemp$ satisfies: as $S\to\infty$,
+\begin{align}
+P\left( |\Hemp - \bar{H}| \le C'\frac{S^2}{n} \right) \to 1.
+\end{align}
+\end{theorem}
+
+%The following corollary is immediate.
+%\begin{corollary}\label{cor.upperanalysis}
+%The sample complexity for estimating the entropy rate over class $\mathcal{M}_{2,\text{rev}}(S, \gamma^*, \delta)$ is upper bounded by
+%\begin{align}
+%n^*_{\mathsf{MC}}(\mathcal{M}_{2,\text{rev}}(S, \gamma^*, \delta), \epsilon,\delta) & \lesssim \frac{S^2}{\epsilon \ln S}
+%\end{align}
+%when $\frac{S^2}{\ln S} \lesssim  n^* \lesssim S^{3-c}, \frac{1}{\gamma^*} \lesssim \frac{S^3}{n^* \ln n^* \ln^3 S} $, and $\delta$ is a fixed constant, say $0.01$.
+%\end{corollary}
+
+%\begin{remark}
+
+Theorem~\ref{thm.mainresultsupper} shows that when the sample size is not too large, and the mixing is not too slow, it suffices to take $n \gg \frac{S^2}{\ln S}$ for the estimator $\bar{H}_{\mathsf{opt}}$ to achieve a vanishing error, and $n\gg S^2$ for the empirical entropy rate. Theorem~\ref{thm.mainresultsupper} improves over~\cite{kamath2016estimation} in the analysis of the empirical entropy rate in the sense that unlike the error term $O(\frac{S^2}{n\gamma})$, our dominating term $O(\frac{S^2}{n})$ does not depend on the mixing time. % We emphasize that the constraint that $n$ being not be too large is not restrictive. The theory of entropy estimation with i.i.d.\ data shows that the bias only dominates when $n \lesssim \frac{S^2}{\ln^4 S}$ for the optimal estimator, and $n\lesssim \frac{S^2}{\ln^2 S}$ for the empirical entropy. In Theorem~\ref{thm.mainresultsupper}, we are only characterizing the regime where the bias dominates.
+%\end{remark}
+
+Note that we have made mixing time assumptions in the upper bound analysis of the empirical entropy rate in Theorem~\ref{thm.mainresultsupper}, which is natural since~\cite{kamath2016estimation} showed that it is necessary to impose mixing time assumptions to provide meaningful statistical guarantees for entropy rate estimation in Markov chains. The following result shows that mixing assumptions are only needed to control the variance of the empirical entropy rate: the bias of the empirical entropy rate vanishes uniformly over all Markov chains regardless of reversibility and mixing time assumptions as long as $n\gg S^2$. 
+
+\begin{theorem}\label{thm.universalbias}
+	Let $n,S\geq 1$. Then, 
+	\begin{align}
+	\sup_{T\in \mathcal{M}_2(S)} |\bar{H} - \mathbb{E}[\Hemp]| & \leq  \frac{2S^2}{n}\ln\left( \frac{n}{S^2} +1 \right) + \frac{(S^2+2)\ln 2}{n}.
+	\end{align}
+\end{theorem}
+
+Theorem~\ref{thm.universalbias} implies that if $n\gg S^2$, the bias of the empirical entropy rate estimator universally vanishes for any stationary Markov chains. 
+
+Now we turn to the lower bounds, which show that the scalings in Theorem \ref{thm.mainresultsupper} are in fact tight. The next result shows that the bias of the empirical entropy rate $\bar{H}_{\emp}$ is non-vanishing unless $n\gg S^2$, even when the data are independent.
+
+%characterizes the bias of the empirical entropy rate $\bar{H}_{\emp}$, which serves as a benchmark for the estimators that can achieve the optimal sample complexity.
+
+
+%
+%\begin{align}
+%0 & \leq  \bar{H} - \mathbb{E}[\Hemp] \\
+%& \leq \frac{S^2}{2n} \ln \frac{n e}{S^2} + \frac{S^2}{n} \ln \left( 1 + \sqrt{\frac{S^2}{n}} \right) + \frac{S}{2n} \ln\left(\frac{2\pi n}{S}\right) + \frac{S}{12n}\ln e.
+%\end{align}
+%Furthermore, i
+
+\begin{theorem}\label{thm.biasmlebound}
+% Suppose $\Hemp$ is the empirical entropy rate defined in~(\ref{eqn.empiricalentropyratedef}), and $\bar{H}$ denotes the true entropy rate. Let $n\geq 1, S\geq 1$. 
+%If the Markov chain is memoryless and 
+If $\{X_0,X_1,\ldots,X_n\}$ are mutually independent and uniformly distributed, then
+\begin{align}
+%\min_{P \in \mathcal{M}_2(S)}
+|\bar{H} - \mathbb{E}[\Hemp]| & \geq \ln \left(\frac{S^2}{n+ S-1} \right).
+\end{align}
+\end{theorem}
+The following corollary is immediate.
+
+%The bias of the empirical entropy rate $\bar{H}_{\emp}$ vanishes uniformly among \emph{all} stationary Markov chains with state space size $S$ when $n\gg  S^2$, regardless of other properties such as reversibility and mixing time. Moreover, t
+
+
+\begin{corollary}\label{cor.empirical}
+There exists a universal constant $c>0$ such that when $n\leq c S^2$, the absolute value of the bias of $\bar{H}_{\emp}$ is bounded away from zero even if the Markov chain is memoryless.
+\end{corollary}
+
+%It was shown in~\cite{kamath2016estimation} that the mixing conditions are needed to ensure meaningful results. It follows from Theorem~\ref{thm.biasmlebound} that it is only the concentration of the empirical entropy rate around its expectations that requires mixing conditions.
+
+
+
+
+
+The next theorem presents a minimax lower bound for entropy rate estimation which applies to any estimation scheme regardless of its computational cost. In particular, it shows that $\Hopt$ is minimax rate-optimal under mild assumptions on the mixing time. 
+
+
+\begin{theorem}\label{thm.mainresultslower}
+For $n\ge \frac{S^2}{\ln S}, \ln n\ll\frac{S}{(\ln S)^2}, \gamma^*\le 1-C_2\sqrt{\frac{S\ln^3 S}{n}}$, we have
+\begin{align}
+\liminf_{S \to\infty}
+\inf_{\hat{H}} \sup_{T \in \mathcal{M}_{2,\text{rev}}(S,\gamma^*)}P\left( |\hat{H} - \bar{H}| \geq C_1\frac{S^2}{n\ln S} \right) \geq \frac{1}{2}.
+\end{align}
+Here $C_1,C_2$ are universal constants from Theorem~\ref{thm.lowerboundpoisson}.
+\end{theorem}
+
+
+%
+%\begin{theorem}
+%The sample complexity for estimating the entropy rate over class $\mathcal{M}_{2,\text{rev}}(S, \gamma^*, \delta)$ is lower bounded by
+%\begin{align}
+%n^*_{\mathsf{MC}}(\mathcal{M}_{2,\text{rev}}(S, \gamma^*, \delta), \epsilon,\delta) & \gtrsim \frac{S^2}{\epsilon \ln S}
+%\end{align}
+%when $n^* \geq \frac{S^2}{\ln S}, \gamma^* \leq \frac{S^2}{n^*\ln S} - C_1 \frac{S^{3/2} \ln^2 S}{n^*}, \ln n^* \ll \frac{S}{\ln^2 S}$, and $\delta$ is a fixed number such as $0.01$.
+%\end{theorem}
+
+The following corollary, which follows from Theorem~\ref{thm.mainresultsupper} and~\ref{thm.mainresultslower}, presents the critical scaling that determines whether consistent estimation of the entropy rate is possible.
+\begin{corollary}\label{cor.samplecomplexitycor}
+If $\frac{\ln^3 S}{S}\ll \gamma^*\le 1-C_2\frac{\ln^2 S}{\sqrt{S}}$, there exists an estimator $\hat{H}$ which estimates the entropy rate with a uniformly vanishing error over Markov chains $\mathcal{M}_{2,\text{rev}}(S,\gamma^*)$ if and only if $n\gg \frac{S^2}{\ln S}$.
+\end{corollary}
+
+To conclude this section we summarize our result in terms of the sample complexity for estimating the entropy rate within a few bits ($\epsilon=\Theta(1)$), classified according to the relaxation time:
+
+\begin{itemize}
+	\item $\trel=1$: this is the i.i.d.~case and the sample complexity is $\Theta(\frac{S}{\ln S})$;
+
+	\item $1<\trel\ll 1 + \Omega(\frac{\ln^2 S}{\sqrt{S}})$: in this narrow regime the sample complexity is at most $O(\frac{S^2}{\ln S})$ and no matching lower bound is known;
+
+	\item $1 + \Omega(\frac{\ln^2 S}{\sqrt{S}}) \leq \trel \ll \frac{S}{\ln^3 S} $: the sample complexity is $\Theta(\frac{S^2}{\ln S})$;
+
+	\item $\trel \gtrsim \frac{S}{\ln^3 S}$: the sample complexity is $\Omega(\frac{S^2}{\ln S})$ and no matching upper bound is known. In this case the chain mixes very slowly and it is likely that the variance will dominate.
+\end{itemize}
+%In constrast, the sample complexity of the empirical entropy rate $\Hemp$, and the minimax sample complexity for a fixed constant $\epsilon$ and $\delta$. The sample complexity of the empirical entropy rate is $S^2$ when the relaxation time varies from $1$ to $S/\ln^3 S$, and may become larger as the relaxation time becomes larger since the variance may start to dominate. The minimax sample complexity when the relaxation time is one is $S/\ln S$ since it correspoinds to the i.i.d.~case, but jumps to $S^2/\ln S$ when the relaxation time varies to the scale $1 + \omega(\ln^3 S/\sqrt{S})$. The transition between $1$ and $1 + \omega(\ln^3 S/\sqrt{S})$ remains unclear and is plotted using dots. Then, the minimax sample complexity remains the same $S^2/\ln S$ till the relaxation time hits $S/\ln^3 S$, and for larger relaxation time the sample complexity might be higher since the variance may start to dominate.
+
+
+
+%\begin{figure}[!htbp]
+	%\centering
+	%\begin{tikzpicture}[xscale=5, yscale=5]
+	%\draw [<->] (0,1.5) -- (0,0) -- (1.5,0);
+	%% \draw (1.4,0) -- (1.4,1.4) -- (0,1.4);
+	%\draw [dashed, ultra thick] (0.4,0) -- (0.4,1.0);
+	%\draw [dashed, ultra thick] (1.2,0) -- (1.2,1.4);
+	%\draw [dotted] (0,0.5) -- (0.4,1.0);
+	%\draw [dotted] (1.2, 1.4) -- (1.5, 1.4);
+	%\draw [dotted] (1.2, 1.0) -- (1.5, 1.0);
+	%\draw (0.4, 1.0) -- (1.2, 1.0);
+	%\draw (0,1.4) -- (1.2,1.4);
+%
+	%%\draw [green] (0,0) -- (1.4,1.4);
+	%%\node [green, below] at (0.5,1.4) {$\Theta_0$};
+	%\node [below] at (0,0) {1};
+	%\node [below] at (1.2,0) {$S/\ln^3 S$};
+	%\filldraw (1.2,0) circle (0.2pt);
+	%\node [left] at (0,1.4) {$S^2$};
+	%\filldraw (0,1.4) circle (0.2pt);
+	%\node [above] at (0.7, 1.4) {$\hat{H}_{\emp}$};
+	%\node [left] at (0,1.0) {$S^2/ \ln S$};
+	%\node [above] at (0.7, 1.0) {$\hat{\bar{H}}$};
+	%\filldraw (0,1.0) circle (0.2pt);
+	%\node [left] at (0,0.5) {$S/\ln S$};
+	%\filldraw (0,0.5) circle (0.2pt);
+	%\node [below] at (0.4,0) {$1+\omega(\ln^3 S/ \sqrt{S} )$};
+	%\node [right] at (1.5,0) {$\tau_{\mathrm{rel}} = (\gamma^*)^{-1}$};
+	%\node [above] at (0,1.5) {$\text{sample complexity}$};
+	%\end{tikzpicture}
+%\captionof{figure}{The sample complexity of the empirical entropy rate $\hat{H}_{\emp}$, and the minimax sample complexity for a fixed constant $\epsilon$ and $\delta$. The sample complexity of the empirical entropy rate is $S^2$ when the relaxation time varies from $1$ to $S/\ln^3 S$, and may become larger as the relaxation time becomes larger since the variance may start to dominate. The minimax sample complexity when the relaxation time is one is $S/\ln S$ since it correspoinds to the i.i.d.~case, but jumps to $S^2/\ln S$ when the relaxation time varies to the scale $1 + \omega(\ln^3 S/\sqrt{S})$. The transition between $1$ and $1 + \omega(\ln^3 S/\sqrt{S})$ remains unclear and is plotted using dots. Then, the minimax sample complexity remains the same $S^2/\ln S$ till the relaxation time hits $S/\ln^3 S$, and for larger relaxation time the sample complexity might be higher since the variance may start to dominate. }
+	%\label{fig.phasetransition}
+	%\end{figure}
+
+\section{Sketch of the proof}\label{sec.proof_sketch}
+In this section we sketch the proof of Theorems \ref{thm.mainresultsupper}, \ref{thm.universalbias} and \ref{thm.mainresultslower}, and defer the details to the appendix. 
+
+\subsection{Proof of Theorem~\ref{thm.mainresultsupper}}
+A key step in the analysis of $\Hemp$ and $\Hopt$ is the idea of simulating a finite-state Markov chain from independent samples~\cite[p.~19]{billingsley1961statistical}: consider an independent collection of random variables $X_0$ and $W_{in}$ ($i = 1,2,\ldots,S;n = 1,2,\ldots $) such that $
+P_{X_0}(i) = \pi_i, 
+P_{W_{in}}(j) = T_{ij}.$ Imagine the variables $W_{in}$ set out in the following array:
+\begin{equation*}
+\begin{matrix}
+W_{11} &W_{12}& \ldots & W_{1n}& \ldots \\
+W_{21} &W_{22}& \ldots & W_{2n}& \ldots \\
+\vdots &\vdots& \ddots & \vdots & \vdots \\
+W_{S1} &W_{S2}&\ldots &W_{Sn} &\ldots
+\end{matrix}
+\end{equation*}
+First, $X_0$ is sampled. If $X_0 = i$, then the first variable in the $i$th row of the array is sampled, and the result is assigned by definition to $X_1$. If $X_1 = j$, then the first variable in the $j$th row is sampled, unless $j = i$, in which case the second variable is sampled. In any case, the result of the sampling is by definition $X_2$. The next variable sampled is the first one in row $X_2$ which has not yet been sampled. This process thus continues. After collecting $\{X_0,X_1,\ldots,X_n\}$ from the model, we assume that the last variable sampled from row $i$ is $W_{in_i}$. It can be shown that observing a Markov chain $\{X_0,X_1,\ldots,X_n\}$ is equivalent to observing $\{X_0, \{W_{ij}\}_{i\in [S], j\in [n_i]}\}$, and consequently $\hat{\pi}_i = n_i/n, \mathbf{X}^{(i)} = (W_{i1},\ldots,W_{in_i})$.
+
+The main reason to introduce the above framework is to analyze $\hat{H}_{\mathsf{emp}}(\mathbf{X}^{(i)})$ and $\hat{H}_{\mathsf{opt}}(\mathbf{X}^{(i)})$ as if the argument $\mathbf{X}^{(i)}$ is an i.i.d. vector. Specifically, although $W_{i1},\cdots, W_{im}$ conditioned on $n_i=m$ are not i.i.d., they are i.i.d. as $T_i$ for any \emph{fixed} $m$. Hence, using the fact that each $n_i$ concentrates around $n\pi_i$ (cf. Definition \ref{def.goodevents} and Lemma \ref{lemma.goodeventshighprobability} for details), we may use the concentration properties of $\hat{H}_{\mathsf{emp}}$ and $\hat{H}_{\mathsf{opt}}$ (cf. Lemma \ref{lemma.concentrationentropy}) on i.i.d. data for each \emph{fixed} $m\approx n\pi_i$ and apply the union bound in the end. 
+
+Based on this alternative view, we have the following theorem, which implies Theorem \ref{thm.mainresultsupper}. 
+\begin{theorem}\label{thm.upperbound}
+	Suppose $(X_0,X_1,\ldots,X_n)$ comes from a stationary reversible Markov chain with spectral gap $\gamma$. Then, with probability tending to one, the entropy rate estimators satisfy
+	\begin{align}
+	| \Hopt - \bar{H} | &\lesssim \frac{S^2}{n\ln S} + \left( \frac{S}{n} \right)^{0.495} + \frac{S \ln S}{n^{0.999}} + \frac{S \ln S \ln n}{n\gamma} +  \sqrt{\frac{S \ln n \ln^2 S}{n\gamma}},
+	\label{eq:optmain} \\
+	| \Hemp - \bar{H} | &\lesssim \frac{S^2}{n} + \left( \frac{S}{n} \right)^{0.495} + \frac{S \ln S}{n^{0.999}} + \frac{S \ln S \ln n}{n\gamma} +  \sqrt{\frac{S \ln n \ln^2 S}{n\gamma}}.
+	\label{eq:empmain}
+	\end{align}
+\end{theorem}
+
+%\subsubsection{Analysis of the estimator}
+%\subsubsection{Analysis of \texorpdfstring{$\Hopt$}{Hopt} and \texorpdfstring{$\Hemp$}{Hemp}}
+%
+%Next we define two events that ensure the proposed entropy rate estimator (\ref{eqn.optimalentropyrateestimator}) and the empirical entropy rate \eqref{eqn.empiricalentropyratedef} is accurate, respectively:
+%
+%\begin{definition}[``Good'' event in estimation]\label{def.goodevents}
+%Let $0<c_4<1$ and $c_3 \geq 20$ be some universal constants. We take $c_4 = 0.001$.
+%%Let $\calG_\opt$ be the intersection of the following events:
+%\begin{enumerate}
+%\item For every $i, 1\leq i\leq S$, define the event
+%\begin{equation}
+%\mathcal{E}_i =  \left \{ |\hat{\pi}_i - \pi_i| \leq  c_3 \max \left \{ \frac{\ln n}{n\gamma}, \sqrt{\frac{\pi_i \ln n}{n \gamma}} \right \} \right \}
+%\label{eq:Ei}
+%\end{equation}
+%\item For every $i \in [S]$ such that $\pi_i \geq n^{c_4-1} \vee 100c_3^2 \frac{\ln n}{n\gamma}$, define the event $\calH_i$ as
+%\begin{equation}\label{eqn.goodeventiidentropy}
+%|\hat{H}_{\opt}(W_{i1},W_{i2},\ldots, W_{im
+%}) - H_i | \leq \frac{c_2 S}{m \ln S} + \sqrt{\frac{\beta }{c_1 m^{1-\alpha'}}},
+%\end{equation}
+%for \emph{all} $m$ such that $n\pi_i - c_3 \sqrt{\frac{n\pi_i \ln n}{\gamma}} \leq m \leq   n\pi_i + c_3 \sqrt{\frac{n\pi_i \ln n}{\gamma}} $,
+%where $\beta = \frac{c_3^2}{4 + 10c_3}$, $c_1,c_2,\alpha'$ are from Lemma~\ref{lemma.concentrationentropy}.
+%\end{enumerate}
+%Finally, define the ``good'' event as the intersection of all the events above:
+%\begin{equation}
+%\calG_\opt \triangleq \pth{\bigcap_{i\in [S]} \calE_i} \cap \Bigg( \bigcap_{i: \pi_i \geq n^{c_4-1} \vee 100c_3^2 \frac{\ln n}{n\gamma}} \calH_i \Bigg).
+%\end{equation}
+%Analogously, we define the ``good'' event $\calG_\emp$ for the empirical entropy rate (\ref{eqn.empiricalentropyratedef}) in a similar fashion with (\ref{eqn.goodeventiidentropy}) replaced by
+%\begin{equation}
+%|\hat{H}_{\emp}(W_{i1},W_{i2},\ldots, W_{im
+%}) - H_i | \leq \frac{c_2 S}{m} + \sqrt{\frac{\beta }{c_1 m^{1-\alpha'}}}.
+%\end{equation}
+%\end{definition}
+%
+%
+%
+%The following lemma shows that the ``good'' events defined in Definition~\ref{def.goodevents} indeed occur with high probability.
+%
+%\begin{lemma}\label{lemma.goodeventshighprobability}
+%Both $\calG_{\opt}$ and $\calG_{\emp}$ in Definition~\ref{def.goodevents} occur with probability at least
+%\begin{equation}
+%1 - \frac{2S}{n^\beta} - \frac{4c_3 (10)^\beta}{9^\beta} \frac{S}{n^{c_4 (\beta -1)}},
+%\label{eqn.probabilitylowerbound}
+%\end{equation}
+%where $\beta = \frac{c_3^2}{4 + 10c_3},c_3\geq 20$.
+%\end{lemma}
+%
+%
+%Now we present our main upper bound, which implies Theorem~\ref{thm.mainresultsupper} as a corollary.
+%
+%
+%\begin{proof}
+%We write
+%\begin{align}
+%\bar{H} & = \sum_{i = 1}^S \pi_i H_i, \\
+%\bar{H}_{\mathsf{opt}} & = \sum_{i =1}^S \hat{\pi}_i \hat{H}_i,
+%\end{align}
+%where $H_i = H(X_2|X_1 = i), \hat{H}_i = \hat{H}_{\opt}(\mathbf{X}^{(i)}) = \hat{H}_{\opt}(W_{i1},\ldots,W_{in_i})$.
+%Write
+%\begin{align}
+%\bar{H}_{\mathsf{opt}} - \bar{H} & = \underbrace{\sum_{i = 1}^S \pi_i \left( \hat{H}_i - H_i \right)}_{E_1} + \underbrace{\sum_{i = 1}^S \hat{H}_i(\hat{\pi}_i - \pi_i)}_{E_2}.
+%\end{align}
+%Next we bound the two terms separately under the condition that the ``good'' event $\calG_\opt$ in Definition~\ref{def.goodevents} occurs.
+%
+%Note that the function $\pi_i \mapsto n\pi_i - c_3 \sqrt{\frac{n\pi_i \ln n}{\gamma}}$ is an increasing function when $\pi_i \geq \frac{100c_3^2 \ln n}{n\gamma}$. Thus we have
+%\begin{align}
+%\label{eq:niminus}
+%n\pi_i - c_3 \sqrt{\frac{n\pi_i \ln n}{\gamma}} = n\pi_i \left( 1 - c_3 \sqrt{\frac{\ln n}{n\pi_i \gamma}} \right)  \geq \frac{9}{10} n\pi_i ,
+%\end{align}
+%whenever $\pi_i \geq \frac{100c_3^2 \ln n}{n\gamma}$.
+%
+%Let $\epsilon(m) \triangleq \frac{c_2 S}{m \ln S} + \sqrt{\frac{\beta }{c_1 m^{1-\alpha'}}}$, which is decreasing in $m$.
+%Let $n_i^{\pm} \triangleq n\pi_i \pm c_3 \max \left \{ \frac{\ln n}{\gamma}, \sqrt{\frac{n \pi_i \ln n}{\gamma}} \right \} $.
+%Note that for each $i\in [S]$,
+%\begin{align*}
+%	\sth{|\hat H_i - H_i| \leq \epsilon(n_i)}
+%	\supset & ~  \sth{|\hat H_i - H_i| \leq \epsilon(n_i), |\hat \pi_i - \pi_i| \leq \max \left \{ \frac{\ln n}{n \gamma}, \sqrt{\frac{\pi_i \ln n}{n \gamma}} \right \}}\\
+%= & ~  \sth{|\hat H_\opt(W_{i1},\ldots,W_{in_i}) - H_i| \leq \epsilon(n_i),  n_i^- \leq n_i \leq n_i^+}\\
+%\supset & ~  \bigcap_{m=n_i^-}^{n_i^+} \{|\hat H_\opt(W_{i1},\ldots,W_{im}) - H_i| \leq \epsilon(m)\}.
+%\end{align*}
+%%\begin{align*}
+%	%& ~  \sth{|\hat H_i - H_i| \geq \epsilon(n_i), |\hat \pi_i - \pi_i| \leq \max \left \{ \frac{\ln n}{n \gamma}, \sqrt{\frac{\pi_i \ln n}{n \gamma}} \right \}}\\
+%%= & ~  \sth{|\hat H_\opt(W_{i1},\ldots,W_{in_i}) - H_i| \geq \epsilon(n_i),  n_i^- \leq n_i \leq n_i^+}\\
+%%\leq & ~  \bigcup_{m=n_i^-}^{n_i^+} \{|\hat H_\opt(W_{i1},\ldots,W_{im}) - H_i| \geq \epsilon(m)\} \cap \{n_i^- \leq n_i \leq n_i^+\}.
+%%\end{align*}
+%The key observation is that for each fixed $m$, $W_{i1},\ldots,W_{im}$ are i.i.d.\ as $T_{i}$.\footnote{Note that effectively we are taking a union over the value of $n_i$ instead of conditioning. In fact, conditioned on $n_i=m$, $W_{i1},\ldots,W_{im}$ are no longer i.i.d.\ as $T_{i}$.}
+%Taking the intersection over $i\in [S]$, we have
+%\[
+%	\sth{|\hat H_i - H_i| \leq \epsilon(n_i), ~i=1,\ldots,S}  \supset \calG_\opt.
+%\]
+%Therefore, on the event $\calG_\opt$, we have
+%\begin{align*}
+%|E_1| & \leq \sum_{i = 1}^S \pi_i |\hat{H}_i - H_i| \\
+%& \leq \sum_{i: \pi_i \geq n^{c_4-1} \vee 100c_3^2 \frac{\ln n}{n\gamma}} \pi_i |\hat{H}_i - H_i| + \sum_{i: \pi_i \leq n^{c_4-1} \vee 100c_3^2 \frac{\ln n}{n\gamma}}\pi_i |\hat{H}_i - H_i| \\
+%& \overset{\prettyref{eq:niminus}}{\leq} \sum_{i: \pi_i \geq n^{c_4-1} \vee 100c_3^2 \frac{\ln n}{n\gamma}} \pi_i \left( \frac{c_2 S}{ 0.9 n\pi_i \ln S} + \sqrt{\frac{\beta}{c_1 (0.9 n\pi_i )^{1-\alpha'}  }} \right) \nonumber \\
+%%& \leq \sum_{i: \pi_i \geq n^{c_4-1} \vee 100c_3^2 \frac{\ln n}{n\gamma}} \pi_i \left( \frac{c_2 S}{(n\pi_i - c_3 \sqrt{\frac{n\pi_i \ln n}{\gamma}}) \ln S} + \sqrt{\frac{\beta}{c_1 (n\pi_i - c_3 \sqrt{\frac{n\pi_i \ln n}{\gamma}})^{1-\alpha'}  }} \right) \nonumber \\
+%& \qquad + \sum_{i: \pi_i \leq n^{c_4-1} \vee 100c_3^2 \frac{\ln n}{n\gamma}} \pi_i \ln S \\
+%& \lesssim \frac{S^2}{n\ln S} + \left( \frac{S}{n} \right)^{\frac{1-\alpha'}{2}} + \frac{S \ln S}{n^{1-c_4}} \vee \frac{S \ln S \ln n}{n\gamma}, \numberthis\label{eqn.upperbound.e1}
+%\end{align*}
+%where the last step follows from \prettyref{eq:niminus} and the fact that $\sum_{i\in[S]} \pi_i^\alpha \leq S^{1-\alpha}$ for any $\alpha \in [0,1]$.
+%As for $E_2$, on the event $\calG_\opt$, we have
+%%\begin{align}
+%%|E_2| & \leq \sum_{i = 1}^S \hat{H}_i |\hat{\pi}_i - \pi_i| \\
+%%& \leq \ln S \sum_{i =1}^S c_3 \max \left \{ \frac{\ln n}{n\gamma}, \sqrt{\frac{\pi_i \ln n}{n \gamma}} \right \} \\
+%%& \lesssim \frac{S \ln S \ln n}{n\gamma} \vee  \sqrt{\frac{S \ln n \ln^2 S}{n\gamma}}.
+%%\end{align}
+%\begin{equation}
+%\label{eqn.upperbound.e2}
+%|E_2| \leq \sum_{i = 1}^S \hat{H}_i |\hat{\pi}_i - \pi_i|
+%\leq \ln S \sum_{i =1}^S c_3 \max \left \{ \frac{\ln n}{n\gamma}, \sqrt{\frac{\pi_i \ln n}{n \gamma}} \right \}
+%\lesssim \frac{S \ln S \ln n}{n\gamma} \vee  \sqrt{\frac{S \ln n \ln^2 S}{n\gamma}}.
+%\end{equation}
+%Combining \eqref{eqn.upperbound.e1} and \eqref{eqn.upperbound.e2}, and using Lemma \ref{lemma.goodeventshighprobability}, completes the proof of \prettyref{eq:optmain}. The proof of \prettyref{eq:empmain} follows entirely analogously with $\calG_\opt$ replaced by $\calG_\emp$.
+%\end{proof}
+
+\subsection{Proof of Theorem~\ref{thm.universalbias}}
+By the concavity of entropy, the empirical entropy rate $\Hemp$ underestimates the truth $\bar{H}$ in expectation. On the other hand, the average codelength $\bar{L}$ of any lossless source code is at least $\bar{H}$ by Shannon's source coding theorem. As a result, $\bar{H} - \bE[\Hemp]\le \bar{L} - \bE[\Hemp]$, and we may find a good lossless code to make the RHS small. 
+
+Since the conditional empirical distributions maximizes the likelihood for Markov chains (Lemma~\ref{lemma.representationofempiricalentropy}), we have
+\begin{align}
+\mathbb{E}_P \left[ \frac{1}{n} \ln \frac{1}{Q_{X_1^n|X_0}(X_1^n|X_0)} \right] & \geq \mathbb{E}_P \left[  \frac{1}{n} \ln \frac{1}{P_{X_1^n|X_0}(X_1^n|X_0)} \right] = \bar{H} \\
+& \geq \mathbb{E}_P \left[ \min_{P\in \mathcal{M}_2(S)} \frac{1}{n} \ln \frac{1}{P_{X_1^n|X_0}(X_1^n|X_0)} \right] = \mathbb{E}[\Hemp]
+\end{align}
+where $\cM_2(S)$ denotes the space of all first-order Markov chains with state $[S]$. Hence,
+\begin{align}\label{eqn.mlebiasboundbycompression}
+|\bar{H} -\mathbb{E}[\Hemp]| & \leq \inf_Q \sup_{P\in \mathcal{M}_2(S), x_0^n} \frac{1}{n}\ln \frac{P(x_1^n|x_0)}{Q(x_1^n|x_0)} .
+\end{align}
+
+The following lemma provides a non-asymptotic upper bound on the RHS of~(\ref{eqn.mlebiasboundbycompression}) and completes the proof of Theorem \ref{thm.universalbias}.
+\begin{lemma}\cite{Tatwawadi--Jiao--Weissman17}\label{lemma.worstcaseredundancymarkov}
+Let $\mathcal{M}_{2}(S)$ denote the space of Markov chains with alphabet size $S$ for each symbol. Then, the worst case minimax redundancy is bounded as
+\begin{align}
+\inf_Q \sup_{P \in \mathcal{M}_2(S),x_0^n} \frac{1}{n} \ln \frac{P(x_1^n|x_0)}{Q(x_1^n|x_0)} & \leq \frac{2S^2}{n}\ln\left( \frac{n}{S^2} +1 \right) + \frac{(S^2+2)\ln 2}{n}.
+\end{align}
+\end{lemma}
+
+\subsection{Proof of Theorem \ref{thm.mainresultslower}}
+To prove the lower bound for Markov chains, we first introduce an auxiliary model, namely, the \emph{independent Poisson} model and show that the sample complexity of the Markov chain model is lower bounded by that of the independent Poisson model. Then we apply the so-called method of fuzzy hypotheses \cite[Theorem 2.15]{Tsybakov2008} (see also \cite[Lemma 11]{HJWW17}) to prove a lower bound for the independent Poisson model. 
+We introduce the independent Poisson model below, which is parametrized by an $S\times S$ symmetric matrix $R$, an integer $n$ and a parameter $\lambda> 0$.
+
+\begin{definition}[Independent Poisson model]
+	Given an $S\times S$ symmetric matrix $R=(R_{ij})$ with $R_{ij} \geq 0$ and a parameter $\lambda >0$, under the independent Poisson model, we observe $X_0\sim \pi=\pi(R)$, and an $S\times S$ matrix $C=(C_{ij})$ with independent entries distributed as $C_{ij} \sim \mathsf{Poi}\left( \lambda R_{ij} \right)$, where
+	\begin{align}
+	\pi_i=\pi_i(R) = \frac{r_i}{r}, \quad r_i = \sum_{j =1}^S R_{ij},\quad r=\sum_{i=1}^S r_i.
+	\label{eq:piR}
+	\end{align}
+\end{definition}
+For each symmetric matrix $R$, by normalizing the rows we can define a transition matrix $T=T(R)$ of a \emph{reversible} Markov chain with stationary distribution $\pi=\pi(R)$. Upon observing the Poisson matrix $C$, the functional to be estimated is the entropy rate $\bar{H}$ of $T(R)$. Given $\tau>0$ and $\gamma,q\in (0,1)$,  define the following collection of  symmetric matrices:
+%parametrized by $S$ and $\gamma$ and $u$ as follows:
+%\begin{align} \label{eqn.ipuncertaintysetdef}
+%\calR(S,\gamma)& = \Bigg \{ R \in [0,1]^{S\times S}: R = R^{\top}, \gamma^*(T(R))
+%%\gamma^*\left(  \left \{  R_{ij}/\left(\sum_{j = 1}^S R_{ij} \right) \right \}  \right )
+%\geq \gamma, \nonumber \\
+%& \quad \quad \sup_{1\leq i\leq S} \left| \sum_{j = 1}^S R_{ij} - 1 \right| \leq u, \left| \sum_{1\leq i,j\leq S} R_{ij} - S \right| \leq \sqrt{S}u  \Bigg  \},
+%\end{align}
+\begin{align} \label{eqn.ipuncertaintysetdef}
+%\calR(S,\gamma)
+\calR(S,\gamma, \tau,q)
+& = \Bigg \{ R \in \reals_+^{S\times S}: R = R^{\top}, \gamma^*(T) \geq \gamma, \sum_{i,j} R_{ij} \geq \tau, \pi_{\min} \geq q \Bigg  \},
+\end{align}
+where $\pi_{\min} = \min_i \pi_i$. The reduction to independent Poisson model is summarized below: 
+\begin{lemma}\label{lemma.poissontomc}
+	If there exists an estimator $\hat{H}_1$ for the Markov chain model with parameter $n$ such that $\bP(|\hat{H}_1-\bar{H}|\ge \epsilon)\le \delta$ under any $T\in\cM_{2,{\rm rev}}(S,\gamma)$, 
+	then there exists another estimator $\hat{H}_2$ for the independent Poisson model with parameter $\lambda=\frac{4 n}{\tau}$ such that
+	\begin{align}
+	\sup_{R \in \calR(S,\gamma,\tau,q) } \bP\left( |\hat{H}_2 - \bar{H}(T(R))| \geq  \epsilon \right) & \leq  \delta +  2Sn^{-\frac{c_3^2}{4+10c_3}} + S n^{-c_3/2},
+	\end{align}
+	provided $q \geq \frac{ c_3 \ln n}{n \gamma}$, where $c_3\geq 20$ is a universal constant. 
+\end{lemma}
+
+To prove the lower bound for the independent Poisson model, the goal is to construct two symmetric random matrices (whose distributions serve as the priors), such that 
+(a) they are sufficiently concentrated near the desired parameter space $\calR(S,\gamma,\tau,q)$ for properly chosen parameters $\gamma,\tau,q$;
+(b) their entropy rates are separated;
+	(c) the induced marginal laws of the sufficient statistic $\bfC=X_0\cup \{ C_{ij} + C_{ji}: i\neq j, 1\leq i\leq j\leq S\} \cup \{C_{ii}: 1\leq i\leq S\}$ are statistically indistinguishable.
+The prior construction in Definition \ref{con.priorconstruction} satisfies all these three properties (cf. Lemmas \ref{lemma.indistinguishableipmodel}, \ref{lemma.functionalseperation}, \ref{lemma.spectralgapcontrol}), and thereby lead to the following theorem:
+\begin{theorem}\label{thm.lowerboundpoisson}
+	If $n \geq \frac{S^2}{\ln S}, \ln n\ll \frac{S}{(\ln S)^2}, \gamma^* \leq  1 - C_2\sqrt{\frac{S\ln^3 S}{n}}$, we have
+	\begin{align}
+	\liminf_{S\to\infty} \inf_{\hat{H}} \sup_{R \in \calR(S,\gamma^*,\tau,q)} \bP \left( | \hat{H} - \bar{H}| \ge C_1 \frac{S^2}{n\ln S} \right) \geq \frac{1}{2}
+	\end{align}
+	where $\tau=S, q=\frac{1}{5\sqrt{n\ln S}}$, and $C_1, C_2>0$ are two universal constants. 
+\end{theorem}
+
+\section{Application: Fundamental limits of language modeling}\label{sec.languagemodels}
+
+In this section, we apply entropy rate estimators to estimate the fundamental limits of language modeling. %There has been a lot of recent interest and progress in developing probabilistic models of natural languages, for applications such as machine translation, spell-checking and search query completion, mostly using recurrent neural networks \cite{DBLP:journals/corr/ZophL16,DBLP:journals/corr/XieWLLNJN17,DBLP:journals/corr/ZillySKS16,DBLP:journals/corr/MerityXBS16,NIPS2016_6241,DBLP:journals/corr/JozefowiczVSSW16,DBLP:journals/corr/KuchaievG17,DBLP:journals/corr/ShazeerMMDLHD17}.
+A language model specifies the joint probability distribution of a sequence of words, $Q_{X^n}(x^n)$. It is common to use a $(k-1)$th-order Markov assumption to train these models, using sequences of $k$ words (also known as $k$-grams,\footnote{In the language modeling literature these are typically known as $n$-grams, but we use $k$ to avoid conflict with the sample size.} sometimes with Latin prefixes \textit{unigrams}, \textit{bigrams}, \textit{etc.}), with values of $k$ of up to 5 \cite{Jurafsky:2009:SLP:1214993}. 
+A commonly used metric to measure the efficacy of a model $Q_{X^n}$ is the \emph{perplexity} (whose logarithm is called the \emph{cross-entropy rate}): 
+\[
+    \mathrm{perplexity}_Q\left(X^n\right) = \sqrt[n]{\frac{1}{Q_{X^n}(X^n)}}.
+\]
+%The logarithm of perplexity (also known as the \emph{cross-entropy rate}) can be seen as a logarithmic loss function,
+%\[
+%    \log \left[\mathrm{perplexity}_Q\left(X^n\right)\right]
+%    = \frac1n \log \frac{1}{Q_{X^n}(X^n)},
+%    % = \frac1N \log \sum_{i=1}^N P_\cM(X_i|X_1^i)
+%    % = \frac1N \log \sum_{i=1}^N P_\cM(X_i|X_{i-n+1}^i)
+%\]
+If a language is modeled as a stationary and ergodic stochastic process with entropy rate $\bar H$, and $X^n$ is drawn from the language with true distribution $P_{X^n}$, then \cite{kieffer1991sample}
+\[
+    \bar{H} \le \liminf_{n \rightarrow \infty} \frac1n \log \frac{1}{Q_{X^n}(X^n)} = \liminf_{n \rightarrow \infty} \log \left[\mathrm{perplexity}_Q\left(X^n\right)\right],
+\]
+with equality when $Q = P$. In this section, all logarithms are with respect to base $2$ and all entropy are measured in bits.
+
+The entropy rate of the English language is of significant interest to language model researchers: since $2^{\bar H}$ is a tight lower bound on perplexity, this quantity indicates how close a given language model is to the optimum. Several researchers have presented estimates in bits per character \cite{Shannon1951prediction,cover1978convergent,Brown:1992:EUB:146680.146685}; because language models are trained on words, these estimates are not directly relevant to the present task. In one of the earliest papers on this topic, Claude Shannon \cite{Shannon1951prediction} gave an estimate of 11.82 bits per word. This latter figure has been comprehensively beaten by recent models; for example, \cite{DBLP:journals/corr/KuchaievG17} achieved a perplexity corresponding to a cross-entropy rate of 4.55 bits per word.
+
+To produce an estimate of the entropy rate of English, we used two well-known linguistic corpora: the Penn Treebank (PTB) and Google's One Billion Words (1BW) benchmark. Results based on these corpora are particularly relevant because of their widespread use in training models. We used the conditional approach proposed in this paper with the JVHW estimator describe in Section \ref{sec.experiments}. The PTB corpus contains about $n \approx 1.2$ million words, of which $S \approx 47,000$ are unique. The 1BW corpus contains about $n \approx 740$ million words, of which $S \approx 2.4$ million are unique.
+
+%We found the VV estimator to be insufficiently stable to perform the computations on such large datasets.
+
+% Obviously, the English language is not a first-order Markov process. However, since for stationary stochastic processes (not necessarily Markov), the entropy rate is the limit \[\bar{H} = \lim_{k\rightarrow\infty} H(X_k|X^{k-1}),\] we can estimate the entropy rate using estimates of the conditional entropy $H(X_k|X^{k-1})$ for successively increasing $k$ (\textit{i.e.}, successively longer $k$-grams). Equivalently, we can augment the state space to all $(k-1)$-grams and use the estimator \eqref{eqn.optimalentropyrateestimator}, relaxing the first-order Markov assumption to a $k$th order Markov assumption. We did so for $k = 1, \dots, 4$. It is worth noting that both of these corpora comprise individual sentences, disconnected from each other, so the corpora in effect have a Markov order of about the length of a sentence.
+
+We estimate the conditional entropy $H(X_k|X^{k-1})$ for $k=1,2,3,4$, and our results are shown in Figure~\ref{fig:language-entropy}. The estimated conditional entropy $\hat H(X_k|X^{k-1})$ provides us with a refined analysis of the intrinsic uncertainty in language prediction with context length of only $k-1$. For 4-grams, using the JVHW estimator on the 1BW corpus, our estimate is 3.46 bits per word. With current state-of-the-art models trained on the 1BW corpus having an cross-entropy rate of about 4.55 bits per word \cite{DBLP:journals/corr/KuchaievG17}, this indicates that language models are still at least 0.89 bits per word away from the fundamental limit. (Note that since $H(X_k|X^{k-1})$ is decreasing in $k$, $H(X_4|X^3) > \bar H$.) Similarly, for the much smaller PTB corpus, we estimate an entropy rate of 1.50 bits per word, compared to state-of-the-art models that achieve a cross-entropy rate of about 5.96 bits per word \cite{DBLP:journals/corr/ZophL16}, at least 4.4 bits away from the fundamental limit.
+
+More detailed analysis, e.g., the accuracy of the JVHW estimates, is shown in the Appendix \ref{sec.languagemodels_appendix}.
+
+% We thus used the PTB and 1BW corpora as samples to estimate the entropy rate of the English language they represent, using the \textit{conditional} approach proposed in this paper. Owing to resource constraints, the computations for 1BW use the first 14\% of the corpus. Our results are plotted in Figure~\ref{fig:language-entropy}. We used the MLE, JVHW and PML estimators for the PTB corpus, and the MLE and JVHW estimators for the 1BW corpus. We found the VV estimator to be insufficiently stable to perform the computations on such large datasets.
+
+% For large $n$, the MLE and PML estimators both converge towards zero. [INSERT discussion of this phenomenon here] On the other hand, using our proposed approach with the JVHW estimator yields results that converge to about 0.72 bits per word. Interestingly, the estimates for the PTB and 1BW converge to similar values, despite one dataset being over 80 times larger than the other (1BW: 100 million, PTB: 1.2 million). For comparison, current state-of-the-art models trained on these corpora achieve perplexities that imply an entropy of about 5.96 bits per word for PTB \cite{DBLP:journals/corr/ZophL16} and 4.55 bits per word for 1BW \cite{DBLP:journals/corr/KuchaievG17}.
+
+
+\pgfplotsset{entropyrateplot/.style={%
+        width=\columnwidth,
+        xticklabel style={font=\footnotesize},
+        yticklabel style={font=\footnotesize},
+        xtick={1,2,3,4},
+        xlabel style={font=\footnotesize},
+        ylabel style={font=\footnotesize},
+        ymajorgrids=true,
+        legend style={at={(0.98,0.98),font=\footnotesize},anchor=north east},
+        xlabel={memory length $k$},
+        ylabel={estimated cond.\ entropy $\hat H(X_k|X^{k-1}_1)$},
+        xmin=0, xmax=7, ymin=0,
+    }
+}
+%
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}
+\begin{axis}[entropyrateplot, height=3in, width=5in]
+    \addplot[thick, color=MediumPurple4, mark=square]
+        table[x=N,y=estHrate] { % PTB JVHW
+            N    estHrate
+            1    10.6244158412
+            2    6.67734824421
+            3    3.43519634366
+            4    1.50354321094
+    };
+    \addplot[thick, color=DeepSkyBlue2, mark=*]
+        table[x=N,y=estHrate] { % 1BW JVHW
+            N    estHrate
+            1    10.8521979168
+            2    7.52302384907
+            3    5.52436031624
+            4    3.46099824872
+    };
+%    \addplot[color=OliveGreen, mark=x, mark size=3]
+%        table[x=N,y=estHrate] { % PTB MLE
+%            N    estHrate
+%            1    10.57065426
+%            2    6.154118235050000
+%            3    2.497731075520000
+%            4    0.711431663087000
+%    };
+    % \addplot[thick, color=RoyalPurple, mark=square]
+    %     table[x=N,y=estHrate] { % PTB JVHW - old results, there was a bug in these calculations
+    %         N    estHrate
+    %         1    10.5267538987
+    %         2    6.774274698560000
+    %         3    3.471006251100000
+    %         4    1.506912150570000
+    % };
+    % \addplot[color=RubineRed, mark=o]
+    %     table[x=N,y=estHrate] { % PTB PML
+    %         N    estHrate
+    %         1    10.427411146748602
+    %         2    6.240021425360000
+    %         3    2.549843879610000
+    %         4    0.726200995308000
+    %         5    0.196002785703000
+    %         6    0.061871651122100
+    %         7    0.026070864000100
+    %         8    0.013343183299300
+    %         9    0.007833864908330
+    %         10   0.004833083981120
+    % };
+%    \addplot[color=Cerulean, mark=triangle]
+%        table[x=N,y=estHrate] { % 1BW MLE (100M sample)
+%            N    estHrate
+%            2    7.5311447283
+%            3    4.67519429667
+%            4    2.11878783902
+%    };
+    % \addplot[thick, color=Sepia, mark=*]
+    %     table[x=N,y=estHrate] { % 1BW JVHW (100M sample)
+    %         N    estHrate
+    %         1    11.0386574738
+    %         2    7.7305693466
+    %         3    5.35512747643
+    %         4    2.97815444029
+    % };
+    % \addplot[thick, color=Cerulean, mark=*]
+    %     table[x=N,y=estHrate] { % 1BW JVHW (entire dataset) - old results, there was a bug in these calculations
+    %         N    estHrate
+    %         1    11.0453224238
+    %         2    7.81447086493
+    %         3    5.74957540937
+    %         4    3.60246819984
+    % };
+    % \addplot[color=Cerulean, dashed, mark=triangle, mark size=1.3, mark options={solid}]
+    %     table[x=N,y=estHrate] { % 1BW MLE (as much of dataset as practical)
+    %         N    estHrate
+    %         2    7.72692539656
+    %         3    5.33961548124
+    %         4    2.91300622619
+    %         5    1.10366124659
+    %         6    0.242434856491
+    % };
+    % \addplot[color=Sepia, dashed, mark=*, mark size=1.3, mark options={solid}]
+    %     table[x=N,y=estHrate] { % 1BW JVHW (as much of dataset as practical)
+    %         N    estHrate
+    %         1    11.0446902949
+    %         2    7.81447086493
+    %         3    5.74957540937
+    %         4    3.60246819984
+    %         5    1.86569496514
+    %         6    0.963942134231
+    % };
+%    \addplot[color=OliveGreen, loosely dashed, mark=x, mark size=3, mark options={solid}]
+%        table[x=N,y=estHrate] { % PTB MLE
+%            N    estHrate
+%            4    0.711431663087000
+%            5    0.192118937395000
+%            % 6    0.060597087309700
+%            % 7    0.025503953495700
+%            % 8    0.013058645721200
+%            % 9    0.007668181220570
+%            % 10   0.004732864907300
+%    };
+
+%    \addplot[thick, color=RoyalPurple, loosely dashed, mark=square, mark options={solid}]
+%        table[x=N,y=estHrate] { % PTB JVHW
+%            N    estHrate
+%            4    1.506912150570000
+%            5    0.912016731808000
+%            % 6    0.770219220641000
+%            % 7    0.737735157015000
+%            % 8    0.729517216632000
+%            % 9    0.730086422447000
+%            % 10   0.730866796255000
+%    };
+%    \addplot[color=Cerulean, loosely dashed, mark=triangle, mark options={solid}]
+%        table[x=N,y=estHrate] { % 1BW MLE (100M sample)
+%            N    estHrate
+%            4    2.11878783902
+%            5    0.756010147125
+%            % 6    0.242434856491
+%            % 7    0.0799459881921
+%            % 8    0.0317654000962
+%            % 9    0.0154926961808
+%            % 10   0.00898527991833
+%    };
+
+%    \addplot[thick, color=Sepia, loosely dashed, mark=*, mark options={solid}]
+%        table[x=N,y=estHrate] { % 1BW JVHW (100M sample)
+%            N    estHrate
+%            4    2.97815444029
+%            5    1.53328423948
+%            % 6    0.963942134231
+%            % 7    0.78815413603
+%            % 8    0.739933539628
+%            % 9    0.72602767347
+%            % 10   0.722615193379
+%    };
+    \addplot[domain=0:7,dashed,color=MediumPurple4]{5.96};
+    \node[anchor=south east, align=right] at (axis cs:7,5.96) {\itshape\footnotesize best known model for PTB \\ \itshape\footnotesize \cite{DBLP:journals/corr/ZophL16}};
+    \addplot[domain=0:7,dashed,color=DeepSkyBlue2]{4.55};
+    \node[anchor=north east, align=right] at (axis cs:7,4.55) {\itshape\footnotesize best known model for 1BW \\ \itshape\footnotesize \cite{DBLP:journals/corr/KuchaievG17}};
+    % \legend{{PTB MLE},{PTB JVHW},{PTB PML},{1BW MLE (100M sample)},{1BW JVHW (100M sample)},{1BW MLE (as much as possible)},{1BW JVHW (as much as possible)}}
+    % \legend{{PTB MLE},{PTB JVHW},{PTB PML},{1BW MLE},{1BW JVHW}}
+    %\legend{{PTB MLE},{PTB JVHW},{1BW MLE},{1BW JVHW}}
+    \legend{{PTB JVHW},{1BW JVHW}}
+    \legend{{PTB},{1BW}}
+\end{axis}
+\end{tikzpicture}
+\caption{Estimates of conditional entropy based on linguistic corpora}
+\label{fig:language-entropy}
+\end{figure}
+
+%Since the number of words in the English language (\textit{i.e.}, our ``alphabet'' size) is huge, in view of the $\frac{S^2}{\log S}$ result we showed in theory, 
+%a natural question is whether a corpus as vast as the 1BW corpus is enough to allow reliable estimates of conditional entropy. A quick answer to this question is that our theory has so far focused on the worst-case analysis and, as demonstrated below, natural language data are much nicer so that the sample complexity for accurate estimation is much lower than what the minimax theory predicts.
+%Specifically, we computed the conditional entropy estimates of Figure~\ref{fig:language-entropy} but this time restricting the sample to only a subset of the corpus. A plot of the resulting estimate as a function of sample size is shown in Figures~\ref{fig:language-sample-size-1} and \ref{fig:language-sample-size-23}. Because sentences in the corpus are in randomized order, the subset of the corpus taken is randomly chosen.
+%
+%To interpret these results, first, note the number of distinct unigrams (\textit{i.e.}, words) in the 1BW corpus is about two million.  We recall that in the i.i.d.\ case, $n \gg S/\ln S$ samples are necessary \cite{Valiant--Valiant2011,Wu--Yang2014minimax,Jiao--Venkat--Han--Weissman2015minimax}, even in the worst case a dataset of 800 million words will be more than adequate to provide a reliable estimate of entropy for $S \approx 2$~million. Indeed, the plot for unigrams with the JVHW estimator in Figure~\ref{fig:language-sample-size-1} supports this.  In this case, the entropy estimates for all sample sizes greater than 338\,000 words is within 0.1 bits of the entropy estimate using the entire corpus. That is, it takes just 0.04\% of the corpus to reach an estimate within 0.1 bits of the true value.
+%
+%We note also that the empirical entropy rate converges to the same value, 10.85, within two decimal places. This is also shown in Figure~\ref{fig:language-sample-size-1}. The dotted lines indicate the final entropy estimate (of each estimator) using the entire corpus of $7.7\times 10^8$ words.
+%
+%Results for similar experiments with bigrams and trigrams are shown in Figure~\ref{fig:language-sample-size-23} and Table~\ref{tab:language-convergence}. Since the state space for bigrams and trigrams is much larger, convergence is naturally slower, but it nonetheless appears fast enough that our entropy estimate should be within on the order of 0.1 bits of the true value.
+%
+%\begin{figure}
+%\centering
+%\includegraphics{1bw_evolution_1.eps}
+%\caption{Estimates of conditional entropy versus sample size for 1BW unigrams; dotted lines are the estimate using the entire corpus (\textit{i.e.}, the final estimate). Note the zoomed-in axes.}
+%\label{fig:language-sample-size-1}
+%\end{figure}
+%
+%\begin{figure}
+%\centering
+%\includegraphics{1bw_evolution_23.eps}
+%\caption{Estimates of conditional entropy versus sample size for 1BW bigrams and trigrams; dotted lines are the estimate using the entire corpus (\textit{i.e.}, the final estimate)}
+%\label{fig:language-sample-size-23}
+%\end{figure}
+%
+%% \begin{table}
+%%     \centering
+%%     \caption{Convergence points for 1BW conditional entropy estimates (within 0.1 bit of final estimate)}
+%%     \label{tab:language-convergence}
+%%     \begin{tabular}{r||r|r||r|r}
+%%     & \multicolumn{2}{c||}{JVHW estimator} & \multicolumn{2}{c}{empirical entropy} \\
+%%     % & \multicolumn{2}{c|}{within 0.1 bit} & \multicolumn{2}{c|}{within 0.1 bit} \\
+%%     % $k$ & $n$ & $n/n_\mathrm{max}$ & $n$ & $n/n_\mathrm{max}$ \\
+%%     $k$ & sample size & \% of corpus & sample size & \% of corpus \\
+%%     \hline
+%%     1 & 338k & 0.04\% & 2.6M & 0.34\% \\
+%%     2 &  77M & 10.0\% & 230M & 29.9\% \\
+%%     3 & 400M & 54.2\% & 550M & 74.5\% \\
+%%     \end{tabular}
+%% \end{table}
+%
+%\begin{table}
+%    \centering
+%    \caption{Points at which the 1BW entropy estimates are within 0.1 bit of the final estimate}
+%    \label{tab:language-convergence}
+%    \begin{tabular}{r||r|r}
+%    $k$ & sample size & \% of corpus \\
+%    \hline
+%    1 & 338k & 0.04\% \\
+%    2 &  77M & 10.0\% \\
+%    3 & 400M & 54.2\% \\
+%    \end{tabular}
+%\end{table}
+%
+%With these observations, we believe that the estimates based on the 1BW corpus should have enough samples to produce reasonably reliable entropy estimates. As one further measure, to approximate the variance of these entropy estimates, we also ran bootstraps for each memory length $k = 1, \dots, 4$, with a bootstrap size of the same size as the original dataset (sampling with replacement). For the 1BW corpus, with 100 bootstraps for $k = 1, 2, 3$, and with 34 for $k = 4$, the range of estimates (highest less lowest) for each memory length never exceeded 0.001 bit, and the standard deviation of estimates was just 0.0002---that is, the error ranges implied by the bootstraps are too small to show legibly on Figure~\ref{fig:language-entropy}. For the PTB corpus, the range never exceeded 0.03 bit. Further details of our bootstrap estimates are given in Table~\ref{tab:language-bootstrap}.
+%
+%\begin{table}
+%    \centering
+%    \caption{Bootstrap estimates of error range}
+%    \label{tab:language-bootstrap}
+%    \begin{tabular}{r||r|r|r||r|r|r}
+%    & \multicolumn{3}{|c||}{PTB} & \multicolumn{3}{|c}{1BW} \\
+%    $k$ & estimate & st.\ dev. & range & estimate & st. dev. & range \\
+%    \hline
+%    1 & 10.62 & 0.00367 & 0.0241 & 10.85 & 0.000198 & 0.00133 \\
+%    2 &  6.68 & 0.00363 & 0.0271 &  7.52 & 0.000164 & 0.00095 \\
+%    3 &  3.44 & 0.00382 & 0.0221 &  5.52 & 0.000146 & 0.00078 \\
+%    4 &  1.50 & 0.00244 & 0.0164 &  3.46 & 0.000147 & 0.00054
+%    \end{tabular}
+%\end{table}
+
+% \appendices
+

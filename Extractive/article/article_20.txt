@@ -1,0 +1,275 @@
+
+       
+
+
+
+
+
+
+
+
+
+
+
+
+
+{{#1}}}
+{{#1}}}
+{{#1}}}
+
+[1]{Figure~}
+[1]{Table~}
+[1]{[]}
+
+[1]{{#1}}
+[1]{{#1}}
+[1]{	
+				}
+	}
+}
+{~}
+[1]{}
+[1]{}
+[1]{``#1''}
+[1]{``#1''}
+
+{What do developers write in a 
+{Does the type of project affect how developers write their 
+{How does the     
+
+[1]{}
+{}
+[1]{}
+{{{Discussion length }}}
+
+{{{}}
+
+
+}
+
+
+
+        Akinori Ihara	        Kenichi Matsumoto
+}
+
+
+              Software Engineering Laboratory,               Nara Institute of Science and Technology, Japan                          }
+
+
+
+
+
+
+
+
+ 
+
+To encourage prospective users and interested developers to write documentation, it is common practice for Open Source Software (OSS) projects to release software artifacts (i.e., source code, configuration files and documentation) through platforms such as GitHub.
+Some projects release a meta-file document called , which typically includes a summary of the most useful and updated information, such as an install guide and usage examples.
+This is especially crucial for tracking changes once newer versions get released. 
+In fact, all GitHub hosted projects present the .
+
+Developers often struggle to write documentation~.
+A large-scale GitHub survey} conducted in June 2017, reported that although software documentation is highly valued, it is frequently overlooked.
+Furthermore, most respondents (approximately 93Abebe et al.~ advised developers to note several content themes such as title, system overview, resource requirements, installation, and addressed issues (i.e., new features, bug fixes, and improvements) as caveats in the release note. 
+Moreno et al.~ reported that developers find it difficult to summarize a release note because it has several content themes, such as fixed bugs, new features, and the improvement of existing features. 
+They proposed an approach to automatically generate release notes. 
+Similarly, other works~ investigated the relationship between source code (i.e., API, code examples) and documentation.
+In terms of  proposed an approach to extract a build command, while Zhang et al.~ used this approach to identify systems with similar functions. 
+
+A For instance, {library-specific projects} (i.e., projects used by other applications as third-party libraries) may write their  (i.e., projects used by end-users).
+
+In this study, we would like to understand the extent to which developers write and maintain their We conduct an empirical case study that analyzes over 43,900 packages belonging to the npm JavaScript ecosystem in GitHub.
+In particular, we investigate (i) what constitutes typical content themes and (ii) whether content themes indicate the type of a package (i.e., library-specific vs. application-specific).
+In this novel study, we learned the following valuable lessons along the way:
+
+
+  -
+From over 30,000 content variations, we used a semi-automatic method to build a taxonomy of , , and  are common  - This result complements known guidelines for writing good documentation. 
+We also found that less apparent , , and , are used in 10
+We conclude that Such information especially assists especially the novice developer.
+
+This paper is laid out as follows. 
+Section~ describes the background and  motivation of this study. 
+Section~ provides the dataset to conduct our empirical study. 
+Section~ presents answers to each of the two research questions proposed in this study. 
+Section~ discusses our findings. Section~ presents threats to validity. 
+Finally, Section~ concludes the paper and presents our future work.
+
+
+
+
+ 
+
+ 
+Co-founder of GitHub, Tom Preston-Werner recently highlighted the importance of the } as an important subset of Document Driven Development.
+In this paper, our motivation is to investigate the following assumptions:
+
+
+
+Figure~ illustrates an example of how a This example shows the JavaScript } package. 
+In detail,  added content themes of  in 2011.
+For example,  moved the content theme of  to  linking to the official website in 2010.
+Later, they deleted the content theme of .
+Interestingly, in a preliminary exploration of 119,093 npm packages, we found on average that a 
+Table~ shows the existing guidelines that hint at the content theme. 
+These guidelines are taken from the following sources: 
+
+}} project introduces the content themes which the }} project is a digital service agency which introduced ``Making  readable''.
+}} is an international conference for open source development. 
+Key-note speaker, Mr. Mike Jang explained how open source projects failure to attract users due to poor He later introduced 10 key content themes. 
+
+
+As shown in the Table~, we find that key information such as , , , , , , , , and  are perceived as vital for any software projects.
+
+
+
+
+
+
+
+
+
+
+ 
+In this section, we evaluate the two research questions proposed in Section . 
+For each research question, we describe the approach and their results.
+
+} 
+
+
+
+
+
+
+}} 
+To answer RQ1, we perform an analysis of the Our analysis consists of two steps:
+ Our key assumption is that headlines in the Since we find that  Targeting the levels 1 and 2 (i.e.,  and ) headlines, we extract 79,898 headlines using this technique.
+Hence, using the markdown format, we can extract headlines using the syntax (:  and  and : , ). Since a headline is a natural language, variations, and spelling inconsistencies cause noise in the dataset.
+For example, developers use , ,  to summaries the  content theme.
+We use the stemming technique from the language processing package (i.e.,  package in Python) to normalize and clean noise in the data.
+The  package is well-known and provides a high accuracy of software engineering datasets~. To further reduce the noise in the content theme dataset, we merge content themes that contain manually merged content themes with similar or related meanings. 
+For example,  we conclude that content themes , , and  should be merged into the  content theme. In this study, the first author, second author, and third author firstly make clusters to merge content themes with each other. Next, if there are the content themes in the different clusters between the authors, we start a discussion to reach consensus on common content themes.
+ Based on the results of Step 1, we display the frequency count of each content theme and its coverage (i.e., the percentage of systems using each content theme). 
+
+
+Using our approach, we extracted 30,939 content themes from 69,869 headlines from the Table~ shows an example of Step 2.
+Furthermore, Table~ shows some exceptions and adjustments that we encountered to the conventional natural language stemming approach.
+For instance, using the default settings, the headline  would be removed (i.e., Step 1b).
+
+By merging the more frequent content themes and filtering out the less common content themes (Step 1c and Step 2), we finally ended up with the 22 most frequent content themes used by more than 1
+}} 
+
+
+
+
+
+We report our Table~ shows the extracted 36 rules which the target README files frequently use sorted by lift value. 
+The second representation is a graph-based visualization of the generated rules. 
+
+[t!]
+{npm-specific packages}.} 
+	[0.9]{
+  	{rlcl|ccc}
+Id &     Content Themes	&		&	 Project type  &      support  &  confidence &lift  1 &  	&		&		&	0.04	&	0.60	&	1.49	 2 &  	&		&		&	0.03	&	0.59	&	1.48	 3 &  	&		&		&	0.05	&	0.59	&	1.47	 4 &  	&		&		&	0.04	&	0.58	&	1.44	 5 &  	&		&		&	0.04	&	0.58	&	1.43	 6 &    	&		&		&	0.05	&	0.57	&	1.42	 7 &  	&		&		&	0.04	&	0.56	&	1.41	 8 &  	&		&		&	0.05	&	0.56	&	1.39	 9 &  	&		&		&	0.04	&	0.54	&	1.35	 10 & 	&		&		&	0.06	&	0.54	&	1.35	 11 & 	&		&		&	0.06	&	0.54	&	1.34	 12 & 	&		&		&	0.06	&	0.54	&	1.34	 13 & 	&		&		&	0.05	&	0.53	&	1.33	 14 & 	&		&		&	0.07	&	0.53	&	1.31	15 & 	&		&		&	0.14	&	0.76	&	1.27	16 & 	&		&		&	0.08	&	0.75	&	1.25	 17 & 	&		&		&	0.09	&	0.50	&	1.25	18 & 	&		&		&	0.12	&	0.74	&	1.24	19 & 	&		&		&	0.19	&	0.73	&	1.21	 20 & 	&		&		&	0.07	&	0.47	&	1.18	 21 & 	&		&		&	0.16	&	0.47	&	1.17	 22 & 	&		&		&	0.03	&	0.46	&	1.16	 23 & 	&		&		&	0.03	&	0.46	&	1.16	 24 & 	&		&		&	0.04	&	0.46	&	1.14	25 & 	&		&		&	0.04	&	0.68	&	1.13	 26 & 	&		&		&	0.11	&	0.45	&	1.13	27 & 	&		&		&	0.04	&	0.67	&	1.11	 28 & 	&		&		&	0.20	&	0.44	&	1.10	29 & 	&		&		&	0.04	&	0.65	&	1.09	30 & 	&		&		&	0.05	&	0.65	&	1.08	 31 & 	&		&		&	0.04	&	0.43	&	1.07	 32 & 	&		&		&	0.25	&	0.42	&	1.05	 33 & 	&		&		&	0.05	&	0.42	&	1.04	 34 & 	&		&		&	0.04	&	0.41	&	1.03	35 & 	&		&		&	0.41	&	0.61	&	1.02	36 & 	&		&		&	0.05	&	0.61	&	1.01	
+}
+
+
+
+[t]
+
+  
+  
+  
+    
+    
+  
+  
+  
+
+
+
+
+
+Figure  shows how our generated rule is translated into a graph representation. 
+In this example, each of the incoming edges (i.e., , , , ) represents each of the precondition content themes, while the outgoing edge is the postcondition (i.e., npm-specific)
+The color of the node represents the lift metric, and as shown in the example, the color shows 1.49 lift.
+Our assumption is that the colors will show whether or not the content theme is related to either ``Github-specific'' or ``npm-specific''.
+
+Figure~ shows the generated graph (i.e., displayed using the  algorithm) for the 36 rules generated in Table~.
+The color of the node follows the lift score from a light color (low) to a strong color (high). 
+
+
+}} 
+
+
+ and  content themes are likely to be important for a npm-specific package.}
+
+While  shows that a ,  and , Figure~ provides evidence that the  content theme is closely related to the npm-specific type of packages. 
+Correspondingly, Table~ shows that many npm packages with higher lift and higher confidence scores have some of the same rules as . 
+From this result, we believe that it is important for core utility packages to share the license because it is frequently reused by the other systems. 
+Additionally, the graph shows that the  and  content themes are more closely associated closely to npm-specific types of libraries.
+Furthermore, we suspect that the developers of these packages may be expected to be adapted correctly to the `test' and the `build' states.
+
+
+ content theme is likely to be an important content theme for GitHub-specific packages.}
+Figure~ shows that  is closely related to the GitHub-specific type of packages. 
+Table~ shows that many of the GitHub-specific packages have higher lift and higher confidence scores with rules associated with the  content theme. 
+Furthermore, we suspect that the  content themes are more important for the end-user package, as end user packages are more likely to have more lists of product options than npm-specific type (i.e., utility) packages.
+
+
+
+
+ 
+
+In order to aid developers faced with documentation issues, we conducted an empirical study to understand the written content themes of the The co-founder of GitHub Tom Preston-Werner, even discussed the importance of the } as an important subset of Document Driven Development.
+We learned some valuable lessons along the way:
+
+
+  -
+Surprisingly, from over 30,000 content theme variations, we were able to build a taxonomy of 22 headline content themes, which are used by more than 1
+, , and   are common  - , , and  are typically included in the . 
+Furthermore, less apparent , , and , used in 10
+  and  are likely content themes for library-specific packages, while the  content theme is more common for application-specific packages.}We found some specific README content themes according to the type of projects.  We found  (40 (20
+
+
+
+
+
+
+
+
+ 
+
+ - refers to the generalization concerns of the study to other software systems including some package ecosystem such as Java library and Ruby RubyGems. 
+This study found some specific results for the npm package ecosystem. 
+For example, while  is reported as one a major content theme from our findings and is used by 59.43
+ - refers to the concerns that are internal to this study. 
+In this study, we found two main internal threats that could affect our results. 
+First is the preprocessing of the dataset. 
+In , we classified 30,939 content themes into the 22 most frequent content themes by merging the more frequent contents and filtering out the less common content themes. 
+The manual merging of content themes in  was conducted through a reached consensus among authors. 
+However, we followed a strict iterative process and are confident of the results.
+The second threat is related to the content themes of the As shown in our results, not every For example, some projects have separate meta-files for licenses; thus, the content theme for licenses may not exist in the For future work, it will be interesting to investigate all meta-files to understand how developers maintain and keep all files.
+
+ - refers to the concerns of the result.
+We found one threat that related to the extraction of content themes from the This study used the Markdown Format to extract the headline levels 1 and 2 (i.e.,  and ). 
+There may, however, be cases where the project is using level 3 (i.e., ) to write major content themes. 
+Nonetheless, we are confident of the results and of our extraction approach.
+
+
+
+
+ 
+In this paper, we investigated content themes of the Although we found that the Furthermore, we found that  and  are likely content themes for library-specific packages, while the  content theme is more common for application-specific packages.
+Finally, we showed that packages rarely remove     
+As future work, we would like to extend our project types and techniques to provide more comprehensive guidelines for writing a good We also believe that further understanding of 
+
+
+
+
+
+         
+
+
+% end of file template.tex

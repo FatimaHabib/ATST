@@ -1,0 +1,15 @@
+ Denote the maximum amount broadcasted among the three servers by  files for all the requests. In particular when   is large,  if , and  if  or . }W_{d_k,}
+
+
+
+Clearly the server broadcasts  times. A bipartite graph, denoted by , is a graph whose vertices are divided into
+two disjoint parts  and  such that every edge in  connects a vertex in  to one in . If , then there is a saturating matching.
+
+} Denote , , ,  and , , , . That is . A bipartite graph  where
+
+=_{{2};_1 ,_1 },=_{{2};_1 ,b_1} _{{2};a_1,_1},
+
+can be obtained. From Table , we have  and . Of course we can also assume that
+
+=_{{2};_1 ,_1 } ,=_{{2};_1 ,b_1}
+=_{{2};_1 ,_1 },=_{{2};a_1,_1}. In general, we can consider  servers. {00}

@@ -1,0 +1,251 @@
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ [0]{p}
+
+[1]{}
+{Definition}[section]
+{Theorem}
+[theorem]{Lemma}
+[theorem]{Proposition}
+ 
+
+{}
+
+
+{}
+{}
+{}
+{}
+{}
+{}
+{}
+{}
+{}
+{}
+
+
+}
+
+
+
+
+
+
+
+
+
+. Explanations as such are used frequently by people to identify other people or items of interest. We see in this case that characteristics such as being tall and having long hair help describe the person, although incompletely. The absence of glasses is important to complete the identification and help distinguish him from, for instance, Bob who is tall, has long hair and wears glasses. It is common for us humans to state such contrastive facts when we want to accurately explain something. These contrastive facts are by no means a list of all possible characteristics that should be absent in an input to distinguish it from all other classes that it does not belong to, but rather a minimal set of characteristics/features that help distinguish it from the "closest" class that it does not belong to.
+
+In this paper we want to generate such explanations for neural networks, in which, besides highlighting what is minimally sufficient (e.g. tall and long hair) in an input to justify its classification, we also want to identify contrastive characteristics or features that should be minimally and critically  (e.g. glasses), so as to maintain the current classification and to distinguish it from another input that is "closest" to it but would be classified differently (e.g. Bob). We thus want to generate explanations of the form, "." The need for such an aspect as what constitutes a good explanation has been stressed on recently . It may seem that such crisp explanations are only possible for binary data. However, they are also applicable to continuous data with . For example, in Figure , where we see hand-written digits from MNIST  dataset, the black background represents no signal or absence of those specific features, which in this case are pixels with a value of zero. Any non-zero value then would indicate the presence of those features/pixels. This idea also applies to colored images where the most prominent pixel value (say median/mode of all pixel values) can be considered as no signal and moving away from this value can be considered as adding signal. One may also argue that there is some information loss in our form of explanation, however we believe that such explanations are lucid and easily understandable by humans who can always further delve into the details of our generated explanations such as the precise feature values, which are readily available. Moreover, the need for such simple, clear explanations over unnecessarily complex and detailed ones is emphasized in the recent General Data Protection Regulation (GDPR) passed in Europe .
+
+
+
+In fact, there is another strong motivation to have such form of explanations due to their presence in certain human-critical domains. In medicine and criminology there is the notion of pertinent positives and pertinent negatives , which together constitute a complete explanation. . On the other hand, . For example in medicine, a patient showing symptoms of cough, cold and fever, but no sputum or chills, will most likely be diagnosed as having flu rather than having pneumonia. Cough, cold and fever could imply both flu or pneumonia, however, the absence of sputum and chills leads to the diagnosis of flu. Thus, sputum and chills are pertinent negatives, which along with the pertinent positives are critical and in some sense sufficient for an accurate diagnosis.
+
+
+We thus propose an explanation method called  (CEM) for neural networks that highlights not only the pertinent positives but also the pertinent negatives. This is seen in Figure  where our explanation of the image being predicted as a 3 in the first row does not only highlight the important pixels (which look like a 3) that should be present for it to be classified as a 3, but also highlights a small horizontal line (the pertinent negative) at the top whose presence would change the classification of the image to a 5 and thus should be absent for the classification to remain a 3. Therefore, our explanation for the digit in row 1 of Figure  to be a 3 would be: . This second part is critical for an accurate classification and is  highlighted by any of the other state-of-the-art interpretability methods such as layerwise relevance propagation (LRP)  or locally interpretable model-agnostic explanations (LIME) , for which the respective results are shown in columns 4 and 5 of Figure . Moreover, given the original image, our pertinent positives highlight what should be present that is necessary and sufficient for the example to be classified as a 3. This is not the case for the other methods, which essentially highlight positively or negatively relevant pixels that may not be necessary or sufficient to justify the classification. 
+ Another important thing to note here is the conceptual distinction between pertinent negatives that we identify and negatively correlated or relevant features that other methods highlight. The question we are trying to answer is: . Ergo, any human asking this question wants all the evidence in support of the hypothesis of  being classified as class . Our pertinent positives as well as negatives are evidences in support of this hypothesis. However, unlike the positively relevant features highlighted by other methods that are also evidence supporting this hypothesis, the negatively relevant features by definition do not. Hence, another motivation for our work is that we believe when a human asks the above question, they are more interested in evidence supporting the hypothesis rather than information that devalues it. This latter information is definitely interesting, but is of secondary importance when it comes to understanding the human's intent behind the question.
+
+Given an input and its classification by a neural network, CEM creates explanations for it as follows:
+
+(1) It finds a minimal amount of (viz. object/non-background) features in the input that are sufficient in themselves to yield the same classification (i.e. PPs). 
+
+(2) It also finds a minimal amount of features that should be  (i.e. remain background) in the input to prevent the classification result from changing (i.e. PNs). 
+(3) It does (1) and (2) "close" to the data manifold using a state-of-the-art convolutional autoencoder (CAE)  so as to obtain more "realistic" explanations. 
+We enhance our methods to do (3), so that the resulting explanations are more likely to be close to the true data manifold and thus match human intuition rather than arbitrary perturbations that may change the classification. Of course, learning a good representation using an autoencoder may not be possible in all situations due to limitations such as insufficient data or bad data quality. It also may not be necessary if all combinations of feature values have semantics in the domain or the data does not lie on low dimensional manifold as is the case with images.
+
+
+
+We validate our approaches on three real-world datasets. The first is MNIST , from which we generate explanations with and without an autoencoder. The second is a procurement fraud dataset 
+from a large corporation containing millions of invoices that have different risk levels. The third one is a brain functional MRI (fMRI) imaging dataset from the publicly accessible Autism Brain Imaging Data Exchange (ABIDE) I database , which comprises of resting-state fMRI acquisitions of subjects diagnosed with autism spectrum disorder (ASD) and neurotypical
+individuals. For the latter two cases, we do not consider using autoencoders. This is because the fMRI dataset is insufficiently large especially given its high-dimensionality. For the procurement data, all combination of allowed feature values are (intuitively) reasonable. In all three cases, we witness the power of our approach in creating more precise explanations that also match human judgment.
+Researchers have put great efforts in devising algorithms for interpretable modeling. Examples include establishment for rule/decision lists , prototype exploration , developing methods inspired by psychometrics  and learning human-consumable models . Moreover, there is also some interesting work which tries to formalize and quantify interpretability . 
+A recent survey  looks primarily at two methods for understanding neural networks: a) Methods  that produce a prototype for a given class, b) Explaining a neural network's decision on an input by highlighting relevant parts . Other works also investigate methods of the type (b) for vision  and NLP applications . Most of the these explanation methods, however, focus on features that are present, even if they may highlight negatively contributing features to the final classification. As such, they do not identify features that should be necessarily and sufficiently present or absent to justify for an individual example its classification by the model. There are methods which perturb the input and remove features , however these are more from an evaluation standpoint where a given explanation is quantitatively evaluated based on such procedures.
+
+Recently, there has been a piece of work  that tries to find sufficient conditions to justify classification decisions. As such, this work tries to find feature values whose presence conclusively implies a class. Hence, these are global rules (called anchors) that are sufficient in predicting a class. Our PPs and PNs on the other hand are customized for each input. Moreover, a dataset may not always possess such anchors, although one can almost always find PPs and PNs. There is also work  that tries to find stable insight that can be conveyed to the user in a (asymmetric) binary setting for smallish neural networks. 
+
+It is also important to note that our method is related to methods that generate adversarial examples . However, there are certain key differences. Firstly, the (untargeted) attack methods are largely unconstrained where additions and deletions are performed simultaneously, while in our case for PPs and PNs we only allow deletions and additions respectively. Secondly, our optimization objective for PPs is itself distinct as we are searching for features that are minimally sufficient in themselves to maintain the original classification. As such, our work demonstrates how attack methods can be adapted to create effective explanation methods. 
+
+
+This section details the proposed contrastive explanations method. Let  denote the feasible data space and let  denote an example  and its inferred class label  obtained from a neural network model. The modified example  based on  is defined as , where  is a perturbation applied to . Our method of finding pertinent positives/negatives is formulated as an optimization problem over the perturbation variable  that is used to explain the model's prediction results. We denote the prediction of the model on the example  by , where  is any function that outputs a vector of prediction scores for all classes, such as prediction probabilities and logits (unnormalized probabilities) that are widely used in neural networks, among others.   
+
+To ensure the modified example  is still close to the data manifold of natural examples, we propose to use an autoencoder to evaluate the closeness of  to the data manifold. We denote by  the reconstructed example of  using the autoencoder .
+
+
+For pertinent negative analysis, one is interested in what is missing in the model prediction. For any natural example , we use the notation  to denote 
+the space of missing parts with respect to . We aim to find an interpretable perturbation  to study the difference between the most probable class predictions in  and . Given , our method finds a pertinent negative by solving the following optimization problem: 
+
+We elaborate on the role of each term in the objective function () as follows. The first term
+ is a designed loss function that encourages the modified example  to be predicted as a different class than . The loss function is defined as:
+
+where  is the -th class prediction score of . The hinge-like loss function favors the modified example  to have a top-1 prediction class different from that of the original example . The parameter  is a confidence parameter that controls the separation between  and  . The second and the third terms  in () are jointly called the elastic net regularizer, which is used for efficient feature selection in high-dimensional learning problems . The last term 
+ is an  reconstruction error of  evaluated by the autoencoder. This is relevant provided that a well-trained autoencoder for the domain is obtainable. The parameters  are the associated regularization coefficients.
+
+
+For pertinent positive analysis, we are interested in the critical features that are readily present in the input. Given a natural example , we denote the space of its existing  components by . Here we aim at finding an interpretable perturbation  such that after removing it from ,
+. That is,  and  will have the same top-1 prediction class , indicating that the removed perturbation  is representative of the model prediction on .  
+Similar to finding pertinent negatives, we formulate finding pertinent positives as the following optimization problem: 
+
+where the loss function  is defined as 
+
+In other words, for any given confidence , the loss function  is minimized when   is greater than  by at least .
+
+
+
+
+
+We apply a projected fast iterative shrinkage-thresholding algorithm (FISTA)  to solve problems () and (). FISTA is an efficient solver for optimization problems involving  regularization. Take pertinent negative as an example, assume ,  and let  denote the objective function of () without the  regularization term.
+Given the initial iterate ,
+projected FISTA iteratively updates the perturbation  times by
+
+where  denotes the vector projection onto the set ,
+ is the step size,  is a slack variable accounting for momentum acceleration with , and  is an element-wise shrinkage-thresholding function defined as
+
+for any . The final perturbation  for pertinent negative analysis is selected from the set  such that  and  . A similar projected FISTA optimization approach is applied to pertinent positive analysis. 
+
+Eventually, as seen in Algorithm , we use both the pertinent negative  and the pertinent positive  obtained from our optimization methods to explain the model prediction. The last term in both () and () will be included only when an accurate autoencoder is available, else  is set to zero.
+
+This section provides experimental results on three representative datasets, including the handwritten digits dataset MNIST, a procurement fraud dataset obtained from a large corporation having millions of invoices and tens of thousands of vendors, and a brain imaging fMRI dataset containing brain activity patterns for both normal and autistic individuals. We compare our approach with previous state-of-the-art methods and demonstrate our superiority in being able to generate more accurate and intuitive explanations. Implementation details of projected FISTA are given in the supplement.
+
+
+We first report results on the handwritten digits MNIST dataset. In this case, we provide examples of explanations for our method with and without an autoencoder.
+
+
+The handwritten digits are classified using a feed-forward convolutional neural network (CNN) trained on 60,000 training images from the MNIST benchmark dataset. The CNN has two sets of convolution-convolution-pooling layers, followed by three fully-connected layers. Further details about the CNN whose test accuracy was 99.4
+
+
+Our CEM method is applied to MNIST with a variety of examples illustrated in Figure . In addition to what was shown in Figure  in the introduction, results using a convolutional autoencoder (CAE) to learn the pertinent positives and negatives are displayed. While results without an CAE are quite convincing, the CAE clearly improves the pertinent positives and negatives in many cases. Regarding pertinent positives, the cyan highlighted pixels in the column with CAE (CAE CEM PP) are a superset to the cyan-highlighted pixels in column without (CEM PP). While these explanations are at the same level of confidence regarding the classifier, explanations using an AE are visually more interpretable. Take for instance the digit classified as a 2 in row 2. A small part of the tail of a 2 is used to explain the classifier without a CAE, while the explanation using a CAE has a much thicker tail and larger part of the vertical curve. In row 3, the explanation of the 3 is quite clear, but the CAE highlights the same explanation but much thicker with more pixels. The same pattern holds for pertinent negatives. The horizontal line in row 4 that makes a 4 into a 9 is much more pronounced when using a CAE. The change of a predicted 7 into a 9 in row 5 using a CAE is much more pronounced. The other rows exhibit similar patterns, and further examples can be found in the supplement.
+
+The two state-of-the-art methods we use for explaining the classifier in Figure  are LRP and LIME. LRP experiments used the toolbox from  and LIME code was adapted from . LRP has a visually appealing explanation at the pixel level.  Most pixels are deemed irrelevant (green) to the classification (note the black background of LRP results was actually neutral). Positively relevant pixels (yellow/red) are mostly consistent with our pertinent positives, though the pertinent positives do highlight more pixels for easier visualization. The most obvious such examples are row 3 where the yellow in LRP outlines a similar 3 to the pertinent positive and row 6 where the yellow outlines most of what the pertinent positive provably deems necessary for the given prediction. There is little negative relevance in these examples, though we point out two interesting cases. In row 4, LRP shows that the little curve extending the upper left of the 4 slightly to the right has negative relevance (also shown by CEM as not being positively pertinent). Similarly, in row 3, the blue pixels in LRP are a part of the image that must obviously be deleted to see a clear 3. LIME is also visually appealing. However, the results are based on superpixels - the images were first segmented and relevant segments were discovered. This explains why most of the pixels forming the digits are found relevant. While both methods give important intuitions, neither illustrate what is necessary and sufficient about the classifier results as does our contrastive explanations method.
+
+
+
+
+In this experiment, we evaluated our methods on a real procurement dataset obtained from a large corporation. This nicely complements our other experiments on image datasets. 
+
+
+
+
+The data spans a one-year period and consists of millions of invoices submitted by over tens of thousands vendors across 150 countries. The invoices were labeled as being either low risk, medium risk, or high risk based on a large team that approves these invoices. To make such an assessment, besides just the invoice data, we and the team had access to multiple public and private data sources such as vendor master file (VMF), risky vendors list (RVL), risky commodity list (RCL), financial index (FI), forbidden parties list (FPL) , country perceptions index (CPI) , tax havens list (THL) and Dun . Details describing each of these data sources are given in the supplement. 
+Based on the above data sources, there are tens of features and events whose occurrence hints at the riskiness of an invoice. Here are some representative ones. 1) if the spend with a particular vendor is significantly higher than with other vendors in the same country, 2) if a vendor is registered with a large corporation and thus its name appears in VMF, 3) if a vendor belongs to RVL, 4) if the commodity on the invoice belongs to RCL,
+5) if the maturity based on FI is low, 6) if vendor belongs to FPL,
+7) if a vendor is in a high risk country (i.e. CPI ),
+8) if a vendor or its bank account is located in a tax haven,
+9) if a vendor has a DUNs number,
+10) if a vendor and the employee bank account numbers match,
+11) if a vendor only possesses a PO box with no street address.
+
+With these data, we trained a three-layer neural network with fully connected layers, 512 rectified linear units and a three-way softmax function. The 10-fold cross validation accuracy of the network was high (). 
+
+}
+[t]
+
+  {|p{0.2cm}|p{0.9cm}|p{1.1cm}|p{1cm}|p{0.4cm}|p{7.9cm}|}
+    && & &  & 1& &  & & & 2& & &  & & 3& &  & & & 
+
+  .}
+
+
+
+
+
+
+With the help of domain experts, we evaluated the different explanation methods. We randomly chose 15 invoices that were classified as low risk, 15 classified as medium risk and 15 classified as high risk. We asked for feedback on these 45 invoices in terms of whether or not the pertinent positives and pertinent negatives highlighted by each of the methods was suitable to produce the classification. To evaluate each method, we computed the percentage of invoices with explanations agreed by the experts based on this feedback.
+
+In Table , we see the percentage of times the pertinent positives matched with the experts judgment for the different methods as well as additionally the pertinent negatives for ours. We observe that in both cases our explanations closely match human judgment. We of course used proxies for the competing methods as neither of them identify PPs or PNs. There were no really good proxies for PNs as negatively relevant features are conceptually quite different as discussed in the supplement.
+
+Table  shows 3 example invoices, one belonging to each class and the explanations produced by our method along with the expert feedback. We see that the expert feedback validates our explanations and showcases the power of pertinent negatives in making the explanations more complete as well as intuitive to reason with. An interesting aspect here is that the medium risk invoice could have been perturbed towards low risk or high risk. However, our method found that it is closer (minimum perturbation) to being high risk and thus suggested a pertinent negative that takes it into that class. 
+
+In this experiment we look at explaining why a certain individual was classified as autistic as opposed to a normal/typical individual.
+
+The brain imaging dataset employed in this study is the Autism Brain
+Imaging Data Exchange (ABIDE) I , a large publicly available
+dataset consisting of resting-state fMRI acquisitions of subjects diagnosed
+with autism spectrum disorder (ASD), as well as of neuro-typical
+individuals. Precise details about standard ways in which this data was preprocessed is given in the supplement. Eventually, we had a 200x200 connectivity matrix consisting of real valued correlations for each subject. There were 147 ASD and 146 typical subjects. 
+We trained a single-layer neural network model on TensorFlow. The parameters of the model were regularized by an elastic-net regularizer. The leave-one-out cross validation testing accuracy is around 61.17. The logits of this network are used as model prediction scores, and we set ,  and  for any natural example .
+
+
+  
+
+
+
+. Color scheme: Purple: Visual (VIS), blue: Somatomotor (SMN), green: Dorsal Attention (DAN), violet: Ventral Attention (VAN), cream; Limbic (LN), orange: Frontoparietal (FPN), and red: default mode (DMN). (B) CEM PPs/PNs of a classified autistic brain are in the upper/lower triangle respectively. (C) A network-level view of the ROIs (region of interest) involving PP and PN functional connections (FCs) in the classified autistic (denoted as A) and neurotypical (denoted as T) subjects. For both (B) and (C), bolder the color higher the strength of the PP and PN FCs. (D) For LRP, positive relevance of FCs is depicted in a similar manner as in (C).} 
+ 
+
+
+With the help of domain experts, we evaluated the performance of CEM and LRP, which performed the best. LIME was challenging to use in this case, since the brain activity patterns are spread over the whole image and no reasonable segmentation of the images forming superpixels was achievable here. Per pixel regression results were significantly worse than LRP.
+
+Ten subjects were randomly chosen, of which five were classified as autistic and the rest as neuro-typical. Since the resting-state functional connectivity within and between large-scale brain functional networks  (see Fig. 3A) are often found to be altered in brain disorders including autism, we decided to compare the performance of CEM and LRP in terms of identifying those atypical patterns. Fig. 3B shows the strong pertinent positive (upper triangle) and pertinent negative (lower triangle) functional connections (FC) of a classified ASD subject produced by the CEM method. We further group these connections with respect to the 
+associated brain network (Fig. 3C). Interestingly, in four out of five classified autistic subjects, pertinent positive FCs are mostly (with a  probability  0.26) associated with the visual network (VIS, shown in purple in Fig 3A). On the other hand, pertinent negative FCs in all five subjects classified as autistic preferably (with a probability  0.42) involve the default mode network (DMN, red regions in Fig. 3A). This trend appears to be reversed in subjects classified as typical (Fig. 3C). In all five typical subjects, pertinent positive FCs involve DMN (with probability  0.25), while the pertinent negative FCs correspond to VIS. Taken together, these results are consistent with earlier studies, suggesting atypical pattern of brain connectivity in autism . The results obtained using CEM further suggest under-connectivity in DMN and over-connectivity in visual network, in agreement with prior findings . LRP also identifies positively relevant FCs that mainly involve DMN regions in all five typical subjects (Fig. 3D). However, LRP associates positively relevant FCs from the visual network in only 40
+
+
+In all the above experiments we also quantitatively evaluated our results by passing the PPs, and the PNs added to the original input, as independent inputs to the corresponding classifiers. We wanted to see here the percentage of times the PPs are classified into the same class as the original input and analogously the percentage of times the addition of PNs produced a different classification than the original input. This type of quantitative evaluation is similar to previous studies .
+
+We found for both these cases and on all three datasets that our PPs and PNs are 100
+In the previous sections, we showed how our method can be effectively used to create meaningful explanations in different domains that are presumably easier to consume as well as more accurate. It's interesting that pertinent negatives play an essential role in many domains, where explanations are important. As such, it seems though that they are most useful when inputs in different classes are "close" to each other. For instance, they are more important when distinguishing a diagnosis of flu or pneumonia, rather than say a microwave from an airplane. If the inputs are extremely different then probably pertinent positives are sufficient to characterize the input, as there are likely to be many pertinent negatives, which will presumably overwhelm the user.
+
+We believe that our explanation method CEM can be useful for other applications where the end goal may not be to just obtain explanations. For instance, we could use it to choose between models that have the same test accuracy. A model with possibly better explanations may be more robust. We could also use our method for model debugging, i.e., finding biases in the model in terms of the type of errors it makes or even in extreme case for model improvement.
+
+In summary, we have provided a novel explanation method called CEM, which finds not only what should be minimally present in the input to justify its classification by black box classifiers such as neural networks, but also finds contrastive perturbations, in particular, additions, that should be necessarily absent to justify the classification. To the best of our knowledge this is the first explanation method that achieves this goal. We have validated the efficacy of our approach on multiple datasets from different domains, and shown the power of such explanations in terms of matching human intuition, thus making for more complete and well-rounded explanations.
+
+
+
+We would like to thank the anonymous reviewers for their constructive comments.
+}
+
+This supplementary material contains additional details about experiments and results.
+
+
+
+As to the implementation of the projected FISTA for finding pertinent negatives and pertinent positives, we set the regularization coefficients , and . The parameter  is set to 0.1 initially, and is searched for 9 times guided by run-time information. In each search, if  never reaches , then in the next search,  is multiplied by 10, otherwise it is averaged with the current value for the next search.   
+For each search in , we run  iterations using the SGD solver provided by TensorFlow. The initial learning rate is set to be 0.01 with a square-root decaying step size. The best perturbation among all searches is used as the pertinent positive/negative for the respective optimization problems.
+
+
+
+
+The handwritten digits are classified using a feed-forward convolutional neural network (CNN) trained on 60,000 training images from the MNIST benchmark dataset. The CNN has two sets of convolution-convolution-pooling layers, followed by three fully-connected layers. All the convolution layers use a ReLU activation function, while the pooling layers use a 2  2 max-pooling kernel to downsample each feature map from their previous layer. In the first set, both the convolution layers contain 32 filters, each using a 3  kernel, where  is an appropriate kernel depth.  Both the convolution layers in the second set, on the other hand, contain 64 filters, each again using a  kernel. The three fully-connected layers have 200, 200 and 10 neurons, respectively. The test accuracy of the CNN is around 99.4. The logits of this CNN are used as model prediction scores, and we set ,  and  for any natural example .
+
+The CAE architecture contains two major components: an encoder and a decoder. The encoder compresses the  input image down to a  feature map using the architecture of convolution-convolution-pooling-convolution. Both of the first two convolution layers contain 16 filters, each using a  kernel, where  is again an appropriate kernel depth. They also incorporate a ReLU activation function in them. The pooling layer is of the max-pooling type with a 2  2 kernel. The last convolution layer has no activation function, but instead has a single filter with  a  kernel. The decoder, on the other hand, recovers an image of the original size from the feature map in the latent space. It has an architecture of convolution-upsampling-convolution-convolution. Again, both of the first two convolution layers have a ReLU activation function applied to the outputs of the 16 filters, each with a  kernel. The upsampling layer enlarges its input feature maps by doubling their side length through repeating each pixel four times. The last convolution layers has a single filter with the kernel size .
+
+
+
+Our CEM method is applied to MNIST on more examples and the results are illustrated in Figure . Regarding pertinent positives, again it can be seen that explanations using a CAE are visually more interpretable. In the third row, the outline of the 5 is much more pronounced when using a CAE, and similarly in the seventh row regarding the 3. Again, the same trend holds for pertinent negatives. In the second row, a few extra pixels are used to transform the 6 to a 4 and clearly make the transformation more explicit. In the eighth row, the loop that turns a 1 into a 6 is much thicker when using a CAE. Transformation of the 0 to an 8 in row nine is particularly interesting. The bottom and top loops should have similar hole sizes, which is enforced better by the CAE with additional pixels added to the bottom loop. 
+
+
+
+
+The VMF has information such as names of the vendors registered with the company, their addresses, account numbers and date of registration. The RVL and RCL contain lists of potentially fraudulent vendors and commodities that are often easy to manipulate. The FI contains information such as maturity of a vendor and their stock trends. The FPL released by the US government every year has two lists of suspect businesses. The CPI is a public source scoring (0-100) the risk of doing business in a particular country. The lower the CPI for a country, the worse the perception and hence higher the risk. Tax havens are countries such as the Cayman Islands where the taxes are minimal and complete privacy is maintained regarding people's financials. Dun 
+
+
+The brain imaging dataset employed in this study is the Autism Brain
+Imaging Data Exchange (ABIDE) I [11], a large publicly available
+dataset consisting of resting-state fMRI acquisitions of subjects diagnosed
+with autism spectrum disorder (ASD), as well as of neuro-typical
+individuals. Resting state fMRI provides neural measurements of the functional relationship between brain regions and is particularly useful for investigating  clinical populations. Previously preprocessed acquisitions were downloaded (http://preprocessedconnectomes-project.org/abide/). We used the C-PAC preprocessing
+pipeline which included slice-time correction, motion correction,
+skull-stripping, and nuisance signal regression. Functional data was band-pass filtered (0.01---0.1 Hz) and spatially registered using a nonlinear method to a template space (MNI152). We limited ourselves to acquisitions with repetition time of 2s (sites NYU, SDSU, UM, USM) that were included in the original study of Di Martino et al. [11] and that passed additional manual quality control, resulting in a total of 147 ASD and 146 typical subjects (right-handed male, average age 16.5 yr).  The CC200 functional parcellation atlas [8] of the brain, totaling 200 regions, was used to estimate the brain connectivity matrix. The mean time series for regions of interest (ROI) was extracted for each subject. A Pearson product-moment correlation was calculated for the average of the time series of the ROI (see Fig. 3A) to build a 200x200 connectivity matrix for each subject. Only positive correlation values in functional connectivity matrices were considered in this study.
+
+
+
+

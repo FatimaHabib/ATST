@@ -1,0 +1,4 @@
+
+  One of the fundamental ways to construct De Bruijn sequences is by using a shift-rule. A shift-rule receives a word as an argument and computes the symbol that appears after it in the sequence. An optimal shift-rule for an -De Bruijn sequence runs in time . We propose an extended notion we name a generalized-shift-rule, which receives a word, , and an integer, , and outputs the  symbols that comes after . An optimal generalized-shift-rule for an -De Bruijn sequence runs in time . We show that, unlike in the case of a shift-rule, a time optimal generalized-shift-rule allows to construct the entire sequence efficiently. We provide a time optimal generalized-shift-rule for the well-known prefer-max and prefer-min De Bruijn sequences.
+  
+  

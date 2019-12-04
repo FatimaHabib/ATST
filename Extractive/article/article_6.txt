@@ -1,0 +1,539 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{
+{
+{
+
+[1]{  }
+
+
+{{}[section]
+{Table}[section]
+
+
+
+  {        {        {    {0pt}            {       {.            {0pt}            { }
+
+{}
+
+
+
+xxxx
+}
+
+
+{ {  }
+
+
+
+
+
+
+
+
+
+
+{rgb}{0.58, 0.0, 0.83}
+[1]{{[#1]}}
+
+
+         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+dlar}
+}
+
+
+
+}
+
+
+
+
+
+
+nonlinear eigenvalue problem, polynomial eigenvalue problem, quadratic eigenvalue problem, FEAST, contour integration, residual inverse iteration
+
+
+
+
+
+
+
+
+The nonlinear eigenvalue problem (NLEVP) consists of finding vectors  and scalars  that satisfy
+
+
+
+), with
+
+
+
+
+
+
+.
+In general  can take a variety of different forms, depending on the physical model. Higher-degree polynomials are possible, as are non-polynomial functions of , e.g. ~.
+
+The usefulness of any physical model that produces the problem ()
+is limited by the ease with which that problem can be solved.
+General nonlinear eigenvalue problems carry with them some unique challenges, e.g.
+their eigenvectors do not form a basis for , and the particular form of  can have an impact on which solution methods are most effective.
+However, one of the core challenges for nonlinear eigenvalue problems is the same as for linear eigenvalue problems:
+solution methods that are effective for small values of  do not necessarily scale well to very large-dimensional problems,
+where one is usually interested in finding a small number of specific, physically-important eigenvalue-eigenvector pairs.
+
+Most methods for solving such large-dimensional problems require generating
+an initial guess that is close enough to the desired eigenpairs to ensure convergence,
+as well as a method for calculating successive eigenpairs whose eigenvalues are close to each other,
+but without converging repeatedly to the same eigenpair .
+These challenges are exacerbated in the situation that large numbers of eigenpairs are desired.
+The difficulty of calculating large numbers of eigenpairs is compounded further for NLEVP algorithms that work by approximating the desired eigenvectors in some subspace of dimension ;
+in this case, calculating large numbers of eigenpairs requires a large value of , leading to bad scaling for the solution of the reduced-dimension eigenvalue problems that are solved inside that subspace. For linear eigenvalue problems the algorithmic complexity of solving the reduced dimension problem of dimension  is , and solving nonlinear eigenvalue problems always requires an amount of work that is at least equal to solving a single linear eigenvalue problem; keeping the dimension  of the reduced-size problem small is thus of paramount importance for ensuring good scaling to larger problem sizes.
+
+A class of algorithms that address these challenges is contour integral methods, e.g.,~.
+Contour integral methods exploit the Cauchy integral formula in order to calculate only the eigenpairs whose eigenvalues lie in a specific, user-defined region of the complex plane.
+In doing so they eliminate the need to calculate initial guesses and separate closely-positioned eigenvalues for the original, large problem of dimension .
+Moreover, contour integral approaches allow for the efficient, parallel calculations of large numbers of eigenpairs by
+dividing the region of interest in the complex plane into disjoint subregions, solving for the eigenvalues in each subregion independently of the eigenvalues elsewhere.
+
+The linear FEAST algorithm is an example of a contour integral method for linear eigenvalue problems.
+It has the distinction of being able to solve large, generalized linear eigenvalue problems robustly with excellent parallel scalability.
+In the following sections, we describe a generalization of the linear FEAST algorithm that can be applied to solving nonlinear eigenvalue problems.
+We describe the resulting nonlinear FEAST (NLFEAST) algorithm and solve some physically-motivated model problems to illustrate its properties.
+
+
+
+
+
+
+
+
+
+Given a non-empty open set  and a matrix-valued function ,
+we consider a 
+(NLEVP):
+
+}
+In this paper, we discuss only the nonlinear dependence of  on the eigenparameter ,
+leaving the nonlinear dependence on eigenvectors and multi-parameters outside of our focus.
+Analogously to the linear case,  is called a 
+and  the corresponding right and left  of , respectively.
+We call the set of all eigenvalues  of  the
+ of  and denote i by , i.e.,
+(T(.
+We refer to  as an  of , and either  or  as an .
+Although for the choice  and ,
+ reduces to the standard eigenvalue problem , and the generalized eigenvalue problem
+, respectively, the characteristics of a general nonlinear eigenvalue problem differ significantly from those of its
+linear counterparts, e.g.  (even if regular, i.e., det) may have infinitely many eigenvalues, the eigenvectors belonging to distinct eigenvalues do not
+have to be linearly independent, and the algebraic multiplicity of an isolated eigenvalue, although finite, is not bounded by the problem size ~.
+All these particularities make general nonlinear eigenvalue problems much harder to solve.
+For a more detailed description we refer the readers to the survey papers by
+Tisseur and Meerbergen~ for quadratic eigenvalue problems,
+Mackey, Mackey and Tisseur~ for general polynomial eigenvalue problems,
+and by Voss~, and Tisseur and Gttel~
+for general nonlinear eigenvalue problems. A variety of applications in science and
+engineering, e.g., dynamic analysis of structures, vibrations of fluid-solid structures,
+the electronic behavior of quantum dots are discussed by Mehrmann and Voss~.
+
+For the sake of simplictly, our main focus in this paper is on a class of square  (PEPs):
+
+}
+where  is an  matrix polynomial
+
+If  is regular, i.e., det,  has  finite eigenvalues (roots of det) and  infinite eigenvalues.
+Using linearization, it is easy to see that the  matrix polynomial  of degree  has  eigenvalues (finite or infinite)
+and up to  right and  left associated eigenvectors. As mentioned before, even in the case of distinct eigenvalues,
+the associated eigenvectors are not necessarily linearly independent.
+
+
+For example, let us consider the  (QEP):
+
+
+with  complex matrices , and .
+Then the eigenvalues of  are equal to those of the 
+companion linearization~, e.g., 
+
+or
+
+The right eigenvectors of  are
+$
+xQ(Similarly, the left eigenvectors of  are
+$
+
+ y $,
+where  are the left eigenvectors of .
+
+
+
+
+The original FEAST algorithm, introduced for solving the generalized eigenvalue problems, i.e. ~,
+is a subspace iteration method that uses the Rayleigh-Ritz projection and an approximate spectral projector as a filter.
+FEAST calculates the eigenpairs whose eigenvalues lie in a specific, user-defined region in the complex plane.
+It can therefore be used to calculate a large number of eigenpairs in parallel by dividing the complex plane
+into a collection of disjoint regions and solving for the eigenpairs in each region independently of the eigenpairs in other regions.
+
+FEAST selects the eigenvectors and eigenvalues of interest by first projecting any random initial subspace 
+onto the subspace spanned by the eigenvectors of interest, and then using the Rayleigh-Ritz procedure in this subspace to extract eigenvalue/eigenvector approximations.
+Projection onto the subspace of interest is accomplished by using complex contour integration, i.e.
+
+
+If the integration is performed exactly then the filter  becomes a spectral projector with ,
+where  and  are the exact left and right eigenvector subspaces associated with the eigenvalues of interest (i.e. the eigenvalues that are located within the closed curve ).
+In practice, however, it is impossible to perform the integration in () exactly, so instead it is approximated by using a quadrature rule.
+The subspace that is generated by the practical FEAST algorithm is then
+
+
+
+FEAST iteratively refines the estimates for the eigenvectors of interest by repeatedly applying the summation (), orthogonalizing the resulting subspace  and using it in the Rayleigh-Ritz procedure.
+
+In addition to parallelizing the solution of eigenvalue problems by dividing up the eigenspectrum,
+FEAST has the additional benefit of being able to systematically improve its rate of convergence.
+The rate of convergence of the FEAST algorithm is related to the accuracy of the approximation for the integral () .
+If that integral is evaluated exactly, then the exact solution to the eigenvalue problem is found in a single iteration.
+Approximating () by using () generally means that the solution to the eigenvalue problem
+will be found in some number of iterations larger than one;
+reducing the number of required iterations is as simple as increasing the number of terms in the quadrature rule summation
+in (), which in turn can be accomplished by solving a larger number of linear systems in parallel.
+The speed with which an eigenvalue problem can be solved by using FEAST
+is thus limited only by the amount of parallel processing power that is available.
+
+The FEAST numerical library package was first released under the free BSD license in September 2009 (v1.0) to address the Hermitian linear eigenvalue problems.
+The current FEAST version (v.3) released in June 2015 allows to solve the non-Hermitian linear eigenvalue problems, see~.
+
+
+In the following section, we discuss an extension of the FEAST algorithm to tackle  nonlinear eigenvalue problems.
+Our goal is to solve NLEVPs by taking advantage of the attractive features of the FEAST framework:
+we would like to solve for eigenpairs whose eigenvalues are in a user-defined region of the complex plane, by iteratively refining a fixed-dimension
+subspace using contour integration in such a way that the rate of convergence can be enhanced by using parallel computing to improve the accuracy of the contour integration.
+
+
+
+
+
+
+
+
+Other researchers have previously investigated the use of contour integration (using Cauchy's integral in particular) in the
+complex plane for solving nonlinear eigenvalue problems.
+
+In a series of papers Asakura at al. introduced the nonlinear variants of the Sakurai-Sugiura (SS) method with block Hankel matrices (SS-H method)
+for the polynomial eigenvalue problems~ and eigenvalue problems of analytic matrix functions ~.
+Although they are cost efficient and highly scalable, the accuracy of obtained solutions is relatively low.
+Almost at the same time Beyn~ introduced a highly accurate algorithm that uses the zeroth and first-order moments matrices
+to reduce an NLEVP with  eigenvalues inside  to a linear eigenvalue problem of dimension .
+The main idea of Beyn's integral method is to probe a Jordan decomposition of the  matrix following the Keldysh's theorem~,
+which is conceptually very simple but known to be highly sensitive to perturbations. Moreover, since the value of parameter  (the number of linearly independent eigenvectors)
+is not known in advance, the practical realization of Beyn's algorithm requires various adaptations which makes its overall computational cost relatively high.
+
+Recently, Yokota and Sakurai~ addressed the problem of low accuracy in the nonlinear SS-H method.
+Their method and the nonlinear variant of the Sakurai-Sugiura method with block Hankel matrices (SS-H)~
+use the same contour integrals of the SS-H method,
+however, they differ in the way the approximate eigenpairs are extracted from the underlying subspaces.
+The method of Yokota and Sakurai is a projection-based method which uses the Rayleigh-Ritz procedure to obtain the approximate
+eigenpairs from a subspace. It does not require any fixed point iterations and
+gives better accuracy than the methods of Asakura et al.~ and Beyn~.
+
+Both the various SS methods and the Beyn method use the moments of the Cauchy integral of , i.e.,
+
+
+
+The original FEAST algorithm uses only the  moment, which, in the case when  is linear, turns out to be a spectral projector 
+associated with the eigenvalues of interest. Unfortunately, subspace iteration using only the  moment in () does not work in the case of the nonlinear . 
+When  is nonlinear, taking an initial set of approximate eigenvectors  and refining it using the quadrature approximation of the 
+moment of (), as is done in the linear FEAST algorithm, does not bring the resulting subspace closer to the desired eigenspace.
+Although Beyn's method resolves this issue by continuously refining the accuracy of
+the contour integration for a single multiplication, it requires performing a new matrix factorization for each
+newly added quadrature node. The SS-type methods, on the other hand, refine their solutions by increasing the dimension of their search subspace by calculating additional moments of ()
+using the same quadrature rule each time; the dimension of the search subspace is increased iteratively until the desired solution is sufficiently accurate.
+
+We propose, instead, to modify the contour integral () 
+such that the subspace iteration framework of the original FEAST algorithm can be used, thereby making it possible to solve nonlinear eigenvalue problems using a fixed-dimension subspace that is refined by solving linear systems at a constant number of fixed shifts in the complex plane.
+
+
+
+
+To develop a nonlinear FEAST algorithm that can use contour integration to iteratively refine a
+subspace of a fixed dimension by using fixed-location shifts in the complex plane, we propose to study the
+following (modified) form of the contour integral
+
+
+
+of an eigenvalue that is inside the contour . For the implementation of nonlinear FEAST,
+we use a block version of () in order to generate a refined a subspace from an initial set of approximate eigenvectors  of a  nonlinear eigenvalue problem, i.e.,
+
+
+
+For example, for the polynomial eigenvalue problem in equation (), the block form of the residual function is
+
+
+
+The nonlinear FEAST algorithm follows the same essential steps as the linear FEAST algorithm:
+a subspace is formed by refining an initial set of estimated eigenvectors  by using the contour integration in (),
+then a new set of approximate eigenvectors is found in the resulting subspace  by using the Rayleigh-Ritz
+procedure to solve a projected eigenvalue problem (which is still nonlinear, but with a substantially smaller dimension).
+As in the linear case we use a numerical integration scheme to evaluate the integral in
+(), and we solve a linear system whenever a multiplication by  is required.
+
+The contour integral in () is mathematically equivalent to
+() for the linear, generalized eigenvalue problem. However, the two are different when  depends nonlinearly on .
+The relationship between the contour integrals for linear and nonlinear FEAST is much like the relationship between the shift-and-invert iteration
+for the linear eigenvalue problem and the residual inverse iteration for the nonlinear eigenvalue problem.
+The residual inverse iteration~ is a modification of the shift-and-invert iteration which allows it to be applied to
+to nonlinear problems while using a constant shift . The original FEAST algorithm can be interpreted as a generalization of the
+shift-and-invert iteration that uses contour integration in order to efficiently use multiple shifts simultaneously.
+We note that the nonlinear FEAST algorithm, in turn, can be interpreted as a generalization of residual inverse iteration that uses contour
+integration in order to efficiently use multiple shifts simultaneously. 
+
+In this paper, we will present the algorithmic framework and various example applications of the NLFEAST algorithm,
+leaving the mathematical details to a forthcoming paper. The full NLFEAST algorithm is described in Algorithm .
+
+The Rayleigh-Ritz step in the nonlinear FEAST works the same as in its linear counterpart:
+the residual function  is projected onto the subspace ,
+and the resulting nonlinear eigenvalue problem of reduced-dimension
+is solved using any suitable method, here we use a simple linearization.
+The resulting Ritz values and associated Ritz vectors are used as the new estimates of the desired eigenpairs.
+
+Careful attention must be paid while selecting the desired eigenpairs from the solutions of the nonlinear eigenvalue problem of reduced-dimension.
+In many cases, such as those considered in this paper,
+it is possible to find all the solutions of the reduced-dimension eigenvalue problem; for the nonlinear FEAST algorithm, however,
+we want the Rayleigh-Ritz procedure to return only a number of eigenpairs that is equal to the dimension of the FEAST subspace .
+The desired eigenpairs are thus selected by choosing those whose eigenvalues are closest to being inside the FEAST
+search contour . This heuristic appears to ensure convergence to only the eigenpairs whose eigenvalues are inside the region of
+interest in the complex plane.
+
+The subspace that is used for the Rayleigh-Ritz procedure, i.e.,
+the one that is generated by performing the contour integration, should be orthonormalized,
+for example by using the  decomposition. Orthonormalization improves the numerical stability of the FEAST iterations
+by preventing the norms of the desired eigenvectors from diverging and by preventing the Rayleigh-Ritz procedure from
+producing spurious eigenpairs, i.e., the Ritz pairs that do not correspond to any eigenpairs of the full-size eigenvalue problem.
+
+
+
+In the following section we describe the results of using Algorithm  to solve several example nonlinear eigenvalue problems.
+
+
+
+
+
+In this section, we illustrate the behavior of the nonlinear FEAST algorithm on several
+polynomial eigenvalue problems of practical relevance.
+
+{
+
+
+
+Let us consider the Hermitian (self-adjoint) quadratic eigenvalue problem (HQEP), i.e., ,
+associated with the mass-spring system discussed in~, i.e.,
+
+
+with 
+                           3 & -1 &  0 & 0 &                           -1 &  3 & -1 &  0 &                            0 & -1 &  3 & -1  &                                                       0 &                            0 &                           ,                          and
+
+                           3 & -1 &  0 & 0 &                           -1 &  3 & -1 &  0 &                            0 & -1 &  3 & -1  &                                                       0 &                            0 &                           .
+                          The eigenvalues of a Hermitian  are either real or they come in complex conjugate pairs .
+Since matrices  and  are real, the right and left eigenvectors coincide.
+
+Following~, we first study the nonoverdamped system.
+We set  and choose , . All the eigenvalues of  are plotted in Figure~. 
+One possible problem of interest is to calculate the eigenvectors whose eigenvalues have no imaginary part; the exponentially increasing 
+or decaying solutions to the original equations of motion for the mass-spring system are linear combinations of these eigenvectors.
+In this case, we seek the  real eigenvalues lying within the interval , see Figure~.
+
+We use the nonlinear FEAST approach presented in Algorithm 1 to compute approximations of those  real eigenvalues. The contour is chosen as
+an ellipse centered at the midpoint of the interval  with radius  on the real and  on the imaginary axis using
+ integration nodes, and the convergence criteria for the residuum is . With the subspace of size ,
+the nonlinear FEAST algorithm finds all  eigenvalues within the interval in three FEAST iterations, see Figure~.
+The eigenvalue approximations obtained using the linearization approach and the nonlinear FEAST algorithm
+are listed in Table~.
+For completeness, we also list all the final residuals, i.e., {}.
+
+Table  shows the number of NLFEAST iterations that are required for convergence 
+when the search interval  is enlarged. When the number of quadrature nodes  
+is kept constant at , as it is here,
+then enlarging the search interval has the same effects as placing the quadrature nodes farther away from the eigenvalues of interest,  making the contour integration itself less accurate.
+Modest changes to the size of the interval result in only a slightly larger amount of work being required for convergence; larger changes in the interval size tend to require 
+proportionally more NLFEAST iterations. In practice, decreased performance due to the size of the search interval relative to the distribution 
+of the desired eigenvalues can be mitigated simply by using a larger number of quadrature nodes which, in turn, requires only that one use more parallel processing power in order to solve more linear systems simultaneously.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{
+
+We now consider the same mass-spring system as in Example~, but with new parameter values  and .
+This choice of parameters results in a hyperbolic QEP with real and non-positive eigenvalues~.
+For  all  eigenvalues of  obtained via linearization are plotted in Figure~. 
+Half of the eigenvalues are clustered very close to zero, and the other half are distributed throughout the interval .
+The spectral gap between the lowest  and the highest  eigenvalues is a characteristic of this class of problems.
+
+In the case of an overdamped system there are no oscillations; the dynamics of the system consist entirely of decreasing exponentials. 
+The fastest dynamics of the system are determined by the eigenvectors whose eigenvalues come before the eigenvalue gap, i.e.,
+the ones with the largest magnitudes. As an example, we calculate the real eigenvalues lying within the interval .
+The contour is chosen as a circle centered at the midpoint of the interval  with radius , using  quadrature nodes, and the convergence criteria for the residual is . With the subspace of size ,
+the nonlinear FEAST algorithm finds all  eigenvalues within the interval in ten () FEAST iterations.
+
+Figure  illustrates the the eigenvalues of the problem, the FEAST contour and quadrature points, and the resulting eigenvalue estimates that are calculated by NLFEAST.
+
+
+
+
+
+
+
+
+
+
+
+{
+
+Another application in which nonlinear eigenvalue problems arise is open boundary quantum transmission problems. With open boundary quantum transmission problems, one seeks to calculate the quasi-bound states of a quantum potential where particles can either enter or leave the system, preferably without having to explicitly model the external sources or sinks to which that quantum potential is connected. This can be done by solving a nonlinear eigenvalue problem , in contrast to many other problems in quantum mechanics that can be approached by solving a linear eigenvalue problem with the system Hamiltonian.
+
+As an example of open boundary quantum transmission problems, let us consider the problem of scattering resonances in D with the following compactly supported finite square model potential
+
+with  and width ~.
+
+
+
+We are interested to determine the ~  and the associated resonances  such that for all 
+
+In the case of  being bounded with compact support in , the set of discrete solutions
+ of  can be approximated using the finite element space 
+associated with the grid , . This discretization approach results in the following quadratic eigenvalue problem
+
+
+where
+A_h = {6}
+       2 & 1 & 0 & 0 &        1 & 4 & 1 & 0 &        0 & 1 & 4 & 1 &     0 &   0 &        ,
+
+			    1 & 0 & 			    0 & 0 & 			    			    0 & 0 & 			    0 & 0 & 			    ,
+and
+			   C_h = {h} 
+									 1 & -1 & 0 & 0 & 									-1 & 2 & -1 & 0 & 									0 & -1 & 2 & -1 & 																		0 & 									0 & 									  + V_0 A_h .
+
+The associated linear eigenvalue problem has a form
+
+
+A finite element discretization of  over the grid of  points results
+in a quadratic eigenvalue problem of size  with scattering resonances plotted in Figure~.
+We are interested in all twenty-two  complex scattering resonances lying inside the circle centered at  with
+radius , see Figure~. The nonlinear FEAST computes  accurate approximations of those
+twenty-two () scattering resonances in four  iterations using  integration nodes and the subspace of size , see Figure~.
+
+
+
+
+
+
+
+
+
+{
+As an example of a polynomial eigenvalue problem with degree larger than two, let us consider the following quartic problem
+$$
+P($$
+Eigenvalue problems of this form can come from, for example, discretizations of the Orr-Sommerfeld equation~. The Orr-Sommerfeld equation arises from a linearization of the incompressible Navier-Stokes equation in which the perturbations of the pressure and velocity  are assumed to be periodic in time.
+
+To illustrate the behavior of the nonlinear FEAST algorithm, we use a simple example of a quartic eigenvalue problem provided by the NLEVP collection : 
+the so-called  problem (distribution of eigenvalues in the complex plane resembles a shape of a butterfly).
+The  problem is a  structured quartic matrix pencil with  eigenvalues, the construction of which is described in .
+We use the NLFEAST algorithm to calculate the eigenvalues that are located inside of some arbitrarily chosen region  in the complex plane. This problem is illustrated in Figure .
+
+
+
+We calculate 13 eigenvalues inside of the indicated region by using a subspace of dimension , using several different 
+numbers of quadrature nodes . The largest (at each iteration) eigenvector residual associated with the eigenvectors whose eigenvalues are inside the search region 
+is plotted in Figure . Using  quadrature nodes,
+NLFEAST does not converge at all. We can achieve steady convergence by using  quadrature nodes, and the rate of convergence increases with increasing values of . 
+For , convergence to the desired tolerance of  occurs in only five  NLFEAST iterations. 
+Because the linear system for each individual quadrature node is independent of the linear systems associated with all the other quadrature nodes,
+the rate of convergence of NLFEAST can be systematically improved by using additional parallel processing power to solve a larger number of linear systems simultaneously in parallel.
+
+
+
+Figure  
+shows the NLFEAST-estimated eigenvalues for the experiments from Figure  that use  and  quadrature points in the numerical integration. 
+The  case is not able to converge because the integration is not sufficiently accurate to achieve convergence of the two eigenvalues 
+that are farthest-separated from the main cluster of eigenvalues; using  allows the accurate convergence of NLFEAST for all of eigenvalues inside the search region .
+
+
+ 
+
+
+
+
+
+In this paper we have described an extension of the linear FEAST eigenvalue algorithm for solving nonlinear eigenvalue problems. 
+The resulting nonlinear FEAST algorithm (NLFEAST) uses the same series of operations as the linear FEAST algorithm,
+but with a modified contour integral that allows for using a fixed collection of shifts and a fixed subspace dimension in solving nonlinear eigenvalue problems. Where the linear FEAST algorithm can be interpretted as a generalization of shift-and-invert iterations that can use multiple shifts, the nonlinear FEAST algorithm can be interpretted as a generalization of residual inverse iterations that can use multiple shifts.
+
+Like the linear version, the NLFEAST algorithm can be used to calculate eigenvectors corresponding to the eigenvalues located in a specific, user-defined region in the complex plane,
+allowing for the parallel calculation of large numbers of eigenpairs. Moreover, analogously to the linear FEAST, the convergence rate of the NLFEAST can be systematically improved by solving
+additional linear systems in parallel to refine the numerical contour integration.
+
+In this paper, for the sake of simplicity, we have treated only polynomial eigenvalue problems.
+This makes the implementation of NLFEAST relatively straight-forward, in the sense that the reduced, nonlinear eigenvalue problem in the NLFEAST algorithm can be solved easily via linearization.
+We expect, however, that the NLFEAST algorithm as described in this paper will prove to be a general method of solution for nonlinear eigenvalue problems of any form, rather than just polynomial eigenvalue problems.
+In the case of more general (non-polynomial) nonlinear eigenvalue problems, the reduced nonlinear eigenvalue problem will be itself of an arbitrary form, and therefore will require using
+a Newton- or a projection-type solution method instead of a simple linearization technique.
+
+
+
+The authors would like to thank Eric Cances and Boris Nectoux for providing the scattering problem example. The work of Agnieszka Miedlar was
+partially supported by the Simons Foundation Collaboration Grant for Mathematicians . This work was also supported by the National Science Foundation, under grant 
+
+
+
+
+

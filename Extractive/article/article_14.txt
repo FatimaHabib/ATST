@@ -1,0 +1,449 @@
+
+
+
+
+
+
+{}
+
+
+
+
+[1]{{( Mat, #1)}}
+[1]{{( M.F.: #1)}}
+
+
+
+
+
+
+ 
+
+
+
+
+ }
+
+
+
+
+{}
+[1]{  
+[1]{ ^{-1} 
+[1]{{SW: #1}}
+[0]{ { }}
+[0]{ { }}
+[0]{ {}}
+[0]{ { }}
+[0]{ { }}
+[0]{ { }}
+
+[0]{ { }}
+[0]{ { }}
+
+
+{Theorem}
+{Corollary}[theorem]
+{Lemma}
+{Example}
+{Remark}
+
+
+{
+{}
+[2]{  [1]
+  {           }
+  {
+}
+
+{Theorem}
+{Lemma}
+{Corollary}
+
+
+
+
+
+
+
+{*}
+
+
+{equal,ox}
+{equal,ox}
+{ox}
+
+
+{Department of Computer Science, University of Oxford, United Kingdom}
+
+{matthew.fellows@cs.ox.ac.uk}
+
+
+
+]
+
+
+
+ 
+
+
+
+
+ methods, also known as actor-critic methods, are an effective way to perform reinforcement learning in large or continuous action spaces . Since they adjust the policy in small increments, they do not have to perform expensive optimisations over the action space, in contrast to methods based on value functions, such as -learning  or SARSA . Moreover, they are naturally suited to stochastic policies, which are useful for exploration and necessary to achieve optimality in some settings, e.g., competitive multi-agent systems.
+
+Until recently, policy gradient methods were either restricted to deterministic policies  or suffered from high variance . The latter problem is exacerbated in large state spaces, when the number of samples required to reduce the variance of the gradient estimate becomes infeasible for the simple score function estimators on which policy gradient methods typically rely.  The problem also arises when training recurrent neural networks (RNNs)  that have to be unrolled over several timesteps, each adding to the overall variance, and in multi-agent settings , where the actions of other agents introduce a compounding source of variance.
+
+Recently, a new approach called  (EPG)  was proposed that eliminates the variance of a stochastic policy gradient by integrating over the actions analytically. However, this requires analytic solutions to the policy gradient integral and the original work addressed only polynomial critics. 
+
+In this paper, we employ techniques from Fourier analysis to derive analytic policy gradient updates for two important families of critics. The first,  (RBFs), combines the benefits of shallow structure, which makes them tractable, with an impressive empirical track record . The second, trigonometric critics, is useful for modelling periodic phenomena. Similarly to polynomial critics , these function classes are universal, i.e., they can approximate an arbitrary function on a bounded interval. 
+
+Furthermore, to address cases where analytical solutions are infeasible, we provide a general theorem for deriving Monte Carlo estimators that links existing methods using the first and second derivatives of the action-value function, relating it to existing sampling approaches.  
+
+Our technique also enables analytic solutions for new families of policies, extending EPG to any policy that has unbounded support, where it previously required the policy to be in an exponential family. We also develop results for mixture policies and hybrid discrete-continuous policies, which we posit can be useful in multi-agent settings, where having a rich class of policies is important not just for exploration but also for optimality .
+
+Overall, we believe that the techniques developed in this paper can be used to shape the next generation of policy gradient methods suitable for any reasonable MDP and that, powered by analytical results, achieve zero or low variance. Moreover, our methods elucidate the way policy gradients work by explicitly stating the expected update. Finally, while the main contribution of this paper is theoretical, we also provide an empirical evaluation using a periodic critic on a simple turntable problem that demonstrates the practical benefit of using a trigonometric critic.
+
+
+
+
+ (RL) aims to learn optimal behaviour policies for an agent (or many agents) acting in an environment with a scalar reward signal. Formally, we consider a Markov decision process, defined as a tuple . An agent has an environmental state ; takes a sequence of actions ,  where ; transitions to the next state  under the state transition distribution ; and receives a scalar reward . The agent's initial state  is distributed as .  
+
+The agent samples from the policy  to generate actions , giving a trajectory through the environment . The definition of the value function is  and action-value function is , where  is a discount factor. An optimal policy  maximises the total return . 
+
+Policy gradient methods seek a locally optimal policy by maintaining a , learned using a value-based method, and an , adjusted using a policy gradient update.  
+
+The critic  is learned using variants of SARSA , with the goal of approximating the true action-value . Meanwhile, the actor adjusts the policy parameter vector  of the policy  with the aim of maximising . For stochastic policies, this is done by following the gradient:
+
+ J =) ,)(|)}d} _{I_}
+d,
+
+where  is the discounted-ergodic occupancy measure.
+The outer integral can be approximated by following a trajectory of length  through the environment, yielding:
+
+ 
+ J = 
+ [ I_{() ] ^{T-1}}(_t),
+
+where  is the integral of  but with the critic  in place of the unknown true -function:
+
+}(_t)=(_t,)(|_t)}d.
+
+The subscript of  denotes the fact that we are differentiating with respect to . Now, since , unlike , does  depend on the policy parameters, we can move the differentiation out of the inner integral as follows:
+
+
+}(_t)=  {(_t,) d (|_t)}}_{ E() = _{[(, . 
+
+This transformation has two benefits: it allows for easier manipulation of the integral and it also holds for deterministic policies, where  is a Dirac-delta measure . 
+
+Using  directly with an analytic value of  yields  (EPG) in an unpublished draft by .} , shown in Algorithm . If instead we add an additional Monte Carlo sampling step:
+
+_{ (,)   ),
+we get the original  . In place of , alternative Monte Carlo schemes with better variance properties have also been proposed . If we can compute the integral in , then EPG is preferable since it avoids the variance introduced by the Monte Carlo step of  .
+
+
+
+This paper considers both methods for solving integrals of the form in  and Monte Carlo methods that improve on   for cases where analytical solutions are not possible. 
+
+Above, we used the symbol  to denote a generic policy parameter. Often, the policy is described by its moments (for instance a Gaussian is fully defined by its mean and covariance). To achieve greater flexibility, these immediate parameters are obtained by a complex function approximator, such as a neural network, where the state vector is the input, and parameterised by . The total policy gradient for  is then obtained by using the chain rule. For example, for a Gaussian we have immediate parameters  and the parameterisation is:
+
+ ) = (, ), (, ^{1/2}) = _{}(),
+
+where  is a neural network parameterised by the vector . The gradient for some  is then:
+
+} I_) = }  I_{} + } ^{1/2} I_{^{1/2}}.
+
+For clarity, we only give updates for the immediate parameters (in this case,  and ) in the remainder of the paper, without explicitly mentioning . 
+
+
+
+A   is an operation on two functions that returns another function, defined as:
+(f*g)()  f(')g(-')d'.
+Convolutions have convenient analytical properties that we use to derive our main result. To make convolutions easy to compute, we seek a transform  that, when applied to a convolution, yields a simple operation like multiplication, i.e., we want the property:
+
+
+() =  ).
+
+We also need the dual property:
+ =  * ,to ensure symmetry between the space of functions and their transforms.  It turns out that, up to scaling, there is only one transform that meets our needs ,  the :
+()  f()e^{-i ^}d.
+The two sets of parentheses on the lefthand side are required because the Fourier transform  is a function, not a scalar, and  is the result of evaluating this function on . The Fourier transform of a probability density function is known as the  of the corresponding distribution. An intuitive interpretation of the Fourier transforms is that it provides a mapping from the action-spatial domain to the frequency domain, , decomposing the function  into its frequency components. Consider, as a simple example, a univariate sinusoidal function, . The Fourier transform of  can be easily shown to be  ; the Fourier transform has mapped a sinusoid of frequency  in the action domain to a double frequency spike at  in the frequency domain.
+
+The Fourier transform has another related intuitive interpretation as a change of basis in the space of functions. The Fourier basis functions  make analytical operations convenient in much the same way as a choice of convenient basis in linear algebra makes certain matrix operations easier. Since the basis functions are periodic, the Fourier transform can also be viewed as a decomposition of the original function into cycles. Sometimes these cycles are written explicitly when the complex exponential  is expressed in polar form, which includes sines and cosines. Indeed, the , which we briefly discuss in Appendix , can be used to prove that any function on a bounded interval can be approximated arbitrarily well with a sum of sufficiently many such trigonometric terms.     
+   
+The  is defined as: 
+() {(2  g() e^{i ^} d,
+which has the property that, for any function ,
+
+
+} = f.
+
+Thus, we can recover the original function by applying the Fourier and inverse Fourier transforms. Just as the Fourier transform maps from the action domain to the frequency domain, the inverse Fourier transforms provides a mapping from the frequency domain back to the action-spatial domain .
+The Fourier transform also turns differentiation into multiplication:
+
+where  denotes the th order derivative of  w.r.t.
+We formalise the -dimensional Fourier transform in , and provide definitions for Fourier transforms of matrix and vector quantities. We also derive the differentiation/multiplication property in -dimensional space.
+
+
+
+ 
+In this section, we prove our main result. The motivating factor behind these derivations is that by viewing the inner integral  as a , we can analyse our policy gradient in the frequency domain. This affords powerful analytical results that enable us to exploit the multiplication/derivative property of Fourier transforms, namely manipulation of expressions involving the derivatives of our critic  in the action-spatial domain are represented simply by factors of  in the frequency domain. We apply this elegant property in  to demonstrate the relative ease of manipulation of the inner integral . In , we show that existing Monte Carlo policy gradient estimators arise from our theorem as a single family of cases using different factors  multiplied with the critic .
+
+Moreover, our theorems rely only on the characteristic function . While the original technique developed for EPG  relies on the moment generating function to obtain  for a policy from an exponential family and a polynomial family of critics, we require only that both the policy PDF and the critic have a closed form Fourier transform . For policies, this condition is easy to satisfy since almost all common distributions have a closed form characteristic function.
+
+
+
+
+
+We now derive a variant of our main theorem for the special case of .
+
+
+
+
+We use  to derive the following corollary, valid for all parameters  s.t.
+
+Let  be a parameter that does not depend upon . We can write  as:
+ 
+ 
+ _{()=^{-1}() ()).
+ 
+
+
+The required auxiliary policy  exists for all distributions  with unbounded support. For symmetric distributions,  often has a  convenient form, e.g., for a Gaussian policy , . This transformation is similar to reparameterisation . For critics, we discuss tractable critic families in the remainder of the paper.   
+
+
+
+We now discuss a number of specialisations of  and , linking them to several established policy gradient approaches. 
+
+
+
+
+We now motivate the remainder of this section by considering the Gaussian policy . We need to calculate the gradient w.r.t.  where . From the characteristic function for a multivariate Gaussian, , we find derivatives as:
+
+Substituting for  in  gives the gradient for . For completeness, we also include the update for  which, recall from , is the same for all policies with auxiliary function .
+
+
+We see from  and  that the terms , once pulled into the Fourier transform, become differentiation operators. However,  and  afford us a choice -- we can pull them into the critic term or the policy term. This gives rise to a number of different expressions for the gradient. To differentiate between methods, we define the order of the method, denoted by , the order of the derivative with respect to the critic.
+
+We continue our example of Gaussian policies, using  to compute an update for  for  and   to compute an update for  for . Full derivations with Gaussian derivatives can be found in .
+
+
+Using  and  in their current form gives an analytic expression for a zeroth order critic, as we do not multiply  by any factor of . Using results for multidimensional Fourier transforms from  and  when taking these inverse transforms, we obtain:
+
+Here, we use the identities  and  from .
+
+ To obtain an analytic expression in terms of , we must manipulate the factors of  in  and  to obtain a factor of . We then exploit the multidimensional Fourier transform result for vectors from  as before:
+
+
+
+We repeat the process, this time taking the derivative of  twice:
+
+Here, we exploit the multidimensional Fourier transform result for matrices from  in deriving the second line.
+
+
+
+We are going to revisit certain integrals from  using the following rule for deriving Monte Carlo estimators:
+ f(a) da  f(a)  Here, the quantity on the right is a sample-based approximation. We have the following approximations for the integrals given by equations (,,,,), which recall were defined for a Gaussian policy :
+
+
+The above equations summarise existing results for stochastic policy gradients estimators, which are applicable for  policy and critic. The zeroth-order results () correspond to standard policy gradient methods ; the first-order ones () correspond to reparameterisation-based methods ; and, when applied to a Gaussian policy, the second-order () of the update for  is a sample-based version of  , a special case of EPG. Note that interpolations between different estimators can also be used  as a method of reducing variance further. The full derivations for of the derivatives for the multivariate Gaussian are given in Appendix .
+
+
+
+In some settings, the action space of an MDP is naturally periodic, e.g., when actions specify angles. By using a trigonometric function in the critic, we encode the insight that rotating by  and by  leads to similar results, despite the fact that the two points lie on the opposite ends of the action range.
+
+Consider the case where the policy is Gaussian, i.e.,  and the critic  is a trigonometric function of the form 
+(a) = where , and  is the dimension of the action space. 
+
+While a policy gradient method involving a critic  of this form superficially resembles approximating the value function with the Fourier basis  for the state space, it is in fact completely different. Indeed, our method uses a Fourier basis to approximate a function of the , not the , which often has different structure. The dependence of  on the state can still be completely arbitrary (for example a neural network). 
+
+We seek to find the policy gradient update for this combination of critic and policy. First, we write out their Fourier transforms:
+
+Computing the inverse Fourier transform yields:
+
+
+^{-1}(() ())() = e^{- 
+A more detailed derivation of  can be found in . We now use  to obtain the policy gradients for the mean and the covariance.
+
+Intuitively, the mean update contains a frequency damping component , which is small for large , ensuring that the optimisation slows down when the signal is repeating frequently. The covariance update uses the same damping, while also making sure that exploration increases in the minima of the critic and decreases near the maxima, in a way slightly similar, but mathematically different, from Gaussian policy gradients .
+
+We evaluated a periodic critic of this form on a toy  where the goal is to rotate a flat record to the desired position by rotating it (see Appendix  for details). We compared it to the DPG baseline from OpenAI , which uses a neural network based critic capable of addressing complex control tasks. As expected, the learning curves in Figure  show that using a periodic critic (F-EPG) leads to faster learning, because  it encodes more information about the action space than a generic neural network. Our method efficiently uses this information in the policy gradient framework by deriving an exact policy gradient update. 
+
+
+
+
+
+ (RBFs)  have a long tradition as function approximators in machine learning and combine a simple, tractable structure with the universal approximation property . In this section, we analyse the elementary RBF building block -- a  RBF node.  Results on combining many such blocks are deferred to .
+
+Consider the setting where the policy is Gaussian, i.e.,  and the critic is an RBF . Although the critic  has the shape of a Gaussian PDF, it is not a random variable but simply an ordinary function parametrised by the location vector  and the positive-definite scale matrix , which occupy the place of the mean and the covariance. We want to find the policy gradient updates for the mean and the covariance. We begin the derivation by writing out the Fourier transforms for the policy and the critic:
+
+The inverse Fourier transform has the following form:
+
+Now, we substitute  and introduce the notation:
+
+E = (
+We now derive the policy gradients using  and properties of the derivative of the logarithm.
+
+The RBF Policy gradient simply minimises the Mahalanobis distance with the weight matrix . Also, since  is a positive scalar, for multi-dimensional action spaces, the multiplication by  in the gradients does not change the gradient direction, only the magnitude.
+
+For the mean update , this result is intuitive -- if we want our policy to reach the maximum of the RBF node (i.e., a bump) we simply minimise the distance between the current policy mean and the top of the bump. We now provide an additional variant of this result, based on natural policy gradients. The Fisher matrix for the Gaussian distribution parameterised by  (with the covariance kept constant) is simply , yielding the following update:
+
+Here, the symbol  denotes the identity matrix. The update given by  can be used in place of  to obtain a natural policy gradient method. Moving from a standard first order policy gradient to the natural policy gradient is simply a change in the weighting matrix of the Mahalanobis distance from   to . Furthermore, the Mahalanobis distance reduces to the unweighted  distance when . Intuitively, since the natural policy gradient takes the geometry of the space of distributions into account, a simpler update is obtained if this geometry is the same as the geometry of the RBF (as given by ). 
+
+
+
+In this section, we revisit Gaussian policy gradients  with the aim of contrasting it with the RBF derivation presented above. Gaussian policy gradients assume that the policy is Gaussian, i.e., , and the critic is quadric, i.e.,
+
+(a) = ^  + ^ +  = ( -  ( -   
+Here we denote by `const' some constant which always exists so that the above equality holds for . 
+
+In this setting we have that,
+
+Now, we compute the policy gradient for the mean:
+
+ (
+This is almost the same as , except for a positive scaling factor and the fact that,  need not be positive-definite (unlike the matrix  from the definition of the RBF.). This illustrates both the similarities and differences between Gaussian policy gradients, which uses quadrics, and the updates given by , which is based on RBFs. The similarity is that we are minimising a quadratic form, while the difference is that the quadratic form used by RBF comes from a more restrictive family (i.e., it has to be positive definite). However, RBFs also have some advantages over quadrics in that they are bounded both from above and below.    
+
+
+
+We now consider the case when the critic  is a linear combination, i.e.,  for some . The main observation is that the integral  is linear in the critic, i.e., for any parameter  we have that, 
+
+_i + ( } _i ) d   _i = 
+
+Thus, we can compute the policy gradient update for each component of the critic separately, and then use a linear combination of the updates. If each of these components is in a tractable family, such as a trigonometric function (Section ), an RBF (Section ) or a polynomial , the whole update is also tractable. In this way, we can use critics consisting not just of of a superposition of functions from a single family (like a Fourier basis, which consists of different trigonometric functions), but also hybrid ones, combining functions from many families. 
+
+All these three categories of critics have their corresponding universal approximation result, implying that a linear combination of a sufficient number of functions from that class alone is rich enough to approximate any reasonable function on a bounded interval to arbitrary accuracy. Indeed, we have the Weierstrass theorem about linear combinations of monomials , the result by  for linear combinations of RBFs, and the Fourier series approximation for linear combinations of trigonometric functions (see Appendix ). 
+
+These results show that, in principle, we can have analytic updates for a critic matching  -function, and hence any MDP, without the need for Monte Carlo sampling schemes similar to , with no sampling noise (given the state) and with virtually no computational overhead relative to stochastic policy gradients. However, there remain two obstacles. First, for a finite number of basis functions, the approximation may introduce spurious local minima that are harmful to any local optimisation method. Second, even when local minima are not a problem, there is a case for using a degree of sampling in case we believe that our critic  is biased -- some sampling methods allow the use of direct reward rollouts to address bias. We believe that the practical impact of our analytic results and the question of which critic combination to use is yet to be determined.       
+
+
+
+We now consider mixture policies of the form , where   and . Similarly to the previous section, we use the linearity of the integral:
+
+
+_{ + (E_{,   = } () ) d  
+ _{ = .
+
+The two most common types of components for the policy are Gaussian and the deterministic policy (i.e., a Dirac-delta measure). Hence, using , we can obtain a policy gradient method for policies that have several modes (modelled with Gaussians) as well as several focussed (discrete) points. Of course, we can also use any other distribution with a characteristic function by substituting into . We believe that such policies can be particularly useful in multi-agent settings, where the concept of finding a maximum of the total expected return generalises to finding a Nash equilibrium and it is known that some Nash equilibria admit only stochastic policies . It is also possible to have  a mixture policy and a hybrid critic. We do not give the formula, since it is straightforward to derive. 
+
+
+This paper developed new theoretical tools for deriving policy gradient updates, showing that expected policy gradients are tractable in three important classes of critics and for almost all policies. We also discussed a framework for deriving estimators for stochastic policy gradients, which generalises existing approaches. Moreover, we addressed the setting of MDPs with periodic action spaces and described an experiment demonstrating the benefits of explicitly modelling periodicity in a policy gradient method.
+
+
+This project has received funding from the European Research Council (ERC) under the European Union's Horizon 2020 research and innovation programme (grant agreement number 637713), and the Engineering and Physical Sciences Research Council (EPSRC).
+
+
+
+ 
+
+
+Formally, the Fourier series is an expansion of a periodic function  of period  in terms of an infinite summation of sines and cosines. For clarity, we give the univariate case -- the multivariate result can be found in literature. 
+f(x)=u_0+^{u_m^{v_mwhere  and the coefficients for the series are:
+
+By writing sine and cosine terms in their complex exponential forms, it is possible to define a complex Fourier series for real valued functions as
+
+ and  are equivalent if we set  as:
+c_m=
+{2}(u_m+iv_m) & m<0,u_0 & m=0,{2}(u_m-iv_m) & m>0.
+
+In reality, we cannot sum to infinity and instead use the series to approximate  to a finite value of . Just as a Taylor series approximation becomes more accurate by using higher and higher order polynomials , a Fourier series expansion becomes more accurate by using sinusoids of higher and higher frequencies . However, a Fourier series approximation approximates the function over its whole period, whereas the Taylor series does so only in a local neighbourhood of the given point.
+
+Although the Fourier series is defined for periodic functions, it is still applicable to aperiodic functions. For bounded aperiodic functions, we define the period  to be the size of the domain of  and then integrate over this domain to obtain the Fourier coefficients. Intuitively, this is equivalent to repeating the bounded function periodically over an infinite domain. Aperiodic functions that are not bounded may be approximated by defining Fourier series over a bounded region of the function. As the size of this bounded region increases, and consequently the period  increases, the Fourier series approximation becomes more accurate and approaches a Fourier transform. Thus, for aperiodic unbounded functions, a Fourier series approximates a Fourier transform. 
+
+We now formalise the idea of taking the limit of the period going to infinity () for a complex Fourier series representation of any general function . Firstly, it is convenient to rewrite  as:
+f(x)={2^{m=f(x')e^{-imdx'e^{imTaking the limit as   gives 
+f(x)={2 f(x')e^{-idx'}^{}d_{}},
+which is exactly equivalent to .
+
+The integrals in the definition of the Fourier transform arise from taking a Fourier series representation of a function and letting the number of coefficients go to infinity.  
+
+ -Dimensional Fourier Transforms}
+
+Firstly, we make the definition of a -dimensional Fourier transform precise: Consider a function . For  and , we have:
+
+The corresponding -Dimensional  inverse Fourier transform is defined as:
+
+We define the Fourier transform of a vector/matrix quantity as simply the Fourier transform of individual elements of the vector/matrix. For example, the Fourier transform of matrix   is found from:
+
+And similarly for the inverse Fourier transform:
+
+
+
+We now derive multi-dimension analogues to the single dimension multiplication-derivative property, which we state here:
+
+ {f()}=i(f()).
+
+Proofs of  are commonplace in Fourier Analysis references .
+We start with a vector identity:
+
+[Multiplication-Derivative Property: Vectors]
+
+Given a function  with Fourier transform , multiplying  by the vector  in the frequency domain is equivalent to taking the first order derivative  in the action domain, that is:
+
+i)}=(}f()).
+
+
+ 
+
+
+We now derive a similar identity for matrices:
+[Multiplication-Derivative Property: Matrices]
+
+Given a function  with Fourier transform , multiplying  by the matrix  in the frequency domain is equivalent to taking the second order derivative  in the action domain, that is:
+
+(i)(i)^)}=_{}f()}.
+
+
+ 
+
+
+
+ Auxiliary Function Properties}
+[th Order Derivative of Auxiliary Function]
+
+Given an auxiliary function  for a policy , we may relate the -th order derivative of  w.r.t.  to the th order derivative of  w.r.t.  as:
+
+-)=(-1)^n_{})
+
+ 
+
+
+
+ 
+The turntable domain is a toy continuous control task. The goal is to align a disk to a desired angle by rotating it around its axis. The action is an angle in the range  and the observations are the current position of the disk and the target position, both expressed as angles. The reward is set to . For DPG, we used the OpenAI baseline implementation, where both the actor and the critic are represented using neural networks. For Fourier-EPG, we used the same setup but changed the critic to be trigonometric critic of the form  with a tuneable weight  and the actor update given by Equation . The exploration policy was Gaussian with fixed standard deviation  in both cases.
+
+
+We derive specific analytical solutions for the Gaussian policy  from . The following identities  will be useful:
+
+
+
+Substituting for  from  and  from  in  and  respectively, we obtain our analytic expression:
+
+
+
+Substituting for  from  in , we obtain our analytic expression:
+
+
+ 
+
+{2.1}
+Let  be a parameter that does not depend upon . We can write  as:
+ 
+ _{()=^{-1}() ()).
+ 
+
+
+
+
+
+We now derive the analytic update from  for our periodic critic. Firstly, for ease of analysis we re-write our critic using the hyperbolic function:
+
+Taking the Fourier transform yields:
+
+Recall that the characteristic function of the Gaussian auxiliary function is . Now taking inverse Fourier transforms of  yields:
+ 
+^{-1}(() ())()={(2() ()e^{id= ==e^{-+e^{-i(}{2}=e^{-
+where we have used the hyperbolic definition of  to derive our desired result in the final line. 
+
+
+
+% Codrina Lauth. Alex Smola contributed to the algorithmic style files.

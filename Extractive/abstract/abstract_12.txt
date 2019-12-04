@@ -1,0 +1,16 @@
+
+Significant research has been conducted in recent years to extend
+Inductive Logic Programming (ILP) methods to induce Answer Set Programs (ASP). 
+These methods perform an exhaustive search for the correct 
+hypothesis by encoding an ILP problem instance as an ASP program. 
+Exhaustive search, however, results in loss of scalability. In addition, the language bias employed
+in these methods is overly  restrictive too. In this paper we extend our previous
+work on learning stratified answer set programs that have a single stable model
+to learning arbitrary (i.e., non-stratified) ones with multiple stable models.
+Our extended algorithm is a greedy FOIL-like algorithm, capable of inducing 
+non-monotonic logic programs, examples of which includes programs for 
+combinatorial problems such as graph-coloring and N-queens. To the best of our 
+knowledge, this is the first heuristic-based ILP algorithm to induce answer set programs
+with multiple stable models.      
+
+as Failure 

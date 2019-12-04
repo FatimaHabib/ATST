@@ -1,0 +1,1 @@
+ Bob). . The question we are trying to answer is: . PPs). PNs). . (D) For LRP, positive relevance of FCs is depicted in a similar manner as in (C).} Fig. 3C). 3A). 3C). 3D). Again, both of the first two convolution layers have a ReLU activation function applied to the outputs of the 16 filters, each with a  kernel. Again, the same trend holds for pertinent negatives.

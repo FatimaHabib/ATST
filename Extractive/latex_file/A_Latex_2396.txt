@@ -1,0 +1,1022 @@
+
+\documentclass{French}%{parris}
+\usepackage{latexsym}
+\usepackage[french]{babel}
+\usepackage{psfrag}
+\usepackage{amsmath}
+\usepackage{amssymb}
+%\usepackage{titlesec}
+%\usepackage{fontspec}
+%\defaultfontfeatures{Ligatures=TeX}
+%\usepackage{titlesec}
+\renewcommand\refname{\textcolor{BibBlue}{Bibliographie}}
+%\setsansfont{Arial}
+%\setmainfont{Times New Roman}
+\newcommand{\absname}{\abstractname \MakeUppercase}
+%\newcommand{\kew}{MOTS-CL\'{E}S}
+%\newtheorem{remark}{Remarque}[section]
+\begin{document}
+\subh{Two competing improvements of PID controllers$\Huge{:}$ A comparison %Model-free control \textit{vs} active disturbance rejection control
+}
+\author{Michel Fliess\ts{1,3} et Cédric Join\ts{2,3,4}}
+\aff{\removelastskip \ts{1}LIX (CNRS, UMR 7161), \'Ecole polytechnique, 91128 Palaiseau, France, Michel.Fliess@polytechnique.edu\\
+\ts{2}CRAN (CNRS, UMR 7039), Université de Lorraine, BP 239, 54506 Vand{\oe}uvre-lès-Nancy, France, Cedric.Join@univ-lorraine.fr\\
+\ts{3}AL.I.E.N. (ALgèbre pour Identification \& Estimation Numériques), 7 rue Maurice Barrès, 54330 Vézelise, France, \{michel.fliess, cedric.join\}@alien-sas.com \\
+\ts{4}Projet Non-A, INRIA Lille -- Nord-Europe, France}
+%\aff{\removelastskip \ts{2}AL.I.E.N. (ALgèbre pour Identification & Estimation Numériques), 7 rue Maurice Barrès, 54330 VEZELISE, France}
+%\aff{\removelastskip \ts{3}CRAN (CNRS, UMR 7039), Université de Lorraine, BP 239, 54506 Vand?uvre-lès-Nancy, France, Cedric.Join@univ-lorraine.fr}
+%\aff{\removelastskip \ts{4}Projet Non-A, INRIA Lille ? Nord-Europe, France}
+
+
+
+
+
+\resu{Aujourd'hui, \og{commande sans modèle}\fg, ou \og{MFC}\fg, et \og{commande par rejet actif de perturbations}\fg, ou \og{ADRC}\fg, sont les approches les plus en vue pour préserver les avantages des PID, si populaires dans l'industrie, tout en atténuant leurs carences. Après un bref rappel sur MFC et ADRC, plusieurs exemples démontrent la supériorité du sans-modèle car permettant d'embrasser une classe beaucoup plus vaste de systèmes.} 
+\abstract{In today's literature \emph{Model-Free Control}, or \emph{MFC}, and \emph{Active Disturbance Rejection Control}, or \emph{ADRC}, are the most prominent approaches in order to keep the benefits of PID controllers, that are so popular in the industrial world, and in the same time for attenuating their severe shortcomings. After a brief review of MFC and ADRC, several examples show the superiority of MFC, which permits to tackle most easily a much wider class of systems.}
+\moi{\textbf{\textcolor{AbsBlue}{MOTS-CL\'{E}S.}}\hphantom{--} PID, commande sans modèle, commande par rejet actif des perturbations, commande par platitude}
+\kwd{PID, model-free control, MFC, active disturbance rejection control, ADRC, flatness-based control}
+
+\chapter{Deux améliorations concurrentes des PID}
+\begin{flushright}
+Ce que l'esprit voit le c{\oe}ur le ressent. \\
+Malraux (\textit{La Condition humaine}, Paris: Gallimard, 1933)
+\end{flushright}
+
+\section{Introduction \vspace*{-5truemm}
+}
+%\rmfamily
+On conna\^{\i}t la domination, écrasante dans l'industrie, des correcteurs de type \og{proportionnel-intégral-dérivé}\fg, ou \og{PID}\fg \ (voir, par exemple, \cite{astrom},  \cite{murray}, \\ \cite{od}). \`A côté d'avantages aussi considérables que reconnus, singulièrement la simplicité conceptuelle et l'inutilité d'une modélisation mathématique, des manques flagrants conduisant trop souvent à une mise en {\oe}uvre pénible et à des performances médiocres. La recherche universitaire, si active en automatique, dite parfois \og{moderne}\fg \ depuis plus de cinquante ans, y trouve en bonne part sa motivation. Elle suppose fréquemment une description par équations différentielles ou aux différences. Ses contributions, théoriques et pratiques, sont incontestables (voir, par exemple, \cite{murray}, \\ \cite{kumar}). Afin de ne pas trop alourdir cette publication, contentons-nous, ici, de citer deux apports, aux applications aussi nombreuses que diverses: le filtre de Kalman \cite{kalman1,kalman2} et la platitude \cite{flmr1,flmr2}.
+
+Durant toutes ces années, on a tenté à maintes reprises, avec, semble-t-il, un succès mitigé jusqu'à récemment, de garder les avantages des PID tout en gommant leurs défauts. Deux voies, plutôt nouvelles, prévalent à l'heure actuelle:
+\begin{enumerate}
+\item la \og{commande sans modèle}\fg \ \cite{ijc13}, ou \emph{model-free control}, désignée ici par \emph{MFC}, son acronyme anglais;
+\item la \og{comande par rejet actif de perturbations}\fg, ou \emph{active disturbance rejection control}, désignée aussi par son acronyme anglais, \emph{ADRC}. Cette méthode, issue avant tout des travaux de \cite{han} en Chine, a été développée par divers auteurs. Voir, par exemple,
+\begin{itemize}
+\item les articles signés par \cite{aguil}, \cite{feng}, \cite{gao}\footnote{Certains auteurs, comme \cite{gao}, ont voulu faire remonter quelques-uns des principes de l'ADRC plus haut dans le temps, à \cite{poncelet} en particulier.}, \\ \cite{pde}, \cite{huang}, \cite{inoue}, \cite{qi}, \\ \cite{madon2}, \cite{polo}, \cite{tav}, \\ \cite{vincent}, \cite{wu}, \cite{yao},  \cite{zhang}, \\ \cite{zheng0});
+\item les livres de \cite{guo} et \cite{sira3}.
+\end{itemize}
+\end{enumerate}
+MFC et ADRC ont permis bien des applications, parfois spectaculaires. Les bibliographies des références plus haut sur l'ADRC en fournissent une liste assez complète. Pour le MFC, renvoyons à la bibliographie de \cite{ijc13}, à \cite{alinea,bldg} et à leurs références.
+
+Des adeptes de l'ADRC ont publié des critiques, aussi vives qu'infondées, contre le MFC (voir, par exemple, \cite{madon1}). L'ignorance totale chez d'autres, comme \cite{guo}, des techniques du MFC aboutit à un exposé partial. Certains, comme \cite{cortes}, effacent l'écart béant les séparant.  Cet article use d'un droit de réponse légitime. Il vise à rétablir les faits, en exploitant, après avoir résumé les deux approches, plusieurs exemples académiques\footnote{Aux lecteurs de comparer les applications concrètes grâce aux références bibliographiques. Une telle évaluation est, dans le cadre de cet article, impossible.}. Puisse une discussion ouverte et fructueuse s'ensuivre\footnote{L'importance pour l'ADRC de la contribution chinoise est décisive. On doit souligner d'autant plus la grande qualité de maints travaux en Chine sur le MFC (voir, par exemple, \cite{ticher,wang17,wang16,delayzhang}).}.
+
+Le paragraphe 2 résume MFC et ADRC. On s'y inspire pour l'ADRC du nouveau livre \\ \cite{sira3}, plus clair. Le suivant exhibe des simulations numériques,  qui vont du linéaire au non-linéaire en terminant par une équation aux dérivées partielles. Ils tendent à prouver la supériorité du sans-modèle. La conclusion évoque aussi: 
+\begin{enumerate}
+\item l'influence sur la compréhension de questions naturelles; 
+\item les retards; 
+\item les équations aux dérivées partielles. 
+\end{enumerate}
+
+
+
+
+
+\section{Les deux approches}\label{rap}
+\subsection{MFC}\label{mfc}
+
+%\subsubsection{\itshape Principes}
+\subsubsection{\itshape Emploi d'un théorème d'approximation}
+On se restreint, afin de simplifier l'écriture, à un système \emph{SISO}\footnote{Acronyme de \emph{Single-Input Single-Output}.}, c'est-à-dire avec une seule commande $u$ et une seule sortie $y$. On suppose la \og{fonctionnelle}\fg \ correspondant à $y$, c'est-à-dire la fonction de la fonction $u$, \emph{causale}, ou
+\emph{non-anticipative}: 
+\begin{equation}\label{functional}
+\forall t > 0, \quad y(t) = \mathcal{F}\left( u(\tau) ~ | ~ 0 \leqslant \tau \leqslant t \right)
+\end{equation}
+$\mathcal{F}$ dépend
+\begin{itemize}
+\item du présent et du passé, mais pas du futur;
+\item de perturbations variées;
+\item de conditions initiales en $t = 0$.
+\end{itemize}
+
+\textbf{Exemple}.
+Populaires en automatique (voir, par exemple, \cite{lamnabhi,rugh}) et dans divers domaines des sciences appliquées, les \og{séries de Volterra}\fg \  sont des fonctionnelles du type 
+\begin{align*}\label{vs}
+y(t) = & h_0(t) + \int_0^t h_1(t, \tau) u(\tau) d\tau + \\ &
+\int_0^t \int_0^t h_2(t, \tau_2, \tau_1) u(\tau_2) u(\tau_1) d\tau_2
+d\tau_1 + \dots \\
+& \int_0^t \dots \int_0^t h_\nu(t, \tau_\nu, \dots, \tau_1)
+u(\tau_\nu) \dots u(\tau_1) d\tau_\nu \dots d\tau_1  \\ & + \dots
+\end{align*}
+Elles apparaissent, notamment, comme solutions d'équations différentielles ordinaires assez générales (voir, par exemple, \cite{lamnabhi}, \cite{rugh} et \cite{volt}).
+
+On introduit
+\begin{itemize}
+\item un compact $\mathcal{I} \subset [ 0, + \infty [$;
+\item un compact $\mathcal{C} \subset C^0 (\mathcal{I})$, où $C^0 (\mathcal{I})$ est l'ensemble des fonctions continues $\mathcal{I} \rightarrow \mathbb{R}$, muni de la topologie de la convergence uniforme.
+\end{itemize}
+Soit $\mathfrak{S}$ la $\mathbb{R}$-algèbre de Banach des fonctionnelles \eqref{functional}, causales et continues, $\mathcal{I} \times \mathcal{C} \rightarrow \mathbb{R}$.
+D'après le théorème de Stone-Weierstra{\ss} (voir, par exemple, \cite{choquet,rudin}), toute sous-algèbre, contenant une constante non nulle et séparant les éléments de $\mathcal{I} \times \mathcal{C}$, est dense dans $\mathfrak{S}$.
+Soit $\mathfrak{A} \subset \mathfrak{S}$ l'ensemble des fonctionnelles satisfaisant des équations différentielles algébriques du type
+\begin{equation}\label{eq}
+E(y, \dot{y}, \dots, y^{(a)}, u, \dot{u}, \dots, u^{(b)}) = 0
+\end{equation}
+où $E$ est un polynôme à coefficients réels. Selon \cite{ijc13}, $\mathfrak{A}$ est dense dans $\mathfrak{S}$. 
+Il est ainsi loisible de supposer que le système considéré est \og{bien}\fg \ approché  par un système \eqref{eq}. Soit un entier $\nu$, $1 \leqslant \nu \leqslant a$, tel que
+$$
+\frac{\partial E}{\partial y^{(\nu)}} \not\equiv 0
+$$
+D'où, localement, d'après le théorème des fonctions implicites,
+$$
+y^{(\nu)} = \mathcal{E}(y, \dot{y}, \dots, y^{(\nu - 1)}, y^{(\nu +
+1)}, \dots, y^{(a)}, u, \dot{u}, \dots, u^{(b)})
+$$
+Il en découle le système \og{ulta-local}\fg
+\begin{equation}
+\boxed{y^{(\nu)} = F + \alpha u} \label{ultralocal}
+\end{equation}
+Souvent, en pratique, on sélectionne $\nu = 1$. Voir \cite{ijc13} pour une explication. On rencontre parfois $\nu = 2$. Jamais plus. Le praticien choisit $\alpha \in \mathbb{R}$ tel que les trois termes de \eqref{ultralocal} aient le même ordre de grandeur. Il en découle qu'une identification précise du paramètre $\alpha$ est sans objet.
+
+\subsubsection{PID intelligents}
+Reprenons \eqref{ultralocal} avec $\nu = 2$. Un \og{PID intelligent}\fg, ou \og{iPID}\fg, est défini par
+\begin{equation}\label{ipid}
+\boxed{u = - \frac{F_{\text{est}} - \ddot{y}^\ast - K_P e - K_I \int e  - K_D \dot{e}}{\alpha}}
+\end{equation}
+où
+\begin{itemize}
+\item $y^\ast$ est la trajectoire de référence;
+\item $e = y - y^\ast$ est l'erreur de poursuite;
+\item $K_P, K_I, K_D \in \mathbb{R}$ sont les gains;
+\item $F_{\text{est}}$ est une estimée de $F$.
+\end{itemize}
+Il vient
+\begin{equation}\label{err2}
+\ddot{e} = K_P e + K_I \int e + K_D \dot{e}  + F - F_{\text{est}} 
+\end{equation}
+Si l'estimée $F_{\text{est}}$ est \og{bonne}\fg, c'est-à-dire $F - F_{\text{est}} \backsimeq 0$, déterminer les gains est immédiat pour obtenir une \og{bonne}\fg \ poursuite. C'est un avantage important par rapport aux PID classiques.
+
+Si $K_D = 0$, on a un \og{PI intelligent}\fg, ou \og{iPI}\fg,
+\begin{equation}\label{ipi}
+\boxed{u = - \frac{F_{\text{est}} - \ddot{y}^\ast - K_P e - K_I \int e}{\alpha}}
+\end{equation}
+Si $K_I = 0$, on a un \og{PD intelligent}\fg, ou \og{iPD}\fg,
+\begin{equation}\label{ipd}
+\boxed{u = - \frac{F_{\text{est}} - \ddot{y}^\ast - K_P e - K_D \dot{e}}{\alpha}}
+\end{equation}
+Avec $\nu = 1$, on aboutit à un \og{P intelligent}\fg, ou \og{iP}\fg, 
+\begin{equation}\label{ip}
+\boxed{u = - \frac{F_{\text{est}} - \ddot{y}^\ast - K_P e}{\alpha}}
+\end{equation}
+C'est le correcteur le plus courant dans la pratique du MFC\footnote{Voir, à ce sujet, \cite{ijc13} et \cite{iste}.}. La dynamique \eqref{err2} devient
+$$
+\dot{e} = K_P e  + F - F_{\text{est}} 
+$$
+\begin{remark}
+On démontre \cite{andr,ijc13} qu'un iP (resp. iPD) est équivalent, en un certain sens, à un PI (resp. PID) classique. On comprend ainsi, sans doute pour la première fois, 
+\begin{itemize}
+\item l'universalité industrielle des PID,
+\item la difficulté de leur réglage.
+\end{itemize}
+\end{remark}
+\begin{remark}\label{mimo}
+Dans tous les exemples \emph{MIMO}\footnote{Acronyme de \emph{Multi-Input Multi-Output}.} concrets rencontrés jusqu'à présent, on a toujours pu se ramener à des systèmes de type \eqref{ultralocal} en parallèle ou en cascade. La mise en place des correcteurs intelligents reste donc facile (voir \cite{quad,toulon,ieee17})\footnote{Aucun exemple concret n'a été découvert jusqu'à présent où cette approche est prise en défaut. Le \og{découplage}\fg, qui a suscité une recherche aussi abondante que prolixe en automatique théorique, linéaire ou non, est mis en question. Est-il besoin de rappeler une conclusion analogue \cite{ijc13}  à propos de la \og robustesse \fg?}.
+\end{remark}
+
+\subsubsection{Estimation de $F$}\label{2}
+On peut approcher toute fonction $[a, b] \rightarrow  \mathbb{R}$, $a, b \in \mathbb{R}$, $a < b$, intégrable, c'est-à-dire très générale, par une fonction constante par morceaux (voir, par exemple, \cite{godement}, \cite{rudin1}). Par utilisation de fenêtres temporelles glissantes, l'estimation de $F$ se ramène ainsi à celle d'une constante $\Phi$. On présente, pour rester court, les calculs dans le cas $\nu = 1$. Les règles du calcul opérationnel (voir, par exemple, \cite{erde}) permettent de rééecrire
+\eqref{ultralocal} ainsi
+$$
+sY = \frac{\Phi}{s}+\alpha U +y(0)
+$$
+On élimine la condition initiale $y(0)$ en dérivant les deux membres par $\frac{d}{ds}$:
+$$
+Y + s\frac{dY}{ds}=-\frac{\Phi}{s^2}+\alpha \frac{dU}{ds}
+$$
+On atténue le bruit en multipliant les deux membres par $s^{-2}$. La correspondance entre $\frac{d}{ds}$ et le produit par $-t$ permet de revenir au domaine temporel:
+\begin{equation}\label{integral1}
+{\small \boxed{F_{\text{est}}(t)  =-\frac{6}{\tau^3}\int_{t-\tau}^t \left\lbrack (\tau -2\sigma)y(\sigma)+\alpha\sigma(\tau -\sigma)u(\sigma) \right\rbrack d\sigma} }
+\end{equation} 
+où 
+\begin{itemize}
+\item $\tau > 0$ est \og{petit}\fg \ par rapport à la constante de temps la plus rapide;
+\item $F_{\text{est}}(t)$ est la valeur numérique constante sur l'intervalle d'intégration attribuée à $F$.
+\end{itemize}
+On obtient \eqref{integral1} en temps réel.
+
+On estime $F$, aussi en temps réel, par une formule différente grâce à \eqref{ip}:
+\begin{equation}\label{integral2}
+\boxed{F_{\text{est}}(t) = \frac{1}{\tau}\left[\int_{t - \tau}^{t}\left(\dot{y}^{\star}-\alpha u
+- K_P e \right) d\sigma \right] }
+\end{equation}
+Après échantillonnage, \eqref{integral1} et \eqref{integral2} deviennent des filtres linéaires.
+
+\begin{remark}
+Au début, on estimait $F$ en utilisant un dérivateur \cite{mboup}  de $y$.
+\end{remark}
+\begin{remark}
+Voir \cite{larminat} et \cite{carillo} pour d'autres approches de l'estimation.
+\end{remark}
+
+\subsection{ADRC}
+On se conforme à l'usage, contraire à celui du MFC, en présentant l'ADRC par une équation différentielle:
+\begin{equation}\label{adrc0}
+y^{(n)}(t) = f\left(t, y(t), \dot{y}(t), \dots, y^{(n - 1)}(t)\right) + w(t) + a(t,y(t)) u(t)
+\end{equation}
+où
+\begin{itemize}
+\item la fonction $a \neq 0$ est connue;
+\item l'ordre de dérivation $n \geqslant 1$ l'est aussi;
+\item la fonction $f$, appelée, parfois, \og{perturbation interne}\fg, ou \og{endogène}\fg, l'est mal\footnote{Cet emploi du mot \og{perturbation}\fg \ pour désigner la structure mathématique du système nous semble malheureux.};
+\item $w$ est une \og{perturbation externe}\fg, ou \og{exogène}\fg.
+\end{itemize}
+La some $f + w$ est la \og{perturbation totale}\fg. 
+
+En ignorant $w$, \eqref{adrc0} devient:
+\begin{equation}\label{adrc1}
+y^{(n)}(t) = f\left(t, y(t), \dot{y}(t), \dots, y^{(n - 1)}(t)\right) + a(t,y(t)) u(t)
+\end{equation}
+\cite{ibero} a observé que \eqref{adrc1} vérifie la propriété de platitude et que la sortie $y$ est plate\footnote{C'est dire, rappelons-le, que $u$ s'exprime comme fonction de $y$ et de ses dérivées jusqu'à un ordre fini. On connaît la richesse de la littérature sur la platitude: voir, par exemple, \cite{murray}, \cite{levine}, \cite{riga}, \cite{tarbes}, \cite{rudolph}, \cite{sira1}, et leurs bibliographies.}. Si l'on emploie un \og{correcteur proportionnel intégral généralisé}\fg \ \cite{gpi}, ou \og{GPI}\fg, le \og{filtrage plat}\fg \  (\emph{flat filtering}),
+\cite{sira4}, ou les techniques algébriques d'estimation (\cite{identif1,identif2,identif3},  et \\ \cite{sira2}),  l'approche de l'ADRC s'en trouve d'autant plus simplifiée \\ (\cite{cortes,sira3}). La distance considérable entre la voie prise par Sira-Ram\'{\i}rez, ses collaborateurs et les autres protagonistes de l'ADRC (voir, en particulier, le livre \cite{guo}) rend messéant, on en conviendra, un résumé plus complet.
+
+
+\section{\'Eléments de comparaison}
+
+\subsection{Prolégomènes}
+Posons $\mathfrak{F} = f + w$. Avec cette notation de la perturbation totale, \eqref{adrc0} devient
+\begin{equation}\label{adrc2}
+y^{(n)} = \mathfrak{F}  + a u(t)
+\end{equation}
+à comparer à \eqref{ultralocal}, si l'on suppose $a$ constant, propriété usuelle, du reste, dans la présentation de l'ADRC:
+\begin{enumerate}
+\item la platitude ne joue aucun rôle en MFC, alors qu'elle est essentielle en ADRC avec, en plus, la nécessité pour $y$ en \eqref{adrc1} d'être une sortie plate\footnote{Ce fait est trop souvent ignoré par les tenants de l'ADRC.};
+\item en cas de non-platitude, l'ADRC  doit, par, exemple se satisfaire du système linéaire variationnel, ou tangent, qui est plat s'il est commandable (voir \cite{furuta}, \\ \cite{sira3} pour le pendule dit, souvent, de Furuta);
+\item $a$ en \eqref{adrc0}-\eqref{adrc1}-\eqref{adrc2} est connu, alors qu'$\alpha$ en \eqref{ultralocal} est ajusté approximativement par l'opérateur\footnote{De façon plus générale, la machinerie pour l'estimation et l'identification semblent moins simple avec l'ARDC.};
+\item l'ordre $n$ de dérivation en \eqref{adrc0}-\eqref{adrc1}-\eqref{adrc2} est connu et, donc, imposé, alors que $\nu$ en \eqref{ultralocal} est choisi par l'opérateur avec, toujours jusqu'à présent, une valeur faible, $1$ ou $2$.
+\end{enumerate}
+D'où la sélection d'exemples ci-dessous: ils n'entrent pas dans le cadre \textit{a priori} de l'ADRC. 
+
+\subsection{Un système linéaire}
+%\textcolor{red}{Une fonction de transfert avec un dénominateur de degré $\geq 3$ serait préférable.}
+
+Pour un système linéaire stationnaire, de dimension finie, commandabilité et platitude sont équivalentes \cite{flmr1}. Pour un système SISO, la sortie $y$ est plate si, et seulement si, le numérateur de la fonction de transfert est constant \cite{lin}. Considérons donc le système défini par la fonction de transfert à numérateur non constant\footnote{Ce cas est d'autant plus éloquent qu'une présentation pour ingénieurs de l'ADRC \cite{herbst} ne considère que des fonctions de transfert à numérateurs constants.}:
+$$
+\frac{(s+2)^2}{(s-2)(s-1)(s+1)}
+$$
+Ici, un modèle ultralocal du premier ordre est utilisé avec $\alpha = K_p = 1$.
+Un bruit additif, blanc, gaussien, centré, d'écart type 0.01, affecte la sortie. Les figures {\ref{L1u}} et {\ref{L1y}} présentent les résultats avec une période d'échantillonnage de $T_e=10$ms. La poursuite de la trajectoire de référence y est excellente comme le montre le tracé figure {\ref{L1e}}. Pour cet exemple, contrairement à ce qui suit, on représente la trajectoire par une courbe de Bézier \cite{Bez,abra} qui permet aisément des dérivées nulles en début et en fin.
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=5.19in,height=2.83in]{L2b_u.pdf}}
+\caption{\textit{\sffamily Commande }}
+\label{L1u}
+\end{figure}
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=5.19in,height=2.83in]{L2b_y.pdf}}
+\caption{\textit{\sffamily Sortie }}
+\label{L1y}
+\end{figure}
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=5.19in,height=2.83in]{L2b_e.pdf}}
+\caption{\textit{\sffamily Erreur de poursuite }}
+\label{L1e}
+\end{figure}
+
+\subsection{Cas non linéaires}
+
+\subsubsection{Cas 1 \label{C1}}
+Avec 
+$$
+\dot y-y= {\text{sign}} (u).\sqrt{|u|}
+$$
+on utilise \eqref{ultralocal} avec $\nu = 1$, $\alpha = 0.1$, $K_P = 1$. Un bruit additif, gaussien, centré, d'écart-type $0.05$, affecte la sortie. Avec une période d'échantillonnage $T_e = 10$ms, les simulations, reportées sur les figures 
+{\ref{NL1u}}, {\ref{NL1y}} et {\ref{NL1e}}, attestent d'une poursuite de trajectoire irréprochable.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=5.19in,height=2.83in]{NL1_u.pdf}}
+\caption{\textit{\sffamily Commande }}
+\label{NL1u}
+\end{figure}
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=5.19in,height=2.83in]{NL1_y.pdf}}
+\caption{\textit{\sffamily Sortie }}
+\label{NL1y}
+\end{figure}
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=5.19in,height=2.83in]{NL1_e.pdf}}
+\caption{\textit{\sffamily Erreur de poursuite }}
+\label{NL1e}
+\end{figure}
+
+\subsubsection{Cas 2}
+Avec
+$$\ddot y-1.5\dot y-y=(u+\dot u)^3$$
+on choisit, pour \eqref{ultralocal}, $\nu = 1$, $\alpha = K_P = 10$. Avec un bruit sur $y$, additif, blanc, gaussien, centré, d'écart-type $0.01$, et un échantillonnage de période $T_e = 10$ms, la poursuite de trajectoire, exhibée par les figures 
+{\ref{NL2u}}, {\ref{NL2y}} et {\ref{NL2e}} est bonne.
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=5.19in,height=2.83in]{NL2_u.pdf}}
+\caption{\textit{\sffamily Commande }}
+\label{NL2u}
+\end{figure}
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=5.19in,height=2.83in]{NL2_y.pdf}}
+\caption{\textit{\sffamily Sortie }}
+\label{NL2y}
+\end{figure}
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=5.19in,height=2.83in]{NL2_e.pdf}}
+\caption{\textit{\sffamily Erreur de poursuite }}
+\label{NL2e}
+\end{figure}
+
+\subsubsection{Cas 3}
+Avec
+$$
+\ddot y+3\dot y+2y = \text{sign} (u).10^{|u|}
+$$
+$\nu = 1$, $\alpha = 10$, $K_P = 1$ en \eqref{ultralocal}. Les résultats des figures {\ref{NL3u}}, {\ref{NL3y}} et {\ref{NL3e}} sont excellents.
+
+%\textcolor{red}{bruit? échantillonnage?}
+
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=5.19in,height=2.83in]{NL3_u.pdf}}
+\caption{\textit{\sffamily Commande }}
+\label{NL3u}
+\end{figure}
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=5.19in,height=2.83in]{NL3_y.pdf}}
+\caption{\textit{\sffamily Sortie }}
+\label{NL3y}
+\end{figure}
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=5.19in,height=2.83in]{NL3_e.pdf}}
+\caption{\textit{\sffamily Erreur de poursuite }}
+\label{NL3e}
+\end{figure}
+
+\subsubsection{Cas 4}
+Quoique le système
+$$\dot y-y=(0.5\dot y+y)u$$
+soit plat, de sortie plate $y$, il est, en raison du produit $\dot{y} u$ et comme on le voit en \eqref{adrc1}, plus général que ceux considérés en ADRC. De plus, son instabilité le rend délicat à commander. En \eqref{ultralocal}, on choisit $\nu = 1$, $\alpha = 5$, $K_P = 3$. On ajoute un bruit additif sur la sortie, blanc, gaussien, centré, d'écart-type $0.05$. La condition initiale est $y(0)=0.2$. La période d'échantillonnage est $T_e=10$ms. Les résultats de poursuite de trajectoire reportés sur les figures {\ref{NL4u}}, {\ref{NL4y}} et {\ref{NL4e}} sont tout à fait corrects.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=5.19in,height=2.83in]{NL4_u.pdf}}
+\caption{\textit{\sffamily Commande }}
+\label{NL4u}
+\end{figure}
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=5.19in,height=2.83in]{NL4_y.pdf}}
+\caption{\textit{\sffamily Sortie }}
+\label{NL4y}
+\end{figure}
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=5.19in,height=2.83in]{NL4_e.pdf}}
+\caption{\textit{\sffamily Erreur de poursuite }}
+\label{NL4e}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Cas 5}
+Une littérature considérable a été consacrée au système, plutôt académique, des trois cuves, notamment en diagnostic, représenté par la figure {\ref{schem}} (voir, par exemple, \cite{cran} et ses références).
+\begin{figure}[!ht]
+\centering
+
+        \psfrag{p1}[cc][t]{\footnotesize pompe $1$}
+        \psfrag{p2}[cc][t]{\footnotesize pompe $2$}
+%
+        \psfrag{q1}[l][cc]{\footnotesize$u_1$}
+        \psfrag{q2}[r][cc]{\footnotesize$u_2$}
+%
+        \psfrag{c1}[r][cc]{\footnotesize cuve $1$}
+        \psfrag{c2}[r][cc]{\footnotesize cuve $2$}
+        \psfrag{c3}[r][cc]{\footnotesize cuve $3$}
+%
+        \psfrag{s}[l][cc]{$\tiny S$}
+%
+%        \psfrag{q13}[cc][cc]{\tiny$q_{13}$}
+%        \psfrag{q32}[cc][cc]{\tiny$q_{32}$}
+%        \psfrag{q20}[cc][cc]{\tiny$q_{20}$}
+        \psfrag{q13}[cc][cc]{\tiny}
+        \psfrag{q32}[cc][cc]{\tiny}
+        \psfrag{q20}[cc][cc]{\tiny}
+%
+%
+        \psfrag{m1}[l][cc]{\footnotesize$S_p,\mu_1$}
+        \psfrag{m2}[l][cc]{\footnotesize$S_p,\mu_2$}
+        \psfrag{m3}[l][cc]{\footnotesize$S_p,\mu_3$}
+%
+%        \psfrag{f}[cc][b]{fuite}
+%
+        \psfrag{l1}[r][cc]{\footnotesize$x_1$}
+        \psfrag{l2}[r][cc]{\footnotesize$x_2$}
+        \psfrag{l3}[r][cc]{\footnotesize$x_3$}
+%
+%\subfigure[\footnotesize Syst\`eme des 3 cuves]
+{\includegraphics[scale=0.6]{Cuves2.pdf}} \caption{Système des trois
+cuves \label{schem}}
+\end{figure}
+Confirmant la remarque {\ref{mimo}}, il témoigne de la simplicité du traitement des systèmes multivariables par rapport à l'ADRC (voir, par exemple, \cite{guo}, \cite{inoue}, \cite{sira3}, et \cite{sun}). En voici la description par équations différentielles
+\begin{equation}
+    %\Sigma_{{NL}}:
+    \begin{cases}\begin{array}{ll}
+    \dot{x}_1=& - D \mu_1 \text{sign}(x_1 -x_3)\sqrt{|x_1-x_3|}+u_1/S\\
+    \dot{x}_2=& D \mu_3 \text{sign}(x_3 - x_2)\sqrt{|x_3 - x_2|}-D \mu_2 \text{sign}(x_2)\sqrt{|x_2|}+u_2(t)/S\\
+    \dot{x}_3 =& - D \mu_1 \text{sign}(x_1 - x_3)\sqrt{|x_1 - x_3|} D \mu_3 \text{sign}(x_3 - x_2)\sqrt{|x_3 - x_2|}\\
+    y_{1}=&x_1  \\
+    y_{2}=&x_2 \\
+    y_{3}=&x_3 \\
+    \end{array}\end{cases}\label{eq_3cuves}
+\end{equation}
+où 
+\begin{itemize}
+\item $x_i$, $i = 1, 2, 3$, est le niveau de liquide dans la cuve $i$, 
+\item les commandes $u_1$, $u_2$ sont les arrivées de liquide, 
+\item $D=\left(S_p\sqrt{2 g}\right)/S$, 
+\item $g = 9.81 \text{m.s}^{-2}$ est la pesanteur,
+\item Les valeurs numériques suivantes sont empruntées à une maquette de laboratoire:
+\begin{itemize}
+\item $S = 0.0154$m est la section des cuves,
+\item $S_p = 5.10^{-5}$m est la section des tuyaux entre cuves,
+\item $\mu_1 = \mu_3 = 0.5, \mu_2 = 0.675$  sont les coefficients de viscosité.
+\end{itemize}
+\end{itemize}
+On régule, selon le paragraphe \ref{mfc}, grâce à deux systèmes ultralocaux \eqref{ultralocal} en parallèle, d'ordre $1$ et monovariables, de commandes et de sorties respectives $u_1$, $u_2$ et $y_1$, $y_2$. Pour les deux, $\alpha = 100$, $K_P = 0.5$. Un bruit additif, blanc, gaussien, centré, d'écart-type  $0,5.10^{-3}$, parasite les sorties. Les figures {\ref{C_u1}} à {\ref{C_l2}} rapportent les simulations obtenues avec un échantillonnage d'$1$s. Les poursuites de trajectoires sont excellentes (se rapporter à {\ref{C_e1}} et {\ref{C_e2}}). En dépit du couplage physique évident, une variation de consigne dans la cuve $1$ n'influence guère la poursuite dans la cuve $2$.
+
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=5.19in,height=2.83in]{U1.pdf}}
+\caption{\textit{\sffamily Commande de la pompe 1}}
+\label{C_u1}
+\end{figure}
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=5.19in,height=2.83in]{L1.pdf}}
+\caption{\textit{\sffamily Evolution du niveau dans la cuve 1}}
+\label{C_l1}
+\end{figure}
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=5.19in,height=2.83in]{E1.pdf}}
+\caption{\textit{\sffamily Erreur de poursuite pour la cuve 1 }}
+\label{C_e1}
+\end{figure}
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=5.19in,height=2.83in]{U2.pdf}}
+\caption{\textit{\sffamily Commande de la pompe 2}}
+\label{C_u2}
+\end{figure}
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=5.19in,height=2.83in]{L2.pdf}}
+\caption{\textit{\sffamily Evolution du niveau dans la cuve 2}}
+\label{C_l2}
+\end{figure}
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=5.19in,height=2.83in]{E2.pdf}}
+\caption{\textit{\sffamily Erreur de poursuite pour la cuve 2 }}
+\label{C_e2}
+\end{figure}
+
+
+\subsection{Paramètres répartis: une équation aux dérivées partielles}
+Soit l'équation de la chaleur en une seule dimension d'espace
+\begin{equation}\label{chaleur}
+\frac{\partial w}{\partial t}=\frac{\partial^2 w}{\partial x^2}
+\end{equation}
+où
+\begin{itemize}
+\item $0\leqslant x \leqslant 1$;
+\item  $w(t,1)=u(t)$ est la commande;
+\item $w(t,0)=0.5$ est la condition à l'autre bord;
+\item $w(0,x)= 0.5+(u(0)-0.5)x$ est la condition initiale.
+\end{itemize}
+On désire ma\^{\i}triser l'évolution de $w(t,x)$ en $x = 1/3$ (voir figure {\ref{EDPy}}). Ici, $\nu = 1$, $\alpha = K_P = 10$. Réalisées avec un bruit additif, blanc, gaussien, centré, d'écart type $0.01$, et un échantillonnage de taille $T_e=10$ms,
+les simulations des figures {{\ref{EDPu}}, {\ref{EDPy}}, {\ref{EDPe}} et {\ref{EDP3d}} présentent d'excellents résultats.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=5.19in,height=2.83in]{EDP_u.pdf}}
+\caption{\textit{\sffamily Commande }}
+\label{EDPu}
+\end{figure}
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=5.19in,height=2.83in]{EDP_y.pdf}}
+\caption{\textit{\sffamily Sortie }}
+\label{EDPy}
+\end{figure}
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=5.19in,height=2.83in]{EDP_e.pdf}}
+\caption{\textit{\sffamily Erreur de poursuite }}
+\label{EDPe}
+\end{figure}
+
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=5.19in,height=2.83in]{EDP_3d.pdf}}
+\caption{\textit{\sffamily Evolution de la température de poutre }}\label{EDP3d}
+\end{figure}
+
+\begin{remark}
+En calcul opérationnel (voir, par exemple, \cite{erde}), \eqref{chaleur} conduit à considérer des exponentielles de la forme $\exp (\pm x \sqrt{s})$. Nul besoin avec MFC de développements originaux pour la dérivation fractionnaire $s^{1/2}$ et, on en fait la conjecture, pour toute dérivation non entière rencontrée en pratique. Ce n'est pas le cas avec l'ADRC (voir, par exemple, \cite{li}). %Avec des retards concrets
+\end{remark}
+
+\section{Conclusion}
+Le MFC a déjà permis des avancées conceptuelles d'une importance certaine:
+\begin{enumerate}
+\item On fournit une explication, en \cite{andr}, \cite{ijc13}, à l'universalité des PID et à leurs faiblesses, et ce pour la première fois.
+\item En dépit de performances parfois insatisfaisantes, ALINEA\footnote{Acronyme d'\og{\underline{A}sservissement} {\underline{LIN}\'{e}aire} {d'\underline{E}ntr\'{e}e \underline{A}utorouti\`{e}re}\fg.} est l'algorithme le plus usité de régulation des accès d'autoroutes. Aucune justification n'en avait été publiée jusqu'à \cite{alinea}.
+\item Réponse \cite{mathmod} à une question \cite{karin} sur la \og{compensation dynamique}\fg, en \og{biologie systémique}\fg, ou \emph{systems biology}.
+\end{enumerate}
+Aucun succès de cet ordre ne peut, à notre connaissance, être porté au crédit de l'ADRC. 
+
+Depuis \cite{ziegler1, ziegler2}, des retards sont introduits pour faciliter le réglage des gains des PID. Ils perdent tout sens  \cite{ijc13} avec les correcteurs intelligents associés au MFC. Avec, par contre, des retards physiques \og{assez importants}\fg, aucune solution définitive ne semble s'imposer à l'heure où ces lignes sont écrites, en dépit d'avancées prometteuses, tant en MFC (voir \cite{doublet1}, \\ \cite{doublet2}, où $\alpha$ en \eqref{ultralocal} devient variable, et \cite{thabet}, \\ \cite{delayzhang}) qu'en ADRC (voir, par exemple, \cite{guo}, \\ \cite{sira3}, \cite{xia}, \cite{zhao}). Dominer cette question est un point clé. 
+
+Quant aux systèmes \textit{a priori} modélisés par des équations aux dérivées partielles, la situation reste assez floue, même si MFC compte déjà quelques réussites concrètes incontestables (voir, par exemple, \cite{edf}\footnote{Il s'agit d'une installation hydroélectrique, souvent modélisée, comme les canaux, par une équation de Saint-Venant. La solution proposée, brevetée par EDF (\'Electricité de France) et l'\'Ecole polytechnique, a reçu le prix de l'innovation 2010, catégorie \og{brevet}\fg, décerné par l'\'Ecole polytechnique.}).
+
+
+\begin{thebibliography}{99}
+%\textbf{La bibliographie }
+\bibitem[Aboua\"{\i}ssa \textit{et coll.} (2017a)]{alinea}
+\textsc{Aboua\"{\i}ssa} H., \textsc{Fliess} M., \textsc{Join} C., 
+\og{On ramp metering: Towards a better understanding of ALINEA via model-free control}\fg.
+\textit{International Journal of Control}, 90 (2017a): 1018-1026. 
+
+\bibitem[Aboua\"{\i}ssa \textit{et coll.} (2017b)]{bldg}
+\textsc{Aboua\"{\i}ssa} H., \textsc{Alhaj} \textsc{Hasan} O., \textsc{Join} C., \textsc{Fliess} M., \textsc{Defer} D., Energy saving for building heating
+via a simple and efficient model-free control design: First steps with computer simulations. \textit{21st International Conference on System Theory, Control and Computing}, Sinaia, 2017b. \newline
+{\tt https$:$//hal.archives-ouvertes.fr/hal-01568899/en/}
+
+%\bibitem[Abramowitz \& Stegun (1965)]{abra}
+%\textsc{Abramowitz} M., \textsc{Stegun} I.A., \textit{Handbook of Mathematical Functions}. New York: Dover, 1965.
+
+\bibitem[Aguilar-Iba$\tilde{\text n}$ez \textit{et coll.} (2017)]{aguil}
+\textsc{Aguilar-Iba$\tilde{\text n}$ez} C., \textsc{Sira-Ram\'{\i}rez} H., \textsc{Acosta} J. \'{A}, \og{Stability of active disturbance rejection control for uncertain systems$:$ A Lyapunov perspective}\fg. \textit{International Journal of Robust and Nonlinear Control}, (2017): {\tt DOI: 10.1002/rnc.3812}
+
+\bibitem[d'Andréa-Novel \textit{et coll.} (2010)]{andr}
+\textsc{d}'\textsc{Andr\'{e}a}-\textsc{Novel} B., \textsc{Fliess} M., \textsc{Join} C., \textsc{Mounier} H., \textsc{Steux} B., \og{A mathematical explanation via ``intelligent'' PID controllers of the strange ubiquity of PIDs}\fg.  
+\textit{18th Mediterranean Conference on Control \& Automation}, Marrakech, 2010. {\tt https$:$//hal.archives-ouvertes.fr/inria-00480293/en/}
+
+\bibitem[{\AA}str\"om \& H\"agglund (2006)]{astrom}\textsc{{\AA}str\"om} K.J., \textsc{H\"agglund} T., \textit{Advanced PID
+		Control}. Research Triangle Park, NJ: Instrument Society of America, 2006.
+
+\bibitem[{\AA}str\"om \& Kumar (2014)]{kumar}
+\textsc{{\AA}str\"{o}m} K.J. , \textsc{Kumar} P.R., \og{Control$:$ A perspective}\fg. \textit{Automatica}, 50 (2014): 3-43.
+		
+ \bibitem[{\AA}str\"om \& Murray (2008)]{murray}
+\textsc{{\AA}str\"om} K.J., \textsc{Murray} R.M., \textit{Feedback Systems: An Introduction for Scientists and Engineers}. Prinveton, NJ: Princeton University Press, 2008.	
+
+ \bibitem[Bekcheva \textit{et coll.}  (2018)]{quad}
+ \textsc{Bekcheva} M., \textsc{Join} C., \textsc{Mounier} H., \og{Quasi-model-free tracking of quadrotors}\fg, \textit{soumis} (2018).
+
+\bibitem[Bézier (1986)]{Bez}
+\textsc{Bézier} P., \textit{Courbes et surfaces}. Paris: Hermès, 1986.
+
+ \bibitem[Carillo \& Rotella (2015)]{carillo}
+\textsc{Carillo} F., \textsc{Rotella} F.,  \og{Some contributions to estimation for model-free control}\fg. \textit{IFAC-PapersOnLine} 48-28 (2015): 150-155.
+
+
+\bibitem[Choquet (2000)]{choquet}\textsc{Choquet} G, (2000), \textit{Cours de topologie}. Paris: Dunod, 2000.
+
+\bibitem[Cort\'{e}s-Romero \textit{et coll.} (2017)]{cortes}
+\textsc{Cort\'{e}s-Romero} J., \textsc{Jimenez-Triana} A., \textsc{Coral-Enriquez} H., \textsc{Sira- Ram\'{\i}rez} H., \og{Algebraic estimation and active disturbance rejection in the control of flat systems}\fg. \textit{Control Engineering Practice}, 61 (2017): 173-182.
+
+\bibitem[Doublet \textit{et coll.} (2016)]{doublet1}
+\textsc{Doublet} M., \textsc{Join} C., \textsc{Hamelin} F., \og{Model-free control for unknown delayed systems}\fg. \textit{3rd International Conference on Control and Fault-Tolerant Systems}, Barcelone, 2016. \newline
+{\tt https$:$//hal.archives-ouvertes.fr/hal-01369776/en/}
+
+\bibitem[Doublet \textit{et coll.} (2017)]{doublet2}
+\textsc{Doublet} M., \textsc{Join} C., \textsc{Hamelin} F., \og{Stability analysis for unknown delayed systems controlled by model-free control}\fg. \textit{21st International Conference on System Theory, Control and Computing}, Sinaia, 2017. \newline
+{\tt https$:$//hal.archives-ouvertes.fr/hal-01578561/en/}
+
+\bibitem[Erdélyi (1962)]{erde}
+\textsc{Erdélyi} A., \textit{Operational Calculus and Generalized Functions}. New York: Holt Rinehart Winston, 1962. 
+
+\bibitem[Feng \& Guo (2017)]{feng}
+\textsc{Feng} H., \textsc{Guo} B.-Z., \og{Active disturbance rejection control$:$ Old and new results}\fg. \textit{Annual Reviews in Control}, (2017): {\tt http$:$//dx.doi.org/10.1016/j.arcontrol.2017.05.003}
+
+\bibitem[Fliess \& Join (2013)]{ijc13}
+\textsc{Fliess} M., \textsc{Join} C., \og{Model-free control}\fg.
+\textit{International Journal of Control}, 86 (2013): 2228-2252.
+
+\bibitem[Fliess \& Join (2018)]{mathmod}
+\textsc{Fliess} M., \textsc{Join} C., \og{Dynamic compensation and homeostasis$:$ a feedback control perspective}\fg. {\tt https$:$//hal.archives-ouvertes.fr}
+
+\bibitem[Fliess \textit{et coll.} (2008)]{identif3}
+\textsc{Fliess} M., \textsc{Join} C., \textsc{Sira-Ram\'{\i}rez} H., \og{Non-linear estimation is easy}\fg. \textit{International Journal of Modelling Identification and Control}, 4 (2008): 12-27.
+
+\bibitem[Fliess \textit{et coll.} (1983)]{volt}
+\textsc{Fliess} M., \textsc{Lamnabhi} M., \textsc{Lamnabhi-Lagarrigue} F., \og{An algebraic approach to nonlinear functional expansions}\fg. \textit{IEEE Transactions on Circuits and Systems}, 30 (1983): 554-570.	
+		
+\bibitem[Fliess \textit{et coll.} (1995)]{flmr1}
+\textsc{Fliess} M., \textsc{L\'{e}vine} J., \textsc{Martin} Ph., \textsc{Rouchon} P., \og Flatness and defect of non-linear systems$:$ introductory theory and examples \fg. \newline \textit{International Journal of Control}, 61 (1995): 1327-1361.
+
+\bibitem[Fliess \textit{et coll.} (1999)]{flmr2}
+\textsc{Fliess} M., \textsc{L\'{e}vine} J., \textsc{Martin} Ph., \textsc{Rouchon} P., \og A Lie-B\"{a}cklund approach to equivalence and flatness of nonlinear systems\fg. \textit{IEEE Transactions on Automatic Control}, 44 (1999): 922-937.
+
+\bibitem[Fliess \& Marquez (2000)]{lin}
+\textsc{Fliess} M., \textsc{Marquez} R., \og{Continuous-time linear predictive control and flatness$:$ a module-theoretic setting with examples}\fg. \textit{International Journal of Control}, 73 (2000): 606-623.
+
+\bibitem[Fliess \textit{et coll.} (2002)]{gpi}
+\textsc{Fliess} M., \textsc{Marquez} R., \textsc{Delaleau} E.,  \textsc{Sira-Ram\'{\i}rez} H., \og{Correcteurs proportionnels intégraux généralisés}\fg. \textit{ESAIM$:$ Control Optimisation and Calculus of Variations}, 7 (2002): 23-41.
+
+\bibitem[Fliess \& Sira-Ram\'{\i}rez (2003)]{identif1}
+\textsc{Fliess} M., \textsc{Sira-Ram\'{\i}rez} H.,  \og{An algebraic framework for linear identification}\fg. \textit{ESAIM$:$ Control Optimisation and Calculus of Variations},  9 (2003): 151-168.
+
+
+\bibitem[Fliess  \& Sira-Ram\'{\i}rez (2008)]{identif2}
+\textsc{Fliess} M., \textsc{Sira-Ram\'{\i}rez} H., \og{Closed-loop parametric identification for continuous-time linear systems via new algebraic techniques}\fg.
+H. Garnier, L. Wang (Eds)$:$
+\textit{Identification of Continuous-time Models from Sampled Data},
+pp. 362-391, Londres: Springer, 2008.
+
+\bibitem[Gao (2014)]{gao}
+\textsc{Gao} Z., \og{On the centrality of disturbance rejection in automatic control}\fg. \textit{ISA Transactions}, 53 (2014): 850-857.
+
+
+\bibitem[Godement (1998)]{godement}
+\textsc{Godement} R.,  \textit{Analyse mathématique II}. Berlin: Springer, 1998.
+
+\bibitem[Guo \& Zhao (2016)]{guo}
+\textsc{Guo} B.-Z., \textsc{Zhao} Z.-L., \textit{Active Disturbance Rejection Control for Nonlinear Systems$:$ An Introduction}. Singapore: Wiley, 2016.
+
+\bibitem[Guo \& Zhou (2015)]{pde}
+\textsc{Guo} B.-Z., \textsc{Zhou} H.-C., \og{The active disturbance rejection control to stabilization for multi-dimensional wave equation with boundary control matched disturbance}\fg. \textit{IEEE Transactions on Automatic Control}, 60 (2015): 143-157.
+
+\bibitem[Han (2009)]{han}
+ \textsc{Han} J., \og{From PID to active disturbance rejection control}\fg. \textit{IEEE Transactions on Industrial Electronics}, 56 (2009): 900-906.
+ 
+\bibitem[Herbst (2013)]{herbst}
+ \textsc{Herbst} G., \og{A simulative study on active disturbance rejection control (ADRC) as a control tool for practitioners}\fg. \textit{Electronics}, 2 (2013): 246-279.
+
+\bibitem[Huang \& Xue (2014)]{huang}
+\textsc{Huang} Y., \textsc{Xue} W., \og{Active disturbance rejection control$:$ Methodology and theoretical analysis}\fg. \textit{ISA Transactions}, 53 (2014): 963-976.
+
+\bibitem[Inoue \& Ishida (2016)]{inoue}
+\textsc{Inoue} S., \textsc{Ishida} Y., \og{Design of a model-following controller using a decoupling active disturbance rejection control method}\fg. \textit{Journal of Electrical \& Electronic Systems}, 5 (2016): {\tt doi$:$10.4172/2332-0796.1000174}
+
+
+\bibitem[Join \textit{et coll.} (2017)]{iste}
+\textsc{Join} C., \textsc{Delaleau} E., \textsc{Fliess} M., \textsc{Moog} C.H., \og{Un résultat intrigant en commande sans modèle}\fg. \textit{ISTE OpenScience Automatique}, 1 (2017): 9 p.
+{\tt https://hal.archives-ouvertes.fr/hal-01628322/en/}
+
+\bibitem[Join \textit{et coll.} (2010)]{edf}
+\textsc{Join} C., \textsc{Robert} G., \textsc{Fliess} M., \og{Vers une commande sans
+mod\`{e}le pour am\'{e}nagements hydro\'{e}lectriques en cascade}\fg.
+\emph{6$^e$ Conférence Internationale Francophone d'Automatique}, Nancy, 2010. \newline
+{\tt http$:$//hal.archives-ouvertes.fr/inria-00460912/en/}
+
+
+\bibitem[Kalman (1960)]{kalman1}
+\textsc{Kalman} R.E.,  \og A new approach to linear filtering and prediction problems \fg. \textit{Transactions of the ASME - Journal of Basic Engineering}, 82 (1960): 35-45.
+
+\bibitem[Kalman \& Bucy (1961)]{kalman2}
+\textsc{Kalman} R.E.,  \textsc{Bucy} R.S., \og New results in linear filtering and prediction theory \fg. \textit{Transactions of the ASME - Journal of Basic Engineering}, 83 (1961): 95-107.
+
+\bibitem[Karin \textit{et coll.} (2016)]{karin}
+\textsc{Karin} O., \textsc{Swisa} A., \textsc{Glaser} B., \textsc{Dor} Y., \textsc{Alon} U., \og Dynamical compensation in physiological circuits \fg. \textit{Molecular Systems Biology}, 12 (2016): 886. {\tt \small DOI 10.15252/msb.20167216 }
+
+\bibitem[Qi \textit{et coll.} (2017)]{qi}
+\textsc{Qi} X., \textsc{Li} J., \textsc{Xia} Y., \textsc{Gao} Z., \og{On the robust stability of active disturbance rejection control for SISO systems}\fg. \textit{Circuits, Systems, and Signal Processing}, 36 (2017): 65-81.
+
+\bibitem[Lafont \textit{et coll.} (2015)]{toulon}
+L\textsc{afont} F., B\textsc{almat} J.-F., P\textsc{essel} N., F\textsc{liess} M.,
+\og{A model-free control strategy for an experimental greenhouse with an application to fault accommodation}\fg.
+\textit{Computers and Electronics in Agriculture}, 110 (2015): 139-149.
+
+\bibitem[Lamnabhi-Lagarrigue (1994)]{lamnabhi}
+\textsc{Lamnabhi-Lagarrigue} F., \textit{Analyse des systèmes non linéaires}, Paris: Hermès, 1994.
+
+\bibitem[de Larminat (2009)]{larminat}
+\textsc{de Larminat} Ph., \textit{Automatique appliqu\'{e}e} (2$^e$ \'{e}d.). Paris: Herm\`{e}s-Lavoisier, 2009.
+
+\bibitem[L\'evine (2009)]{levine}
+\textsc{Lévine} J., \textit{Analysis and Control of Nonlinear Systems$:$ A Flatness-based Approach}. Berlin: Springer, 2009.
+
+\bibitem[Li \textit{et coll.} (2016)]{li}
+\textsc{Li} D., \textsc{Ding} P., \textsc{Gao} Z., \og{Fractional active disturbance rejection control}\fg. \textit{ISA Transactions}, 62 (2016): 109-119.
+
+\bibitem[Mado\'{n}ski \& Herman (2012)]{madon1}
+\textsc{Mado\'{n}ski} R., \textsc{Herman} P., \og{Model-free control or active disturbance rejection control$?$ On different approaches for attenuating the perturbation}\fg. \textit{20th Mediterranean Conference on Control \& Automation}, Barcelone, 2012. 
+
+\bibitem[Mado\'{n}ski \& Herman (2015)] {madon2}
+\textsc{Mado\'{n}ski} R., \textsc{Herman} P., \og{Survey on methods of increasing the efficiency of extended state disturbance observers}\fg. \textit{ISA Transactions}, 56 (2015): 18-27.
+
+ \bibitem[Mboup \textit{et coll.} (2009)]{mboup}
+\textsc{Mboup} M., \textsc{Join} C., \textsc{Fliess} M., \og{Numerical differentiation with annihilators in noisy environment}\fg. \textit{Numerical Algorithms}, 50 (2009): 439-467.
+
+
+\bibitem[Menhour \textit{et coll.} (2017)]{ieee17}
+\textsc{Menhour} L., \textsc{d}'\textsc{Andr\'{e}a}-\textsc{Novel} B., \textsc{Fliess} M., \textsc{Gruyer} D., \textsc{Mounier} H.,  \og{An efficient model-free setting for longitudinal and lateral vehicle control. Validation through the interconnected pro-SiVIC/RTMaps prototyping platform}\fg. \textit{IEEE Transactions on Intelligent Transportation Systems}, 2017. {\tt DOI$:$ 10.1109/TITS.2017.2699283}
+
+ \bibitem[Noura \textit{et coll.} (2009)]{cran}
+\textsc{Noura} H., \textsc{Theilliol} D., \textsc{Ponsart} J.-C., \textsc{Chamseddine} A., \textit{Fault-tolerant Control Systems -- Design and Practical Applications}. Londres: Springer, 2009.
+
+\bibitem[O'Dwyer (2009)]{od}
+\textsc{O'Dwyer} A., \textit{Handbook of PI and PID Controller Tuning Rules} (3rd ed.). Londres: Imperial College Press, 2009.
+
+\bibitem[Pol\'{o}ni \textit{et coll.} (2018)]{polo}
+\textsc{Pol\'{o}ni} T., \textsc{Kolmanovsky} I., \textsc{Roha'-Ilkiv} B., \og{Simple input disturbance observer-based control$:$ Case studies}\fg. \textit{Journal of Dynamic Systems, Measurement, and Control}, 140 (2018):  {\tt doi:10.1115/1.4037298}
+
+\bibitem[Poncelet (1870)]{poncelet}
+\textsc{Poncelet} J.-V., \textit{Introduction à la mécanique industrielle} (3$^e$ éd.). Paris: Gauthier-Villars, 1870.
+
+ \bibitem[Ram\'{\i}rez-Neria \textit{et coll.} (2014)]{furuta}
+\textsc{Ram\'{\i}rez-Neria} M.,  \textsc{Sira-Ram\'{\i}rez} H., \textsc{Garrido-Moctezuma} R., \textsc{Luviano-Ju\'{a}rez} A., \og{Linear active disturbance rejection control of underactuated systems$:$ The case of the Furuta pendulum}\fg. 
+\textit{ISA Transactions}, 53 (2014): 920-928.
+
+\bibitem[Rigatos (2015]{riga}
+\textsc{Rigatos} G.G., \textit{Nonlinear Control and Filtering Using Differential Flatness Approaches -- Applications to Electromechanical Systems}. Heidelberg: Springer, 2015.
+
+\bibitem[Risler (1991]{abra}
+\textsc{Risler} J.-J., \textit{Méthodes mathématiques pour la CAO}. Paris: Dunod, 1991. Traduction anglaise: \textit{Mathematical Methods in CAD}. Cambridge: Cambridge University Press, 1992.
+
+
+\bibitem[Rotella \& Zambettakis (2007)]{tarbes}
+\textsc{Rotella} F., \textsc{Zambettakis} I., \og{Commande des systèmes par platitude}\fg. \textit{Techniques de l'Ingénieur} S7450 V1, 2007.
+ 
+ \bibitem[Rudin (1967)]{rudin}
+\textsc{Rudin} W., \textit{Functional Analysis}. New York: McGraw-Hill, 1967. Traduction française: \textit{Analyse fonctionnelle}, Paris: Ediscience, 2000.
+
+\bibitem[Rudin (1976)]{rudin1}\textsc{Rudin} W., \textit{Real and Complex Analysis}. New York: McGraw-Hill, 1976. Traduction française: \textit{Analyse réelle et complexe}, Paris: Dunod, 2009.
+
+\bibitem[Rudolph (2003)]{rudolph}
+\textsc{Rudolph} J., \textit{Beitr\"{a}ge zur flachheitsbasierten Folgeregelung linearer und nichtlinearer Systeme endlicher und unendlicher Dimension}. Aachen: Shaker Verlag, 2003.
+ 
+  \bibitem[Rugh (1981)]{rugh}
+  \textsc{Rugh} W.J., \textit{Nonlinear System Theory -- The Volterra/Wiener approach}. The Johns Hopkins University Press, Baltimore, 1981.
+  
+  \bibitem[Sira-Ram\'{\i}rez \& Agrawal (2004)]{sira1}
+ \textsc{Sira-Ram\'{\i}rez} H., \textsc{Agrawal} S.K., \textit{Differentially Flat Systems}. New York: Marcel Decker, 2004.
+
+ \bibitem[Sira-Ram\'{\i}rez \textit{et coll.} (2014)]{sira2}
+ \textsc{Sira-Ram\'{\i}rez} H., \textsc{Garc\'{\i}a-Rodr\'{\i}guez} C., \textsc{Cort\`{e}s-Romero} J., \textsc{Luviano-Ju\'{a}rez} A.,
+ \textit{Algebraic Identification and Estimation Methods in Feedback Control Systems}. Chichester: Wiley, 2014.
+ 
+ \bibitem[Sira-Ram\'{\i}rez \textit{et coll.} (2011)]{ibero}
+ \textsc{Sira-Ram\'{\i}rez} H., \textsc{Luviano-Ju\'{a}rez} A., \textsc{Cort\`{e}s-Romero} J., \og{Control lineal robusto de sistemas no lineales diferencialmente planos}\fg.  \textit{Revista Iberoamericana de Autom\'{a}tica e Inform\'{a}tica Industrial}, 
+ 8 (2011): 14-28.
+
+ \bibitem[Sira-Ram\'{\i}rez \textit{et coll.} (2017)]{sira3}
+ \textsc{Sira-Ram\'{\i}rez} H., \textsc{Luviano-Ju\'{a}rez} A., \textsc{Ram\'{\i}rez-Neria} M., \textsc{Zurita-Bustamante} E.W., \textit{Active Disturbance Rejection Control of Dynamic Systems$:$ A Flatness Based Approach}. Oxford \& Cambridge, MA: Elsevier, 2017.
+ 
+ \bibitem[Sira-Ram\'{\i}rez \textit{et coll.} (2018)]{sira4}
+  \textsc{Sira-Ram\'{\i}rez} H., \textsc{Zurita-Bustamante} E.W., \textsc{Luviano-Ju\'{a}rez} A., \og{Robust flat filtering control of a nonlinear manipulator-direct current motor system}\fg. \textit{Journal of Dynamic Systems Measurement and Control}, 140 (2018): 
+  {\tt doi$:$10.1115/1.4037386}
+
+ \bibitem[Sun \textit{et coll.} (2016)]{sun}
+\textsc{Sun} L., \textsc{Dong} J., \textsc{Li} D., \textsc{Lee} K.Y.,
+\og{A practical multivariable control approach based on inverted decoupling and decentralized active disturbance rejection control}\fg. \textit{Industrial \& Engineering Chemistry Research}, 55 (2016): 2008-2019.
+
+ \bibitem[Tavasoli \& Enjilela (2017)]{tav}
+\textsc{Tavasoli} A., \textsc{Enjilela} V., \og{Active disturbance rejection and Lyapunov redesign approaches for robust boundary control of plate vibration}\fg. \textit{International Journal of Systems Sciences}, 48 (2017): 1656-1670.
+
+ \bibitem[Thabet \textit{et coll.} (2017)]{thabet}
+\textsc{Thabet} H., \textsc{Ayadi} M., \textsc{Rotella} F., \og{Design of adaptive PID controllers based on adaptive Smith predictor for ultra-local model control}\fg. \textit{International Journal of Automation and Control}, 11 (2017): 222-238.
+
+\bibitem[Ticherfatine \& Quidam (2017)]{ticher}
+\textsc{Ticherfatine} M., \textsc{Qidam} Z. (2017). \og Model-free approach based intelligent PD controller for vertical motion reduction in fast ferries \fg. \textit{Turkish Journal of Electrical Engineering \& Computer Sciences}, 2017 {\tt DOI: 10.3906/elk-1703-224}
+
+ \bibitem[Vincent \textit{et coll.} (2011)]{vincent}
+\textsc{Vincent} J., \textsc{Morris} D., \textsc{Usher} N., \textsc{Gao} Z., \textsc{Zhao} S., \textsc{Nicoletti} A., \textsc{Zheng} Q., \og{On active disturbance rejection based control design for superconducting RF cavities}\fg. 
+\textit{Nuclear Instruments and Methods in Physics Research A}, 643 (2011): 11-16.
+
+\bibitem[Wu \& \textit{coll.} (2015)]{wu} 
+\textsc{Wu} Y.-J., \textsc{Hua} Y.Y., \textsc{Liu} X.-D., \og{Design method of active disturbance rejection variable structure control system}\fg. \textit{Mathematical Problems in Engineering}, 2015. {\tt http$:$//dx.doi.org/10.1155/2015/195720}
+
+\bibitem[Xia \& \textit{coll.} (2009)]{xia} 
+\textsc{Xia} Y., \textsc{Fu} M., \textsc{Shi} P., \textit{Analysis and Synthesis of Dynamical Systems with Time-Delays}. Lecture Notes in Control and Information Sciences 387, Berlin: Springer, 2009.
+
+\bibitem[Yao \& Deng (2017)]{yao} 
+\textsc{Yao} J., \textsc{Deng} W., \og{Active disturbance rejection adaptive control of uncertain nonlinear systems$:$ theory and application}\fg. \textit{Nonlinear Dynamics}, 89 (2017): 1611-1624.
+
+\bibitem[Wang \textit{et coll.} (2017)]{wang17}
+\textsc{Wang} H., \textsc{Tian} Y., \textsc{Han} S., \textsc{Wang} X., \og ZMP theory-based gait planning and model-free trajectory tracking control of lower limb carrying exoskeleton system \fg. \emph{Studies in Informatics and Control}, 26, 161-170, 2017.
+
+\bibitem[Wang \textit{et coll.} (2016)]{wang16}
+\textsc{Wang} H., \textsc{Ye} X., \textsc{Tian} Y., \textsc{Zheng} G., \textsc{Christov} N., \og Model-free based terminal SMC of quadrotor attitude and position \fg. \emph{IEEE Transactions on Aerospace and Electronic Systems}, 52, 2519-2528, 2016.
+
+ \bibitem[Zhang \textit{et coll.} (2014)]{zhang}
+\textsc{Zhang} Y., \textsc{Fan} C., \textsc{Zhao} F., \textsc{Ai} Z., \textsc{Gong} Z., \og{Parameter tuning of ADRC and its application based on CCCSA}\fg. \textit{Nonlinear Dynamics}, 76 (2014): 1185-1194.
+
+ \bibitem[Zhang \textit{et coll.} (2018)]{delayzhang}
+\textsc{Zhang} X., \textsc{Wang} H., \textsc{Tian} Y., \textsc{Peyrodie} L., \textsc{Wang} X.,  \og{Model-free based neural network control with time-delay estimation for lower extremity exoskeleton}\fg. \textit{Neurocomputing}, 272 (2018): 178-188.
+ 
+ \bibitem[Zhao \& Gao (2014)]{zhao} 
+ \textsc{Zhao} S., \textsc{Gao} Z., \og{Modified active disturbance rejection control for time-delay systems}\fg. \textit{ISA Transactions}, 53 (2014): 882-888.
+ 
+ \bibitem[Zheng \& Gao (2016)]{zheng0} 
+ \textsc{Zheng} Q., \textsc{Gao} Z., \og{Active disturbance rejection control$:$ between the formulation in time and the understanding in frequency}\fg. \textit{Control Theory and Technology}, 14 (2016): 250-259.
+ 
+ \bibitem[Ziegler \& Nichols (1942)]{ziegler1} 
+\textsc{Ziegler} J.G.,  \textsc{Nichols}, N.B. (1942). \og{Optimum settings for automatic controllers}\fg. \textit{Transactions of
+the ASME}, 64 (1942): 759-768.
+
+ \bibitem[Ziegler \& Nichols (1943)]{ziegler2} 
+\textsc{Ziegler} J.G.,  \textsc{Nichols}, N.B. (1943). \og{Process lags in automatic control circuits}\fg. \textit{Transactions of
+the ASME}, 65 (1943): 433-444.
+ 
+ \end{thebibliography}
+\end{document}
+
+\bibitem{}
+\textsc{Alland} D., R\textsc{ials} S., \textit{Dictionnaire de la culture juridique.} Paris: Presses
+Universitaires de France, 2003.
+
+
+\bibitem{} \textsc{Alter} N., \textit{L'innovation ordinaire.} Paris: Eyrolles, 2000.
+
+\bibitem{} A\textsc{ltshuller} G., \textit{Creativity as an Exact science: The Theory of the Solution of Inventive Problem.} New York: Gordon and Breach
+Science Publishing, 1984.
+
+\bibitem{} A\textsc{ltshuller} G., \textit{The Innovation Algorithm: TRIZ, Systematic Innovation and Technocal Creativity.} 1998.
+
+\bibitem{} A\textsc{midon} D., \textit{Innovation et management des connaissances.} Paris: Editions d'Organisation, 2001.
+
+\bibitem{} A\textsc{rgyris} C., \textit{Savoir pour agir.} San Francisco: Jossey-Bass, 1993.
+
+\bibitem{} B\textsc{ateson} G., \textit{Steps to an Ecology of Mind: Collected essays in Anthropology, Psychiatry, Evolution and Epistemology.} Chicago: University of Chicago Press,
+1972.
+
+\bibitem{} B\textsc{aumard} P., \textit{Organisations d\'{e}concert\'{e}es.} Paris: Masson, 1996.
+
+\bibitem{} B\textsc{enoit}-C\textsc{ervantes} G., \textit{La Bo\^{\i}te \`{a} outils de l'Innovation.} Paris: Dunod,
+2008.
+
+\bibitem{} B\textsc{ianchi}., \textit{L'innovation et ses contraintes : \'{e}tudes de cas.} Paris: Eyrolles, 1974.
+
+\bibitem{} B\textsc{inctin} N., \textit{Le Capital Intellectuel.} Paris: Litec, 2007.
+
+\bibitem{} B\textsc{loch} O., W\textsc{alther} W.,
+\textit{Dictionnaire \'{e}tymologique de la langue fran\c{c}aise.} Paris: Presses Universitaires de France, 1932.
+
+\bibitem{} B\textsc{onnaure} P., \textit{Futuribles}, n$^\circ$ ~225 (1997).
+
+\bibitem{} B\textsc{ontis} N., \og Intellectual Capital: An exploratory Study that
+develops Measures and Models.\fg \,   \textit{Management Decision} 36, n$^\circ$ ~2 (1998).
+
+\bibitem{} B\textsc{ontis} N., \og Managing Organizational Knowledge by Diagnosing
+Intellectual Capital: Framing and Advancing the State of the Field.\fg \,
+\textit{International Journal of Technology Management}, 1999.
+
+\bibitem{} B\textsc{ounfour} A., \textit{Capital immat\'{e}riel, connaissance et performance.} Paris, 2006.
+
+\bibitem{} B\textsc{ounfour} A., E\textsc{pinette} G.,
+\textit{Valeur et performance des Syst\`{e}mes d'Information.} Paris: Dunod, 2006.
+
+\bibitem{} B\textsc{outillier} S., \og L'entrepreneur face \`{a} la
+propri\'{e}t\'{e} industrielle : histoire et actualit\'{e}.\fg \,   Dans
+\textit{Propri\'{e}t\'{e} industrielle et innovation}, de Blandine LAPERCHE, 25-48. Paris: L'Harmattan, 2001.
+
+\bibitem{} B\textsc{reese} P., K\textsc{aiser}  A.,
+\textit{L'\'{e}valuation des droits de propri\'{e}t\'{e} industrielle.} Paris: Gualino, 2004a.
+
+\bibitem{} B\textsc{reese} P.,  Y\textsc{ann} K\textsc{ermadec}., \textit{La Propri\'{e}t\'{e} intellectuelle au service de l'innovation.}
+Paris: Nathan, 2004b.
+
+\bibitem{} C\textsc{allon} M., L\textsc{atour} B., \og Comment suivre les innovations, clefs
+pour l'analyse \'{e}conomique.\fg \,   \textit{Prospective et sant\'{e} publique}, n$^\circ$ ~sp\'{e}cial sur
+l'innovation (10 1985).
+
+\bibitem{} C\textsc{hanal} V., \og Management de l'innovation de produit
+industriel : mise en oeuvre d'uned\'{e}marche de diagnostic pour
+am\'{e}liorer notre compr\'{e}hension du processus.\fg \,   \textit{7\`{e}me conf\'{e}rence de management strat\'{e}gique.} Ecole Centrale de
+Ch\^{a}tenay, 1999.
+
+\bibitem{} C\textsc{orbel} P., \textit{Management strat\'{e}gique des droits de la propri\'{e}t\'{e} intellectuelle.} Paris: Gualino, 2007.
+
+\bibitem{} C\textsc{ornu} G., \textit{Vocabulaire juridique.} Paris: Presses Universitaires de
+France, 1987.
+
+\bibitem{} D\textsc{auzat} A., \textit{Nouveau dictionaire \'{e}tymologique et historique.} Paris: Larousse, 1971.
+
+\bibitem{} D\textsc{eclerck} R.-P., E\textsc{ymery} P.,  C\textsc{rener} M.-A., \textit{Le management strat\'{e}gique des projets.} Paris:
+Editions Hommes et Techniques, 1980.
+
+\bibitem{} K\textsc{ermadec} Y., \textit{Innover gr\^{a}ce au brevet.} Paris: Dunod, 2001.
+
+\bibitem{} E\textsc{dvisson} L., M\textsc{alone.}, M.,
+\textit{Intellectual Capital: Realizing Your Company's True Value by Finding its hidden Brainpower.} New York: Harper Business, 1997.
+
+\bibitem{} E\textsc{ltzer} T., C\textsc{avalluci} D., \og Parameter Network as a Mean for
+Driving Problem Solving Process.\fg \,   \textit{International Journal of Logistics Management} 1, n$^\circ$ ~2 (2006): 1-10.
+
+\bibitem{} F\textsc{ernez}-W\textsc{alch} S., R\textsc{omon} F., \textit{Management de l'innovation.} Paris: Vuibert, 2006.
+
+\bibitem{} F\textsc{oray} D., \textit{L'\'{e}conomie de la connaissance.} Paris: La D\'{e}couverte, 2000.
+
+\bibitem{} G\textsc{affiot} F., \textit{Dictionnaire Latin-Fran\c{c}ais.} Paris: Hachette, 1934.
+
+\bibitem{} G\textsc{arcia} R., C\textsc{alantone} R., \og A critical look at
+technological innovation topology and innovativeness terminology: a
+literature review.\fg \,   \textit{The Journal of Product Innovation Management}, n$^\circ$ ~19 (2001): 110-132.
+
+\bibitem{} G\textsc{arel} G., M\textsc{idler} C.,
+\og Concourance, processus cognitifs et r\'{e}gulation \'{e}conomique.\fg \,
+\textit{Revue fran\c{c}aise de gestion}, n$^\circ$ ~104 (1995): 86-101.
+
+\bibitem{} G\textsc{iard} V., M\textsc{idler} C.,
+\textit{Pilotage de projets et entreprises. Diversit\'{e}s et convergences.} Paris: Economica, 1993.
+
+\bibitem{} G\textsc{uellec} D., \textit{Economie de l'Innovation.} Paris: La D\'{e}couverte, 2009.
+
+\bibitem{} H\textsc{atchuel} A., \og Apprentissages collectifs et
+activit\'{e}s de conception.\fg \,   \textit{Revue fran\c{c}aise de gestion}, n$^\circ$ ~99 (1994): 109-120.
+
+\bibitem{} H\textsc{atchuel} A.,  W\textsc{eil} B.,
+\og C-K Theory: Notions and Applications of a Unified Design Theory.\fg \,
+\textit{Herbert Simon International Conference on Design SCiences.} Lyon, 2002.
+
+\bibitem{} H\textsc{enderson} R., CLARK K., \og Architectural innovation: the
+reconfiguration of existing product technologies and the failure of
+established firms.\fg \,   \textit{Administrative Science Quaterly}, n$^\circ$ ~35 (1990): 9-30.
+
+\bibitem{} L\textsc{amberton} D., \og Pour une taxinomie de
+l'information.\fg \,   Dans \textit{La Soci\'{e}t\'{e} informationnelle}, de Anne MAYERE, 75-84. Paris: L'Harmattan, 1997.
+
+\bibitem{} L\textsc{ambin} J.-J., \textit{Marketing strat\'{e}gique.} New York: MacGraw Hill,
+1986.
+
+\bibitem{} L\textsc{aperche} B., \og Brevets et normes techniques : de
+l'incitation \`{a} l'invention au contr\^{o}le de l'innovation.\fg \,   Dans
+\textit{Propri\'{e}t\'{e} industrielle et Innovation}, de Blandine LAPERCHE, 81-98. Paris: L'Harmattan, 2001b.
+
+\bibitem{} L\textsc{aperche} B., \textit{La firme et l'information : innover pour conqu\'{e}rir.} Paris: L'Harmattan, 1998.
+
+\bibitem{} L\textsc{aperche} B., \textit{Propri\'{e}t\'{e} intellectuelle et Innovation.} Paris: L'Harmattan, 2001a.
+
+\bibitem{} L\textsc{e} L\textsc{oarne} S., B\textsc{ianco} S., \textit{Le management de l'innovation.} Pearson Education, 2009.
+
+\bibitem{} L\textsc{ittre} E., \textit{Dictionnaire de la Langue Fran\c{c}aise.} Paris: Hachette, 1886.
+
+\bibitem{} L\textsc{ouafa} T., P\textsc{erret} F.-L.., \textit{Cr\'{e}ativit\'{e} et innovation.} Lausanne: Presses Polytechniques, 2008.
+
+\bibitem{} M\textsc{affin} D., \og Engineering design models: context, theory and
+practice.\fg \,   \textit{Journal of Engineering Design} 9, n$^\circ$ ~4 (1998): 315-327.
+
+\bibitem{} M\textsc{arch} J., \og Exploration and exploitation in Organizational
+Learning.\fg \,   \textit{Organization Science} 1, n$^\circ$ ~2 (1991).
+
+\bibitem{} N\textsc{avarre} C., S\textsc{chaan }J-L., \og O\`{u} en est la gestion de
+projet aujourd'hui ? Essai de mod\'{e}lisation.\fg \,   \textit{Gestion 2000}, n$^\circ$ ~1 (1989):
+31-57.
+
+\bibitem{} N\textsc{onaka} I.,  H\textsc{irotaka} T.,
+\textit{La Connaissance cr\'{e}atrice.} Bruxelles: De Boeck, 1997.
+
+\bibitem{} O\textsc{chs}, P., \og Investisement immat\'{e}riel et
+indicateurs de pilotage.\fg \,   \textit{Suppl\'{e}ment \`{a} la revue Echange}, n$^\circ$ ~119 (1996): 60-66.
+
+\bibitem{} P\textsc{rax} J.-Y., B\textsc{uisson} B., S\textsc{ilberzahn} P., \textit{Objectif Innovation : Strat\'{e}gies pour co,struire l'entreprise innovante.} Paris: Dunod,
+2005.
+
+\bibitem{} R\textsc{eilly} R., S\textsc{chweihs} R.,
+\textit{Valuing Intangible Assets.} Irwin Library - McGraw Hil, 2001.
+
+\bibitem{} R\textsc{oos} J., R\textsc{os} G.,
+E\textsc{dvisson} L., D\textsc{ragoneti} N.,
+\textit{Intellectual Capital: Navigating in the New Business Landscape.} New York: New York University Press, 1998.
+
+\bibitem{} R\textsc{ouquette} M.-L., \textit{La Cr\'{e}ativit\'{e}.} Paris: Presses
+Universitaires de France, 1973.
+
+
+\bibitem{} S\textsc{aulais} P., \og Application de la gestion des
+connaissances \`{a} la cr\'{e}ativit\'{e} des experts et \`{a} la
+planification de la R{\&}T en milieu industriel de haute technologie.\fg \,
+Th\`{e}se de doctorat, T\'{e}l\'{e}com Ecole de Management, 2013.
+
+\bibitem{} S\textsc{aulais} P., \og Mise en visibilit\'{e} du potentiel
+inventif et repr\'{e}sentation du patrimoine intellectuel inventif.\fg \,
+\textit{Veille Mag}, n$^\circ$ ~155 Sp\'{e}cial Gestion des Connaissances (2016b).
+
+\bibitem{} S\textsc{aulais} P., L\textsc{ecante} C.,
+\og Analyse, cartographie et mise en action de la connaissance inventive.\fg \,
+\textit{GeCSO.} Paris, 2016c.
+
+\bibitem{} S\textsc{aulais} P., E\textsc{rmine} J.-L.., \og Emergence d'innovation technologique incr\'{e}mentale
+par aplication, \`{a} des experts, de l'analyse du patrimoine intelectuel
+inventif.\fg \,   \'{E}dit\'{e} par De Boeck. \textit{Innovations} 49, n$^\circ$ ~1 (2016a):
+103-140.
+
+\bibitem{} S\textsc{chumpeter} J., \textit{Capitalisme, Socialisme et D\'{e}mocratie.} Paris: Payot, 1947.
+
+\bibitem{} S\textsc{enge} P., \textit{La cinqui\`{e}me discipline.} Paris: General First, 1991.
+
+\bibitem{} S\textsc{imon} H., \textit{The Science of the Artificial.} Cambridge (MA): MIT Press, 1969.
+
+\bibitem{} S\textsc{oparnot} R., E\textsc{ric} S\textsc{tevens}.,
+\textit{Management de l'innovation.} Paris: Dunod, 2007.
+
+\bibitem{} S\textsc{tewart} T., \og Brainpower: How Intellectual Capital
+is Becoming America's Most Valuable Asset.\fg \,   \textit{Fortune}, 06 1991.
+
+\bibitem{} S\textsc{tewart} T., \textit{Intellectual Capital: The new Wealth of Organizations.} New York: Doubleday, 1997.
+
+\bibitem{} T\textsc{idd} J., B\textsc{essant} J.,
+P\textsc{avitt} K., \textit{Management de l'innovation ; int\'{e}gration du changement technologique, commercial et organisationnel.} Bruxelles: De Boeck, 2006.
+
+\bibitem{} U\textsc{zunidis} D., \og La march\'{e}isation de la
+recherche publique en France et la question de la propri\'{e}t\'{e}
+industrielle.\fg \,   Dans \textit{Propri\'{e}t\'{e} industrielle et Innovation}, de Blandine LAPERCHE, 159-174. Paris: L'Harmattan,
+2001.
+
+\bibitem{} U\textsc{zunidis} D., \og  Pr\'{e}face.\fg \,   Dans \textit{La Firme et l'Information : Innover pour conqu\'{e}rir}, de Blandine
+LAPERCHE, 7-12. Paris: L'Harmattan, 1998.
+
+\bibitem{} V\textsc{ivant} M., B\textsc{ruguiere} J.-M., \textit{Droit d'auteur.} Paris: Dalloz, 2009.
+
+\bibitem{} W\textsc{atzlawick} P., F\textsc{isch} J.,
+W\textsc{eakland} R., \textit{Changements : Paradoxes et psychoth\'{e}rapies.} Paris: Seuil, 1975.
+\end{thebibliography}
+\end{document}
+

@@ -1,0 +1,549 @@
+
+
+
+
+
+
+{Bibliographie}}
+{
+
+ active disturbance rejection control
+}
+ et Cédric Join}
+LIX (CNRS, UMR 7161), CRAN (CNRS, UMR 7039), Université de Lorraine, BP 239, 54506 Vand{uvre-lès-Nancy, France, Cedric.Join@univ-lorraine.frAL.I.E.N. (ALgèbre pour Identification @alien-sas.com Projet Non-A, INRIA Lille -- Nord-Europe, France}
+
+
+
+
+
+ 
+, or , and , or , are the most prominent approaches in order to keep the benefits of PID controllers, that are so popular in the industrial world, and in the same time for attenuating their severe shortcomings. After a brief review of MFC and ADRC, several examples show the superiority of MFC, which permits to tackle most easily a much wider class of systems.}
+{MOTS-CLS.}} PID, commande sans modèle, commande par rejet actif des perturbations, commande par platitude}
+
+
+
+
+Ce que l'esprit voit le c{ur le ressent. Malraux (, Paris: Gallimard, 1933)
+
+
+
+}
+On connat la domination, écrasante dans l'industrie, des correcteurs de type ,  , ). uvre pénible et à des performances médiocres. La recherche universitaire, si active en automatique, dite parfois , ). Afin de ne pas trop alourdir cette publication, contentons-nous, ici, de citer deux apports, aux applications aussi nombreuses que diverses: le filtre de Kalman  et la platitude .
+
+Durant toutes ces années, on a tenté à maintes reprises, avec, semble-t-il, un succès mitigé jusqu'à récemment, de garder les avantages des PID tout en gommant leurs défauts. Deux voies, plutôt nouvelles, prévalent à l'heure actuelle:
+
+, ou , désignée ici par , son acronyme anglais;
+, désignée aussi par son acronyme anglais, . Cette méthode, issue avant tout des travaux de  en Chine, a été développée par divers auteurs. Voir, par exemple,
+
+, , , ont voulu faire remonter quelques-uns des principes de l'ADRC plus haut dans le temps, à  en particulier.}, , , , , , , , , , ,  , );
+ et .
+
+
+MFC et ADRC ont permis bien des applications, parfois spectaculaires. Les bibliographies des références plus haut sur l'ADRC en fournissent une liste assez complète. Pour le MFC, renvoyons à la bibliographie de , à  et à leurs références.
+
+Des adeptes de l'ADRC ont publié des critiques, aussi vives qu'infondées, contre le MFC (voir, par exemple, ). L'ignorance totale chez d'autres, comme , des techniques du MFC aboutit à un exposé partial. Certains, comme , effacent l'écart béant les séparant.  Cet article use d'un droit de réponse légitime. Il vise à rétablir les faits, en exploitant, après avoir résumé les deux approches, plusieurs exemples académiques. Puisse une discussion ouverte et fructueuse s'ensuivre).}.
+
+Le paragraphe 2 résume MFC et ADRC. On s'y inspire pour l'ADRC du nouveau livre , plus clair. Le suivant exhibe des simulations numériques,  qui vont du linéaire au non-linéaire en terminant par une équation aux dérivées partielles. Ils tendent à prouver la supériorité du sans-modèle. La conclusion évoque aussi: 
+
+
+
+
+
+
+
+
+
+
+
+On se restreint, afin de simplifier l'écriture, à un système .}, c'est-à-dire avec une seule commande  et une seule sortie . On suppose la , ou
+: 
+
+ dépend
+
+
+
+.
+Populaires en automatique (voir, par exemple, ) et dans divers domaines des sciences appliquées, les 
+y(t) = & h_0(t) + d& u(
+Elles apparaissent, notamment, comme solutions d'équations différentielles ordinaires assez générales (voir, par exemple, ,  et ).
+
+On introduit
+
+
+Soit  la -algèbre de Banach des fonctionnelles , causales et continues, .
+D'après le théorème de Stone-Weierstra{ (voir, par exemple, ), toute sous-algèbre, contenant une constante non nulle et séparant les éléments de , est dense dans .
+Soit  l'ensemble des fonctionnelles satisfaisant des équations différentielles algébriques du type
+
+où  est un polynôme à coefficients réels. Selon ,  est dense dans . 
+Il est ainsi loisible de supposer que le système considéré est . Soit un entier , , tel que
+$$
+{} $$
+D'où, localement, d'après le théorème des fonctions implicites,
+$$
+y^{( = (y, , , y^{(1)}, , u, , )
+$$
+Il en découle le système 
+Souvent, en pratique, on sélectionne . Voir  pour une explication. On rencontre parfois . Jamais plus. Le praticien choisit  tel que les trois termes de  aient le même ordre de grandeur. Il en découle qu'une identification précise du paramètre  est sans objet.
+
+
+Reprenons  avec . Un 
+où
+
+
+Il vient
+
+Si l'estimée  est 
+Si , on a un 
+Si , on a un 
+Avec , on aboutit à un 
+C'est le correcteur le plus courant dans la pratique du MFC et .}. La dynamique  devient
+$$
+ = K_P e  + F - F_{} 
+$$
+
+On démontre  qu'un iP (resp. iPD) est équivalent, en un certain sens, à un PI (resp. PID) classique. On comprend ainsi, sans doute pour la première fois, 
+
+
+
+
+Dans tous les exemples .} concrets rencontrés jusqu'à présent, on a toujours pu se ramener à des systèmes de type  en parallèle ou en cascade. La mise en place des correcteurs intelligents reste donc facile (voir )  à propos de la .
+
+
+
+On peut approcher toute fonction , , , intégrable, c'est-à-dire très générale, par une fonction constante par morceaux (voir, par exemple, , ). Par utilisation de fenêtres temporelles glissantes, l'estimation de  se ramène ainsi à celle d'une constante . On présente, pour rester court, les calculs dans le cas . Les règles du calcul opérationnel (voir, par exemple, ) permettent de rééecrire
+ ainsi
+$$
+sY = {s}+$$
+On élimine la condition initiale  en dérivant les deux membres par :
+$$
+Y + s{ds}=-{s^2}+{ds}
+$$
+On atténue le bruit en multipliant les deux membres par . La correspondance entre  et le produit par  permet de revenir au domaine temporel:
+ 
+où 
+
+
+On obtient  en temps réel.
+
+On estime , aussi en temps réel, par une formule différente grâce à :
+
+Après échantillonnage,  et  deviennent des filtres linéaires.
+
+
+Au début, on estimait  en utilisant un dérivateur   de .
+
+
+Voir  et  pour d'autres approches de l'estimation.
+
+
+
+On se conforme à l'usage, contraire à celui du MFC, en présentant l'ADRC par une équation différentielle:
+
+où
+
+;
+
+La some  est la 
+En ignorant ,  devient:
+
+ a observé que  vérifie la propriété de platitude et que la sortie  est plate, , , , , , et leurs bibliographies.}. Si l'on emploie un , ou ),
+, ou les techniques algébriques d'estimation (,  et ),  l'approche de l'ADRC s'en trouve d'autant plus simplifiée ). La distance considérable entre la voie prise par Sira-Ramrez, ses collaborateurs et les autres protagonistes de l'ADRC (voir, en particulier, le livre ) rend messéant, on en conviendra, un résumé plus complet.
+
+
+
+
+
+Posons . Avec cette notation de la perturbation totale,  devient
+
+à comparer à , si l'on suppose  constant, propriété usuelle, du reste, dans la présentation de l'ADRC:
+
+ d'être une sortie plate;
+,  pour le pendule dit, souvent, de Furuta);
+-- est connu, alors qu' en  est ajusté approximativement par l'opérateur;
+-- est connu et, donc, imposé, alors que  en  est choisi par l'opérateur avec, toujours jusqu'à présent, une valeur faible,  ou .
+
+D'où la sélection d'exemples ci-dessous: ils n'entrent pas dans le cadre  de l'ADRC. 
+
+
+
+Pour un système linéaire stationnaire, de dimension finie, commandabilité et platitude sont équivalentes . Pour un système SISO, la sortie  est plate si, et seulement si, le numérateur de la fonction de transfert est constant . Considérons donc le système défini par la fonction de transfert à numérateur non constant ne considère que des fonctions de transfert à numérateurs constants.}:
+$$
+{(s-2)(s-1)(s+1)}
+$$
+Ici, un modèle ultralocal du premier ordre est utilisé avec .
+Un bruit additif, blanc, gaussien, centré, d'écart type 0.01, affecte la sortie. Les figures {} et {} présentent les résultats avec une période d'échantillonnage de ms. La poursuite de la trajectoire de référence y est excellente comme le montre le tracé figure {}. Pour cet exemple, contrairement à ce qui suit, on représente la trajectoire par une courbe de Bézier  qui permet aisément des dérivées nulles en début et en fin.
+
+
+
+
+
+
+
+}
+Avec 
+$$
+} (u).
+$$
+on utilise  avec , , . Un bruit additif, gaussien, centré, d'écart-type , affecte la sortie. Avec une période d'échantillonnage ms, les simulations, reportées sur les figures 
+{}, {} et {}, attestent d'une poursuite de trajectoire irréprochable.
+
+
+
+
+
+
+Avec
+$
+on choisit, pour , , . Avec un bruit sur , additif, blanc, gaussien, centré, d'écart-type , et un échantillonnage de période ms, la poursuite de trajectoire, exhibée par les figures 
+{}, {} et {} est bonne.
+
+
+
+
+
+Avec
+$$
+ (u).10^{|u|}
+$$
+, ,  en . Les résultats des figures {}, {} et {} sont excellents.
+
+
+
+
+
+
+
+
+Quoique le système
+$
+soit plat, de sortie plate , il est, en raison du produit  et comme on le voit en , plus général que ceux considérés en ADRC. De plus, son instabilité le rend délicat à commander. En , on choisit , , . On ajoute un bruit additif sur la sortie, blanc, gaussien, centré, d'écart-type . La condition initiale est . La période d'échantillonnage est ms. Les résultats de poursuite de trajectoire reportés sur les figures {}, {} et {} sont tout à fait corrects.
+
+
+
+
+
+
+Une littérature considérable a été consacrée au système, plutôt académique, des trois cuves, notamment en diagnostic, représenté par la figure {} (voir, par exemple,  et ses références).
+
+Confirmant la remarque {}, il témoigne de la simplicité du traitement des systèmes multivariables par rapport à l'ADRC (voir, par exemple, , , , et ). En voici la description par équations différentielles
+
+où 
+
+
+
+
+On régule, selon le paragraphe , grâce à deux systèmes ultralocaux  en parallèle, d'ordre  et monovariables, de commandes et de sorties respectives ,  et , . Pour les deux, , . Un bruit additif, blanc, gaussien, centré, d'écart-type  , parasite les sorties. Les figures {} à {} rapportent les simulations obtenues avec un échantillonnage d's. Les poursuites de trajectoires sont excellentes (se rapporter à {} et {}). En dépit du couplage physique évident, une variation de consigne dans la cuve  n'influence guère la poursuite dans la cuve .
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Soit l'équation de la chaleur en une seule dimension d'espace
+
+où
+
+
+On désire matriser l'évolution de  en  (voir figure {}). Ici, , . Réalisées avec un bruit additif, blanc, gaussien, centré, d'écart type , et un échantillonnage de taille ms,
+les simulations des figures {{}, {}, {} et {} présentent d'excellents résultats.
+
+
+
+
+
+
+
+
+
+En calcul opérationnel (voir, par exemple, ),  conduit à considérer des exponentielles de la forme . Nul besoin avec MFC de développements originaux pour la dérivation fractionnaire  et, on en fait la conjecture, pour toute dérivation non entière rencontrée en pratique. Ce n'est pas le cas avec l'ADRC (voir, par exemple, ). 
+
+
+Le MFC a déjà permis des avancées conceptuelles d'une importance certaine:
+
+, , à l'universalité des PID et à leurs faiblesses, et ce pour la première fois.
+sservissement} {aire} {d'ntre utoroutire} est l'algorithme le plus usité de régulation des accès d'autoroutes. Aucune justification n'en avait été publiée jusqu'à .
+ à une question  sur la .
+
+Aucun succès de cet ordre ne peut, à notre connaissance, être porté au crédit de l'ADRC. 
+
+Depuis , des retards sont introduits pour faciliter le réglage des gains des PID. Ils perdent tout sens   avec les correcteurs intelligents associés au MFC. Avec, par contre, des retards physiques , , où  en  devient variable, et , ) qu'en ADRC (voir, par exemple, , , , ). Dominer cette question est un point clé. 
+
+Quant aux systèmes  modélisés par des équations aux dérivées partielles, la situation reste assez floue, même si MFC compte déjà quelques réussites concrètes incontestables (voir, par exemple, ).
+
+
+{99}
+ssa  (2017a)]{alinea}
+ssa} H.,  M.,  C., 
+, 90 (2017a): 1018-1026. 
+
+ssa  (2017b)]{bldg}
+ssa} H.,   O.,  C.,  M.,  D., Energy saving for building heating
+via a simple and efficient model-free control design: First steps with computer simulations. , Sinaia, 2017b. {
+
+
+ (2017)]{aguil}
+ C., rez} H.,  J. , , (2017): {
+
+ (2010)]{andr}
+'a}- B.,  M.,  C.,  H.,  B., , Marrakech, 2010. {
+
+strstr K.J.,  T., 		Control}. Research Triangle Park, NJ: Instrument Society of America, 2006.
+
+str
+strm} K.J. ,  P.R., , 50 (2014): 3-43.
+		
+ str
+str K.J.,  R.M., . Prinveton, NJ: Princeton University Press, 2008.	
+
+   (2018)]{quad}
+  M.,  C.,  H.,  (2018).
+
+
+ P., . Paris: Hermès, 1986.
+
+ 
+ F.,  F.,   48-28 (2015): 150-155.
+
+
+ G, (2000), . Paris: Dunod, 2000.
+
+s-Romero  (2017)]{cortes}
+s-Romero} J.,  A.,  H., rez} H., , 61 (2017): 173-182.
+
+ (2016)]{doublet1}
+ M.,  C.,  F., , Barcelone, 2016. {
+
+ (2017)]{doublet2}
+ M.,  C.,  F., , Sinaia, 2017. {
+
+
+ A., . New York: Holt Rinehart Winston, 1962. 
+
+
+ H.,  B.-Z., , (2017): {
+
+
+ M.,  C., , 86 (2013): 2228-2252.
+
+
+ M.,  C., 
+
+ (2008)]{identif3}
+ M.,  C., rez} H., , 4 (2008): 12-27.
+
+ (1983)]{volt}
+ M.,  M.,  F., , 30 (1983): 554-570.	
+		
+ (1995)]{flmr1}
+ M., vine} J.,  Ph.,  P., , 61 (1995): 1327-1361.
+
+ (1999)]{flmr2}
+ M., vine} J.,  Ph.,  P., cklund approach to equivalence and flatness of nonlinear systems, 44 (1999): 922-937.
+
+
+ M.,  R., , 73 (2000): 606-623.
+
+ (2002)]{gpi}
+ M.,  R.,  E.,  rez} H., , 7 (2002): 23-41.
+
+rez (2003)]{identif1}
+ M., rez} H.,  ,  9 (2003): 151-168.
+
+
+rez (2008)]{identif2}
+ M., rez} H., H. Garnier, L. Wang (Eds)
+,
+pp. 362-391, Londres: Springer, 2008.
+
+
+ Z., , 53 (2014): 850-857.
+
+
+
+ R.,  . Berlin: Springer, 1998.
+
+
+ B.-Z.,  Z.-L., . Singapore: Wiley, 2016.
+
+
+ B.-Z.,  H.-C., , 60 (2015): 143-157.
+
+
+  J., , 56 (2009): 900-906.
+ 
+
+  G., , 2 (2013): 246-279.
+
+
+ Y.,  W., , 53 (2014): 963-976.
+
+
+ S.,  Y., , 5 (2016): {
+
+
+ (2017)]{iste}
+ C.,  E.,  M.,  C.H., , 1 (2017): 9 p.
+{
+
+ (2010)]{edf}
+ C.,  G.,  M., modle pour amnagements hydrolectriques en cascade}, Nancy, 2010. {
+
+
+
+ R.E.,  , 82 (1960): 35-45.
+
+
+ R.E.,   R.S., , 83 (1961): 95-107.
+
+ (2016)]{karin}
+ O.,  A.,  B.,  Y.,  U., , 12 (2016): 886. {
+
+ (2017)]{qi}
+ X.,  J.,  Y.,  Z., , 36 (2017): 65-81.
+
+ (2015)]{toulon}
+L F., B J.-F., P N., F M.,
+, 110 (2015): 139-149.
+
+
+ F., , Paris: Hermès, 1994.
+
+
+ Ph., e} (2 d.). Paris: Herms-Lavoisier, 2009.
+
+
+ J., . Berlin: Springer, 2009.
+
+ (2016)]{li}
+ D.,  P.,  Z., , 62 (2016): 109-119.
+
+ski 
+ski} R.,  P., , Barcelone, 2012. 
+
+ski 
+ski} R.,  P., , 56 (2015): 18-27.
+
+  (2009)]{mboup}
+ M.,  C.,  M., , 50 (2009): 439-467.
+
+
+ (2017)]{ieee17}
+ L., 'a}- B.,  M.,  D.,  H.,  , 2017. {
+
+  (2009)]{cran}
+ H.,  D.,  J.-C.,  A., . Londres: Springer, 2009.
+
+
+ A.,  (3rd ed.). Londres: Imperial College Press, 2009.
+
+ni  (2018)]{polo}
+ni} T.,  I.,  B., , 140 (2018):  {
+
+
+ J.-V.,  (3 éd.). Paris: Gauthier-Villars, 1870.
+
+ rez-Neria  (2014)]{furuta}
+rez-Neria} M.,  rez} H.,  R., rez} A., , 53 (2014): 920-928.
+
+
+ G.G., . Heidelberg: Springer, 2015.
+
+
+ J.-J., . Paris: Dunod, 1991. Traduction anglaise: . Cambridge: Cambridge University Press, 1992.
+
+
+
+ F.,  I.,  S7450 V1, 2007.
+ 
+ 
+ W., . New York: McGraw-Hill, 1967. Traduction française: , Paris: Ediscience, 2000.
+
+ W., . New York: McGraw-Hill, 1976. Traduction française: , Paris: Dunod, 2009.
+
+
+ J., ge zur flachheitsbasierten Folgeregelung linearer und nichtlinearer Systeme endlicher und unendlicher Dimension}. Aachen: Shaker Verlag, 2003.
+ 
+  
+   W.J., . The Johns Hopkins University Press, Baltimore, 1981.
+  
+  rez 
+ rez} H.,  S.K., . New York: Marcel Decker, 2004.
+
+ rez  (2014)]{sira2}
+ rez} H., a-Rodrguez} C., s-Romero} J., rez} A.,
+ . Chichester: Wiley, 2014.
+ 
+ rez  (2011)]{ibero}
+ rez} H., rez} A., s-Romero} J., tica e Informtica Industrial}, 
+ 8 (2011): 14-28.
+
+ rez  (2017)]{sira3}
+ rez} H., rez} A., rez-Neria} M.,  E.W., . Oxford  
+ rez  (2018)]{sira4}
+  rez} H.,  E.W., rez} A., , 140 (2018): 
+  {
+
+  (2016)]{sun}
+ L.,  J.,  D.,  K.Y.,
+, 55 (2016): 2008-2019.
+
+ 
+ A.,  V., , 48 (2017): 1656-1670.
+
+  (2017)]{thabet}
+ H.,  M.,  F., , 11 (2017): 222-238.
+
+
+ M.,  Z. (2017). , 2017 {
+
+  (2011)]{vincent}
+ J.,  D.,  N.,  Z.,  S.,  A.,  Q., , 643 (2011): 11-16.
+
+ (2015)]{wu} 
+ Y.-J.,  Y.Y.,  X.-D., , 2015. {
+
+ (2009)]{xia} 
+ Y.,  M.,  P., . Lecture Notes in Control and Information Sciences 387, Berlin: Springer, 2009.
+
+ 
+ J.,  W., , 89 (2017): 1611-1624.
+
+ (2017)]{wang17}
+ H.,  Y.,  S.,  X., , 26, 161-170, 2017.
+
+ (2016)]{wang16}
+ H.,  X.,  Y.,  G.,  N., , 52, 2519-2528, 2016.
+
+  (2014)]{zhang}
+ Y.,  C.,  F.,  Z.,  Z., , 76 (2014): 1185-1194.
+
+  (2018)]{delayzhang}
+ X.,  H.,  Y.,  L.,  X.,  , 272 (2018): 178-188.
+ 
+  
+  S.,  Z., , 53 (2014): 882-888.
+ 
+  
+  Q.,  Z., , 14 (2016): 250-259.
+ 
+  
+ J.G.,  , N.B. (1942). the ASME}, 64 (1942): 759-768.
+
+  
+ J.G.,  , N.B. (1943). the ASME}, 65 (1943): 433-444.
+ 
+ 
+
+
+
+

@@ -1,0 +1,21 @@
+ Here,  and  are parameters of the algorithm. Hence, in fact, Sawada et al. In this paper, we present an optimal  for the well-known prefer-max and prefer-min DB sequences. Hence, the set of all words over , denoted , is totally ordered by the lexicographic order, which we simply denote by `'. We say that a word, , is an  if . These notions are defined, of course, only when . A word, , is a  of a word, , if  and . This happens when  for some non-empty word, , and an integer . In this case,  is said to be . Hence, in particular, a Lyndon word is aperiodic. For a Lyndon word, , let . Since  divides ,  is a positive integer. For , we define    (that is, ). In this section, we present an  algorithm with  time complexity. , if , then . , if , then . loop. loop . For , we have . In this case, several invocations of our  algorithm produce the -word that follows  at the prefer-min sequence. For example, if , then  since  is a suffix of . Hence, for constructing an efficient  in the way described above, we need an efficient -algorithm. In this section we construct an efficient -algorithm. For all  such that , if , then , for some -word, . When , we have  where  is the -prefix of . Then,  is assigned with , and the algorithm returns , which is . In this section we show how to compute , efficiently. Hence,  is a subword of , but not of . If  and , then: 
+
+
+
+
+
+
+
+
+
+
+Take , and consider the words , as defined in Definition~. If  and , then:
+
+
+
+
+
+
+
+
+Now we can show how to construct  from . Then, . Namely, if  is a subword of , but not a suffix of this sequence? Hence,  where  is the -suffix of . Namely, finding  and finding the -suffix of . if ). Then,  can be found by applying Algorithm~ on . Hence,   if and only if .

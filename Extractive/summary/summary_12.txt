@@ -1,0 +1,6 @@
+ In , Sakama introduces algorithms to induce 
+a { logic programanswer set program with at most one stable model.} In , Sakama extends his work to learn from   
+multiple answer sets. ). Now, FOLD is recursively called to learn a 
+rule for , . Next, we present our XFOLD algorithm. {ll}
+                   & conflict(Y,X).} . To learn this constraint, negative examples are needed. Next, the partial  score is 
+computed.

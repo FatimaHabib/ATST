@@ -1,0 +1,877 @@
+
+           
+
+
+
+
+
+
+
+
+
+
+{Example}
+}
+
+}
+
+}
+[FOR]{ForEach}[1]{
+{~~~~}
+
+
+
+
+
+
+
+
+        Gopal Gupta }
+
+
+              The University of Texas at Dallas                                                 G. Gupta               The University of Texas at Dallas               }
+
+
+
+
+
+
+
+
+
+Statistical machine learning methods produce models that are not comprehensible for
+humans because they are algebraic solutions to optimization problems such as 
+risk minimization or data likelihood maximization. These methods do not produce 
+any intuitive description of the learned model. Lack of intuitive descriptions 
+makes it hard for users to understand and verify the underlying rules that
+govern the model. Also, these methods cannot produce a justification for 
+a prediction they compute for a new data sample. Additionally, if prior 
+knowledge (background knowledge) is extended in these methods, then the
+entire model needs to be re-learned. Finally, no distinction is made between 
+exceptions and noisy data in these methods.
+
+Inductive Logic Programming , however, is one technique where 
+the learned model is in the form of logic programming rules (Horn clauses) that 
+are comprehensible to humans. It allows the background knowledge to be incrementally 
+extended without requiring the entire model to be relearned. Meanwhile, the 
+comprehensibility of symbolic rules makes it easier for users to understand and 
+verify induced models and even edit them.
+
+ILP learns theories in the form of Horn clause logic programs. Extending
+Horn clauses with negation as failure (NAF) results in more powerful applications
+becoming possible as inferences can be made even in absence of information. This 
+extension of Horn clauses with NAF where the meaning is computed using the stable 
+model semantics ---called Answer Set Programmingterm answer set programming in a generic sense to refer to normal logic programs,
+i.e., logic programs extended with NAF, whose semantics is given in terms of
+stable models .}---has many powerful applications. 
+Generalizing ILP to learning answer set programs 
+also makes ILP more powerful. 
+For a complete discussion on the necessity of NAF in ILP, we refer the reader 
+to . 
+
+Once NAF semantics is allowed into ILP systems, they 
+should be able to deal with multiple stable models which arise due 
+to presence of mutually recursive rules involving negation (called 
+{)  such as: 
+
+{
+p :- not q.
+
+q :- not p.
+
+}
+
+Inducing answer set programs in presence of even cycles in the background knowledge has 
+first been explored in , where the author describes the added 
+expressiveness that results once background knowledge is allowed to have multiple stable 
+models. Work by Otero  on induction of stable models formalizes induction 
+of answer set programs with stable model semantics  such that in situations 
+where  ( represents the background knowledge and  the hypothesis) 
+has multiple stable models, it is just necessary to guarantee that 
+each positive example is true in at least one stable model of . It also 
+attempts to characterize inducing answer set programs from partial answer sets of 
+ (the author calls them non-complete set of examples). These partial answer sets
+are treated as examples in the ILP problem. Otero also suggests that researchers should
+focus on learning answer set programs that model combinatorial and planning problems, but
+does not present any solution.  Addressing the problem of learning such programs 
+is the goal of our research presented in this paper.
+
+In , Sakama introduces algorithms to induce 
+a { logic programanswer set program with at most one stable model.} given the answer set of 
+the background knowledge and { positive { negative examples. Essentially,
+given a single answer set, Sakama tries to induce a program that
+has that answer set as a stable model.
+In , Sakama extends his work to learn from   
+multiple answer sets. He introduces { induction, where the learned 
+hypothesis  is such that { of the answer sets of 
+ cover the positive examples. The limitation of this work is that it accepts only 
+one positive example as a conjunction of atoms. It does not take into account negative examples at all.
+Cautious induction, the counterpart of brave induction, is also 
+too restricted as it can only induce atoms in the intersection 
+of all stable models. Thus, neither brave induction nor cautious induction are able 
+to express situations where something should hold in all 
+or none of the stable models. An example of this limitation arises in the graph
+coloring problem where the following should hold in all answer sets: no two neighboring 
+nodes in a graph should be painted the same color.
+
+ASPAL  is the first ILP system to learn answer 
+set programs by encoding ILP problems as ASP programs and having an ASP solver 
+find the hypothesis. Its successor ILASP , is an ILP system capable of 
+inducing hypotheses expressed as answer set programs too. ILASP defines a framework that subsumes 
+brave/cautious induction and allows much broader class of problems relating to learning answer
+set programs to be handled by ILP.  However, the algorithm exhaustively searches the space of 
+possible clauses to find one that is consistent with all examples and 
+background knowledge. To make this search feasible, it prohibits predicate 
+invention, i.e., learning predicates other than the target predicate(s). Resorting to
+exhaustive search and not allowing predicate invention are 
+weaknesses of ILASP that limit its applicability to many useful situations. Our
+research presented in this paper does not suffer from these problems.
+
+XHAIL  is another ILP system capable of learning non-monotonic 
+logic programs. It heavily incorporates abductive logic programming to search 
+for hypotheses. It uses a similar language-bias as ILASP does, and thus suffers
+from the limitations similar to ILASP. It also does not support the notion of inducing 
+answer set programs from partial answer sets.
+
+All the systems discussed above, resort to an exhaustive search for the hypothesis.
+In contrast, traditional ILP systems (that only learn Horn clauses),
+ use heuristics to guide their search. Use of heuristics allows these system to avoid
+an exhaustive search. These system usually start with the most general clauses and then 
+specialize them. They are better suited for large-scale data-sets with noise, 
+since the search can be easily guided by heuristics. 
+FOIL  is a representative of such algorithms. However, handling negation in FOIL is somewhat 
+problematic as we will soon show. Also, FOIL can not handle background knowledge 
+with multiple stable models, nor it can induce answer set programs.
+
+Recently we developed an algorithm called FOLD  to automate 
+inductive learning of default theories represented as stratified answer
+set programs. FOLD (First Order Learner of Default rules) extends the 
+FOIL algorithm and is able to learn answer set programs that represent the underlying knowledge
+very succinctly. 
+However, FOLD is only limited to dealing with stratified answer set programs, i.e.,
+mutually recursive rules through negation are not allowed in the background knowledge
+or the hypothesis.  Thus, FOLD is incapable of handling cases where the
+background knowledge or the hypotheses admits multiple stable models. In this paper, 
+we extend the FOLD algorithm to allow both the background
+knowledge and the hypothesis to have multiple stable models. 
+The extended FOLD algorithm---called the XFOLD algorithm---is much more general than previously
+proposed methods. 
+
+This paper makes the following novel contributions: it presents the XFOLD algorithm,
+an extension of our previous FOLD algorithm, that can
+handle background knowledge with multiple stable models as well as allow 
+inducing of hypotheses that have multiple stable models. To the best of our knowledge, XFOLD is the first 
+heuristic based algorithm to induce such hypotheses. The XFOLD algorithm
+can learn ASP programs to solve combinatorial problems such as graph-coloring and N-queens.
+Because the XFOLD algorithm is based on heuristic search, it is also scalable. Lack of
+scalability is a major problem in previous approaches.
+
+The rest of this paper is organized as follows: In section 
+, we present the motivation of the FOLD algorithm by 
+recalling some of the problems in FOIL algorithm. In section , we 
+introduce the FOLD algorithm. In section , we present our 
+extension to the FOLD algorithm, called XFOLD, to induce answer set programs with multiple 
+stable models. In section , we show how XFOLD algorithm can 
+induce programs for solving combinatorial problems. In section , we
+present related work while in 
+section , we present our conclusions and future work.   
+
+We assume that the reader is familiar with answer set programming and stable
+model semantics. Books by Baral  and Gelfond and Kahl 
+are good sources of background material.
+
+
+
+
+In this section we describe our work on learning stratified answer set programs, i.e.,
+learning hypothesis without cyclical rules using background knowledge that also does not
+have cyclical rules. The learning algorithm, called FOLD (First Order Learning of Default 
+rules) , is itself an extension of the well known FOIL algorithm.
+FOIL is a top-down ILP algorithm which follows a 
+ approach to induce a hypothesis. The FOIL 
+algorithm is summarized in Algorithm . This algorithm repeatedly 
+searches for clauses that score best with respect to a subset of 
+positive and negative examples, a current hypothesis and a heuristic called 
+ (IG). The FOIL algorithm learns a target predicate
+that has to be specified. Essentially, the target predicate appears as the head of 
+the learned goal clause that FOIL aims to learn.
+
+
+The inner loop searches for a clause with the highest information gain using a 
+general-to-specific hill-climbing search. To specialize a given clause , a 
+refinement operator  under -subsumption  is 
+employed. The most general clause is }, 
+where the predicate  is the target and each  is a variable. 
+The refinement operator specializes the current clause ,...,.. This is realized by adding a new literal  to the 
+clause, which  yields the following: }. The 
+heuristic based search uses  . In FOIL, information 
+gain for a given clause is calculated as follows 
+:
+
+where  is the candidate literal to add to rule ,  is the number of 
+positive bindings of ,  is the number of negative bindings of , 
+ is the number of positive bindings of ,  is the number of 
+negative bindings of ,  is the number of positive bindings of  also 
+covered by .
+
+FOIL handles negated literals in a naive way by adding the literal  to 
+the set of specialization candidate literals for any existing candidate . 
+This approach leads to learning predicates that do not capture the concept 
+accurately as shown in the following example:
+
+
+ are background knowledge and positive examples 
+respectively under , and the target predicate 
+is .
+
+
+{rll}
+  &  &       &           &        &             &  &            &  
+
+The FOIL algorithm would learn the following rule:
+
+    {l}
+        
+    
+
+which does not yield a constructive definition, even though it covers all the 
+positives (tweety is not a penguin and et is not a cat) and no negatives 
+(neither cats nor penguins fly). In fact, the correct theory in this 
+example is  as follows: "{exceptional ones who do not fly}". It translates to the following logic programming rule:
+
+    {l}
+        
+    
+
+which FOIL fails to discover.
+
+
+
+The intuition behind FOLD algorithm is to learn a concept in terms of a default 
+and possibly multiple exceptions (and exceptions to exceptions, and so on). 
+Thus, in the bird example given above, we would
+like to learn the rule that { flies if it is a bird and not a penguin, rather
+than that all non-cats and non-birds can fly. FOLD tries first to learn the 
+default by specializing a general rule of the form 
+} with positive literals. 
+As in FOIL, each specialization must rule out some already covered negative 
+examples without decreasing the number of positive examples covered 
+significantly. Unlike FOIL, no negative literal is used at this stage. Once 
+the IG becomes zero, this process stops. At this point, if any negative 
+example is still covered, they must be either noisy data or 
+exceptions to the current hypothesis. Exceptions are separated from noise via 
+distinguishable patterns in negative examples . In other 
+words, exceptions could be learned by calling the same algorithm recursively.
+This swapping of positive and negative examples, then recursively calling the
+algorithm can continue, so that we can learn exceptions to exceptions, and so on. 
+Each time a rule is discovered for 
+exceptions, a new predicate  is introduced. To avoid 
+name collisions, FOLD appends a unique number at the end of the string "ab" to 
+guarantee the uniqueness of invented predicates. It turns out that the outlier 
+data samples are covered neither as default nor as exceptions. If outliers are
+present, FOLD identifies and enumerates them to make sure that the algorithm converges.
+
+Algorithm  shows a high level implementation of the FOLD 
+algorithm. At lines 
+1-8, function FOLD, serves like the FOIL outer loop. At line 3, FOLD starts 
+with 
+the most general clause (e.g. ). At line 4, this clause 
+is refined by calling the function . At lines 5-6, set of positive 
+examples and set of discovered clauses are updated to reflect the newly 
+discovered clause. 
+
+At lines 9-29, the function  is shown. It serves 
+like the FOIL inner loop. At line 12, by calling the function 
+ADDthe ``best'' positive literal is chosen and the best IG as well as the 
+corresponding clause is returned. At lines 13-24, depending on the IG value, 
+either the positive literal is accepted or the EXCEPTION function is called. 
+If, at the very first iteration, IG becomes zero, then a clause that just 
+enumerates the positive examples is produced. A flag called  
+is used to differentiate the first iteration. At lines 26-27, the sets of 
+positive and negative 
+examples are updated to reflect the changes of the current clause. At line 19, 
+the EXCEPTION function is called while swapping  and .    
+
+At line 31, the ``best'' positive literal that covers more positive 
+examples and fewer negative examples is selected. Again, note the current 
+positive examples 
+are really the negative examples and in the EXCEPTION function, we try to find 
+the 
+rule(s) governing the exception. At line 33, FOLD is recursively called to 
+extract this rule(s). At line 34, a new  predicate is introduced and 
+at 
+lines 35-36 it is associated with the body of the rule(s) found by the 
+recurring FOLD function call at line 33. Finally, at line 38, default and 
+exception are combined together to form a single clause.
+
+The FOLD algorithm, once applied to Example , yields the 
+following clauses:
+
+    {l}
+                
+    
+
+
+
+
+
+Now, we illustrate how FOLD discovers the above set of clauses given 
+ and  and the 
+goal . By calling FOLD, at line 2 while loop, the clause 
+} is specialized. Inside the  function, 
+at line 12, the 
+literal  is selected to add to the current clause, to get the 
+clause 
+ = , which happens to have the greatest IG 
+among }. Then, at lines 26-27 the following updates 
+are 
+performed: ,, a penguin is still covered. In the next iteration,  fails 
+to introduce a positive literal to rule it out since the best IG in this case 
+is zero. Therefore, the EXCEPTION function is called by swapping the 
+, . Now, FOLD is recursively called to learn a 
+rule for , . The recursive call 
+(line 33), returns } as the exception. At line 
+34, 
+a new predicate  is introduced and at lines 35-37 the clause 
+} is created and added to the set of invented 
+abnormalities namely, AB. At line 38, the negated exception (i.e ab0(X)}) and the default rule's body (i.e ) are compiled 
+together to 
+form the clause }.     
+
+Note, in two different cases  function is called: i) At very first 
+iteration of specialization if IG is zero for all the positive literals. 
+ii) When the  routine fails to find a rule governing negative 
+examples. Whichever is the case, corresponding samples are considered as noise. 
+The following example shows a learned logic program in presence of noise. In 
+particular, it shows how  function works: It generates clauses in 
+which the variables of the goal predicate can be unified with each member of a 
+list of the examples for which no pattern exists.
+
+Similar to Example , plus we have an extra positive example 
+fly(jet) without any further information:
+
+
+{cll}
+    &  &                    &  &                     &    &   &   &  
+
+
+FOLD algorithm on the Example 4.1 yields the following clauses:
+
+    {l}
+                        
+    
+
+FOLD recognizes  as a noisy data.  is a built-in logic programming predicate in 
+that tests the membership of an atom in a list.
+
+Sometimes, there are nested levels of exceptions. The following example shows 
+how FOLD manages to learn the correct theory in presence of nested exceptions.
+
+Birds and planes normally fly, except penguins and damaged planes that can't. 
+There are super penguins who can, exceptionally, fly.
+
+
+    {cl}
+           &                 &                 &  
+               &                 &                 &           &                & 
+    
+
+FOLD algorithm learns the following theory:
+
+    {l}
+                                         
+    
+
+
+Table , presents our experiments with UCI benchmark datasets . In this experiment, we ran FOLD on each dataset and measured the accuracy using a 10-fold cross-validation and the results are compared against that of Aleph . Aleph is a popular ILP system that has been widely used in prior work. To induce a clause, Aleph starts by building the most specific clause, which is called the ``bottom clause", that entails a seed example. Then, it uses a branch-and-bound algorithm to perform a general-to-specific heuristic search for a subset of literals from the bottom clause to form a more general rule. In most cases, our FOLD algorithm outperforms Aleph in terms of accuracy and succinctness of induced rules.
+
+FOLD handling of negation and numeric constraints, yields intuitive and precise results. For instance, in UCI Labor-negotiations, which is a dataset of final settlements in labor negotiations in Canadian industry, the following hypothesis is induced by FOLD:
+
+
+    {l}
+                                              
+
+This hypothesis captures the highest priorities of employees in a good contract. Without having abnormality predicates, 
+the hypothesis would have contained more clauses depending on the diversity of options on long term disability support and pension, 
+whereas in default theory approach, as shown in this example, instead of covering examples with multiple clauses, 
+a single clause is introduced as a default rule, and irrelevant predicates are excluded by abnormality predicates.
+
+
+
+
+
+
+
+In the previous section we assumed that the background knowledge  is a 
+normal logic program with one stable model and all examples belong to 
+the only stable model of . This would require the language bias not 
+to allow even cycles which are responsible for generating multiple 
+stable models.
+
+In this section we extend our FOLD algorithm to learn normal logic programs 
+that potentially have multiple stable models. The significance of Answer Set 
+Programming paradigm is that it provides a declarative semantics under which 
+each stable model is associated with one (alternative) solution to the problem 
+described by the program. Typical problems of this kind are combinatorial 
+problems, e.g., graph coloring and N-queens. In graph coloring, one should find 
+different ways of coloring nodes of a graph without coloring two nodes connected by
+an edge with the same color. N-queen is the problem of placing N queens in a chessboard of size 
+ so that no two queens attack each other.
+
+In order to inductively learn such programs, the ILP problem definition needs to
+be revisited. In the new scenario, positive examples , may not 
+hold in every model. Therefore, the ILP problem described in the background 
+section would only allow learning of predicates that hold in all answer sets. This 
+is too restrictive. Brave induction , in contrast, allows examples to 
+hold only in some stable models of . However, as stated in 
+ and we will show using examples, this is not enough when it comes 
+to learning global constraints (i.e, rules with empty head)answer set programming, a constraint is expressed as a headless rule of the
+form 
+
+{ 
+
+which states that { must be false. A headless rule is 
+really a short-form of rules of the form (called odd loops over negation ):
+
+{
+}. Learning global
+constraints is essential because certain combinations may have to be excluded 
+from { answer sets.  
+
+When  has multiple stable models, there will be some instances of target 
+predicate that would hold in all, none, or some of the stable models. Brave 
+induction is not able to express situations in which a predicate should hold 
+in all or none of the stable models. An example is a 
+graph in which node 1 is colored red. In such a case, none of node 1's 
+neighbors should be colored red. If node 1 happens to have node 2 as a neighbor, brave induction is not 
+able to express the fact that if the predicate  appears in any 
+stable model of ,  should not. In , the 
+authors propose a new paradigm called  
+that overcomes these limitations. We also adopt this paradigm in our work presented here. 
+Next, we present our XFOLD algorithm. 
+
+
+A partial interpretation E is a pair  of 
+sets of ground atoms called inclusions and exclusions, respectively. Let $A 
+= AS(B E^{inc},E^{exc}  (E^{exc} 
+
+
+
+Consider the following background knowledge about a group of friends some of 
+whom are in conflict with others. The individuals in conflict will not attend a 
+party together. Also, they cannot attend a party if they work at the time the
+party is held. We want our ILP algorithm to discover the rule(s) that will
+determine who will go to the party based on the set of partial interpretations provided.
+
+
+    {ll}
+                   & conflict(Y,X).}                        &                         &                         &  
+                &  
+    
+
+Some of the partial interpretations are as follows. 
+The predicates g,w,o abbreviate goesToParty,works,off respectively:
+$E_1 = g(p3),g(p4),g(p5)  $$E_2 = $$E_3 = $$E_4 = $
+
+In the above example, each  for i = 1,2,3,4 is a partial interpretation
+and should be extended by at least one stable model of  for a 
+learned hypothesis . For instance, let's consider the hypothesis  
+} for learning the target predicate 
+. By plugging the background knowledge, the non-target 
+predicates in , and the hypothesis  into an ASP solver (CLASP
+ in our case), the stable 
+model returned by the solver would contain 
+}. It does not extend . Although, 
+ but $ AS(B _1 background knowledge upon calling ASP solver to compute the stable model of 
+.
+
+
+
+An XFOLD problem is defined as a tuple $P = multiple stable models called the background knowledge.  is the language-bias 
+such that , where  (resp. ) are called the 
+ (resp. )  . 
+Each mode declaration  (resp. ) is a literal whose 
+abstracted arguments are either variable  or constant . Type of a variable
+is a predicate defined in B. The domain of each constant should be defined 
+separately. The clause  is in the 
+search space if and only if: i)  is empty; ii)  is an atom compatible 
+with a mode declaration in . Hypothesis  is said to be compatible with a mode 
+declaration  if each instance of variable in  is replaced by a variable,
+and every constant takes a value from the associated domain. The set of 
+candidate predicates in the greedy search algorithm are selected from .
+
+The requirement of mode declarations in the XFOLD algorithm
+is due to a technicality: ASP solvers, need 
+to ground the program, and for that matter, programmer should ensure that every 
+variable is safe. A variable in  is  if it occurs in 
+a positive literal of . XFOLD adds predicates required to ensure 
+safety, but to keep our examples simple, we omit safety predicates in the 
+paper.  and  are sets of partial interpretations called positive and 
+negative examples, respectively.  is the target predicate's name. 
+Each XFOLD run learns a single target predicate. A hypothesis  is an 
+inductive solution of  if and only if:
+
+    extends 
+    extends 
+
+ 
+
+The above definition adopted from  subsumes brave and cautious 
+induction semantics . Positive examples should be extended by at 
+least one stable model of  (brave induction). In contrast, no stable 
+model of  extends negative examples (cautious induction). The 
+ problems such as N-queen and graph coloring could be 
+induced using our XFOLD algorithm. It suffices to use positive examples 
+for learning the  part and negative examples for
+learning the  part.
+
+Figure  represents the input to the XFOLD algorithm 
+for learning an answer set program for graph coloring. Every positive 
+example states if a node is colored red, then that node cannot be painted blue 
+or green. Likewise for blue and green. However, this is not enough to learn the constraint that two nodes
+connected by an edge cannot have the 
+same color. To learn this constraint, negative examples are needed. For instance, 
+, states that if any stable model of  contains 
+}, in order not to extend , it should contain 
+} or equivalently, it should not contain 
+}.
+
+
+The intuition behind the XFOLD algorithm is as follows: every positive example  that
+is a partial interpretation is considered as a separate learning problem. A partial 
+score is computed for . Once all the positive examples are tested against a 
+candidate clause, the overall score, i.e, the summation of all partial scores is 
+stored as the score of current clause. Among all hypotheses, the one with 
+highest overall score is chosen just like the single stable model case. For 
+testing any given hypothesis , the background knowledge , all non-target 
+predicates in  and the hypothesis  are passed to the ASP solver as 
+the input. The returned answer set is compared with the target predicates in 
+ and . Next, the partial  score is 
+computed. XFOLD chooses a clause with highest positive score (if one exists). 
+Next, every partial interpretation is updated by removing the covered target 
+predicates from  and . Once no target predicate in  
+is covered, the internal loop finishes and the discovered rule(s) are added to 
+the learned theory. Just like FOLD, if no literal with positive score exists, 
+swapping occurs on each remaining partial interpretation and the XFOLD algorithm 
+is recursively called. In this case, instead of introducing abnormality 
+predicates, the negation symbol, "-", is prefixed to the current target predicate to 
+indicate that the algorithm is now trying to learn the negation of concept being 
+learned. It should also be noted that swapping examples is performed slightly 
+differently due to the existence of partial interpretations. The summary of 
+required changes in swapping of examples is as follows:
+
+    restored
+    added to 
+    added to 
+    
+
+ 
+
+
+Figure  demonstrates execution of XFOLD for Example . 
+At the end of first iteration, the predicate  gets the highest 
+score.  will be removed as it is already covered by the current hypothesis. 
+In the second iteration, all candidate literals fail to get a positive score. 
+Therefore, swapping occurs and algorithm tries to learn the predicate 
+ as if it was an exception to the default case 
+}. Since the new target predicate is 
+, all ground atoms of  in  are restored 
+back. The old target atoms in  are transformed to negated version 
+and become members of . 
+
+In Figure , after one iteration,  is removed because 
+all target atoms in  are already covered and targets atoms in 
+ are already excluded. After swapping, XFOLD is recursively called to 
+learn . After two iterations, since all examples are covered, 
+the algorithm terminates.
+
+In Example , we haven't introduced any explicit negative example. 
+Nevertheless, the algorithm was able to successfully find the cases in which 
+the original target predicate does not hold (via learning  
+predicate). In general, it is not always feasible for the algorithm to figure 
+out prohibited patterns without getting to see a very large number of positive examples.
+
+It is also worth noting that , in essence, 
+represents classical negation. XFOLD learns the negation of 
+target predicate from negative examples, but then it shifts the negated head to the body 
+of the rule to produce a constraint. 
+Thus, given the following rule that is learned, 
+
+
+    {c}
+        
+    
+
+
+XFOLD subsequently shifts  from the head to the body, to turn it
+into a constraint:
+
+
+    {c}
+        
+    
+
+
+We will show detailed examples in the applications section. 
+
+
+
+
+A well-known methodology for declarative problem solving is the 
+ methodology, whereby possible solutions to a problem 
+are generated first, and then non-solutions are eliminated by testing. In 
+Answer Set Programming, the  part is encoded by enumerating 
+the possibilities by introducing even cycles. The 
+ part is realized by having constraints that would eliminate 
+answer sets that violate the test conditions.
+ASP syntax allows rules of the form  such that $0 bias. This is a syntactic sugar for combination of even cycles and constraints, 
+which is called { in the literature . 
+
+ILASP  directly 
+searches for choice rules by including them in the search space. XFOLD, on the 
+other hand, performs the search based on -subsumption  
+and hence disallows search for choice rule hypotheses. Instead, it directly
+learns even cycles as well as constraints. This is advantageous as it allows
+for more sophisticated and flexible language bias.
+
+It turns out that inducing the  part in a combinatorial 
+problem such as graph-coloring requires an extra step compared to the FOLD algorithm.
+For instance,  predicate has 
+the following clause:
+
+    {c}
+        
+    
+
+To enable XFOLD to induce such a rule, we adopted the ``Mathews Correlation 
+Coefficient" (MCC)  measure to perform the task of feature selection. MCC is 
+calculated as follows:
+
+    {c}
+    $ MCC = FN}{}$
+    
+
+
+This measure takes into account all the four terms TP (true positive), TN (true
+negative), FP (false positive) and FN (false negative) in the 
+confusion matrix and is able to fairly assess the quality of classification 
+even when the ratio of positive tuples to the negative tuples is not close to 
+1. The MCC values range from -1 to +1. A coefficient of +1 represents a perfect 
+classification, 0 represents a classification that is no better than a random classifier, and -1 
+indicates total disagreement between the predicted and the actual labels. MCC 
+cannot replace XFOLD heuristic score, i.e, , because 
+the latter tries to maximize the coverage of positive examples, while the 
+former only maximally discriminates between the positives and negatives. Nevertheless, 
+for the purpose of feature extraction among the negated literals which are 
+disallowed in XFOLD algorithm, MCC can be applied quite effectively. For that matter, 
+before running XFOLD algorithm, the MCC score of all candidate literals are 
+computed. If a predicate scores ``close" to +1, the predicate itself is added
+to the language bias. If it scores ``close" to -1, its negation is 
+added to the language bias. For 
+example, in case of learning , after running the feature 
+extraction on the graph given in Figure , XFOLD computes 
+the scores -0.7, -0.5 for  and , respectively. 
+Therefore, } are appended to the list of 
+candidate predicates. Now, after running the XFOLD algorithm, after two 
+iterations of the inner loop, it would produce the following rule:
+
+    {c}
+        
+    
+
+Corresponding rules for  and  are learned in a 
+similar manner. This essentially takes care of the  part of
+the combinatorial algorithm. In order 
+to learn the  part for graph coloring, we need the negative 
+examples shown in Figure . It should be noted that in 
+order to learn a constraint, we first learn a new target predicate which is the 
+negation of the original one. Then we shift the negated predicate from the head to the body
+inverting its sign in the process. That is, we first learn a clause of the form
+
+{
+
+which is then transformed into the constraint:
+
+{
+
+Thus, the following steps should be taken to learn constraints from negative examples:
+
+     part to B.
+     e^+_{inc}$:
+        
+              is of the form (})  $e^+_{inc}  -p(V_1,...V_m)             $e^+_{exc }  -p(V_1,...V_m)        
+     part and remove the body predicates from the list of 
+candidate predicates  
+    
+     from the head to the body for each rule returned 
+by FOLD
+
+
+The contrapositive of a statement has its antecedent and consequent inverted 
+and flipped. For instance, the contrapositive of the clause not green(X), not blue(X) is shown in Figure . 
+
+
+
+
+
+
+
+
+The reason why step 3 is necessary is the following: running FOLD without eliminating 
+the literals in contrapositive rule results in learning trivial clauses shown 
+in Figure . However, as soon as those trivial choices 
+are removed from search space, FOLD algorithm comes up with the next best 
+hypothesis which is as follows:
+
+    {l}
+        
+    
+
+Shifting the predicate  to the body yields the following 
+constraint:
+
+    {l}
+        
+    
+
+In graph coloring problem,  = }. Once 
+similar examples for  and  are provided, XFOLD 
+is able to learn the complete solution as shown in Figure 
+. Algorithm , presents a high level view of XFOLD to induce a  hypothesis.
+
+
+
+
+Next we discuss learning the answer set program for the 
+4-queen problem: the following items are assumed: Background knowledge 
+including predicates describing a  board, rules describing 
+different ways through which two queens attack each other and  examples of the 
+following form:
+
+    {ll}
+     B:  & 
+!= C_2R_1 = R_2$.}          & 
+!= R_2C_1 = C_2$.}          & 
+R_2R_1-C_1=R_2-C_2$.}         & 
+R_2R_1+C_1=R_2+C_2$.}              E:  & $E^+_1 = q(1,1),q(1,2),...,q(4,4)$         & ...          &           &           &           & 
+    
+
+
+As far as the  part concerns, XFOLD algorithm would learn the 
+following program:
+
+    {l}
+                
+    
+
+The predicate  is introduced by XFOLD algorithm as a result of 
+swapping the examples and calling itself recursively. After computing the contrapositive 
+form,  are removed from the list of candidate 
+predicates. Then based on the examples provided in Example , XFOLD 
+would learn the following rules:
+
+    {l}
+                        
+    
+
+After shifting the predicate  to the body, we get the 
+following constraint:
+
+    {l}
+                        
+    
+
+It should be noted that, since XFOLD is a sequential covering algorithm like 
+FOIL, it takes three iterations before it can cover all examples which in turn 
+becomes three constraints as shown above. 
+
+
+
+Many researchers have tried to extend Horn ILP into richer non-monotonic logic formalisms. 
+``Stable ILP"  was the first effort to explore the expressiveness of 
+background knowledge with multiple stable models. A survey of extending Horn clause based ILP to 
+non-monotonic logics can be found in . In this paper Sakama also introduces algorithms to learn from the answer 
+set of a categorical logic program. The algorithms learn from positive and negative 
+examples separately and the approach also leads to redundant literals in the body of the 
+induced clause as shown by Example .
+
+
+Consider the following background knowledge and positive example:
+
+
+
+{rll}
+  &  &       &           &        &            &        &             &  &            & 
+
+
+Sakama's algorithm would induce the following clause:
+
+    {l}
+        
+    
+
+
+The literals  are redundant. 
+The  induction framework , although capable of learning ASP 
+programs, only admits one positive example in the form of conjunction of literals. 
+As we discussed, many problems, including programs for solving combinatorial problems, 
+cannot be expressed without having a notion of a negative example. ILASP , 
+introduces a framework that would allow to 
+induce a hypothesis from multiple positive examples { (i.e., it uses brave induction), 
+while it would exclude negative examples cautiously (i.e., it uses cautious induction). 
+However, due to performing an exhaustive search on its predetermined language 
+bias, ILASP is unable to scale up to large datasets or noisy datasets. It is not able to induce 
+default theories with nested, or composite abnormality predicates to capture exceptions
+as shown in Example .
+
+
+
+A default theory with abnormality predicate represented as conjunction of two other predicates, namely . 
+
+
+    {l}
+                
+    
+
+
+XHAIL  is an ILP system capable of learning non-monotonic 
+logic programs.  It relies heavily on abductive reasoning incorporated
+in a three-stage algorithm. It does not support inducing from multiple partial answer sets.  
+
+
+
+
+
+In this paper we presented the first heuristic-based algorithm to inductively 
+learn normal logic programs with multiple stable models. The advantage of this 
+work over similar ILP systems such as ILASP  is that unlike these systems,
+XFOLD does not perform an exhaustive search to discover the ``best" hypothesis. 
+XFOLD adopts a greedy approach,
+guided by heuristics, that is scalable and noise resilient. Also, learning knowledge
+patterns in terms of defaults and exceptions produces more natural and intuitive results 
+that correspond to common sense reasoning employed by humans.
+We also showed how our algorithm could be 
+applied to induce declarative logic programs that follow the test} paradigm for finding solutions to combinatorial problems such as graph-coloring and N-queens. 
+
+Our XFOLD algorithm has a number of novel features absent in other prior works: 
+(i) it performs a heuristic search for learning hypothesis rather than an exhaustive search
+and thus is considerably more scalable; (ii) it admits predicate invention allowing us
+to learn a broader class of answer set programs that cannot be learned by other systems such
+as ASPAL, ILASP, and XHAIL; (iii) because of swapping of positive and negative examples,
+XFOLD is able to distinguish between exceptions and noise, producing more succinct hypotheses.
+
+There are two main avenues for future work: (i) handling large datasets 
+using methods similar to QuickFoil . In QuickFoil, all the operations of 
+FOIL are performed in a database engine. Such an implementation, along with pruning techniques and query 
+optimization tricks can make the XFOLD training much faster; (ii) XFOLD learns function-free answer set programs.
+We plan to investigate extending the language bias towards accommodating functions.
+
+
+Authors are partially supported by NSF Grant IIS 1718945.
+
+
+         
+
+
+
+

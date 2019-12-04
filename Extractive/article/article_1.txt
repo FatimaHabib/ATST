@@ -1,0 +1,343 @@
+
+
+
+{0pt}
+
+
+{{
+{{
+{{
+{{
+{{
+{{
+{{
+
+
+
+
+
+
+
+
+
+[1]{{ #1}}
+{}
+{}
+{}
+{}
+{}
+{}
+{}
+{}
+{}
+{}
+{}
+{}
+{}
+{}
+{}
+{}
+{}
+[1]{}
+{}}
+{}
+{}
+{}
+{}
+{}{=}}
+
+[1]{{ #1}}
+
+
+{Proposition}
+
+
+.},~
+
+ is with ECE Illinois, e-mail: dokmanic@illinois.edu.}
+}
+
+
+{8} 
+
+{8} 
+
+{12}  for more information.}    
+
+
+
+
+
+
+
+
+
+direction-of-arrival estimation, group sparsity, monaural localization, non-negative matrix factorization, sound scattering, universal speech model 
+
+
+
+
+{n} this paper, we present a computational study of the role of scattering in sound source localization. We study a setting in which localization is a priori not possible: that of a single microphone, referred to as monaural localization. It is well established that people with normal hearing localize sounds primarily from binaural cues---those that require both ears. Different directions of arrival (DoA) result in different interaural time differences which are the dominant cues for localization at lower frequencies, as well as in interaural level differences (ILD) which are dominant at higher frequencies . The latter are linked to the head-related transfer function (HRTF) which encodes how human and animal heads, ears, and torsos scatter incoming sound waves. This scattering results in direction-dependent filtering whereby frequencies are selectively attenuated or boosted; the exact filtering depends on the shape of the head and ears and therefore varies for different people and animals. Thus the same mechanism responsible for frequency-dependent ILDs in the HRTF also provides monaural cues. The question is then, can these monaural cues embedded in the HRTF be used for localization? 
+
+Indeed, monaural cues are known to help localize in elevation  and resolve the front/back confusion : two cases where binaural cues are not sufficient. Additionally, studies on the HRTFs of cats  and bats  also reveal their use for localization in both azimuth and elevation, albeit in a binaural setting. This implies that the directional selectivity of the HRTF i.e., the monaural cues, is sufficient to enable people with unilateral hearing loss to localize sounds, though with a reduced accuracy compared to the binaural case . 
+
+
+Combining HRTF-like directional selectivity with source models has already been explored in the literature  . For example, in one study , a small microphone enclosure was used to localize one source with the help of a Hidden Markov Model (HMM) trained on a variety of sounds including speech. In another study , a metamaterial-coated device with a diameter of 40 cm and a dictionary of noise prototypes were used to localize known noise sources. In our previous work , we used an omnidirectional sensor surrounded by cubes of different sizes and a dictionary of spectral prototypes to localize speech sources.
+
+A single omnidirectional sensor can also be used to localize sound sources inside a known room . Indeed, in place of the head, the scattering structure is then the room itself and the localization cues are provided by the echoes from the walls . The drawback is that the room should be known with considerable accuracy---it is much more realistic to assume knowing the geometry of a small scatterer.
+
+As for source models, those used in previous work on monaural localization rely on full complex-valued spectra . Other approaches to multi-sensor localization with sparsity constraints also operate in the complex frequency domain . In this paper, we choose to work with non-negative data which in this case corresponds to the power or magnitude spectra of the audio. We highlight two reasons for this choice. First, unlike the multi-sensor case, the monaural setting generates fewer useful relative phase cues. Second, if ---that is, the exact source waveform---are assumed to be known as in , there are no modeling errors or challenges associated with the phase information. We, however, assume much less, namely only that the source is speech. It is then natural to leverage the large body of work that addresses dictionary learning with real or non-negative values as opposed to complex values. In particular, we consider models based on non-negative matrix factorization (NMF). NMF results in a parts-based representation of an input signal  and can for instance identify individual musical notes . Thus with training data, NMF can be used to learn a representation for each source . For more flexibility, it can also be used to learn an overcomplete dictionary where each source admits a sparse representation . For the latter, either multiple representations are concatenated  or the learning is modified by including sparsity penalties . 
+ 
+To solve the localization problem, we first fit the postulated non-negative model to the observed measurements. The cost functions previously used often involve the Euclidean distance . Non-negative modeling lets us use other measures more suitable for speech and audio such as the Itakura--Saito divergence . While NMF is routinely used in single-channel source separation , speech enhancement , polyphonic music transcription , and has been used in a multichannel joint separation and localization scenario , the present work is to the best of our knowledge the first time NMF is used in single-channel source localization. Finally, when the localization problem is ill-posed, as is the case for the monaural setting, various regularizations are utilized. Typical regularizers promote sparsity , group sparsity  or a combination thereof .
+
+
+
+The current paper extends our previous work  in several important ways. We summarize the contributions as follows:
+
+  	            
+Unlike , the source model we present easily accommodates more than one source. And unlike  or , we present localization of challenging sources such as speech without the need for metamaterials or accurate source models---we only use ad hoc scatterers and NMF. In this paper we limit ourselves to anechoic conditions and localization in the horizontal plane as our goal is to assess the potential of this simple setup.
+
+In the following, we first lay down an intuitive argument for how monaural cues help as well as a simple algorithm for localizing white sources. We then formulate the localization problem using NMF and give an algorithm for general colored sources in Section . In Section , we describe our devices and results for localizing white noise and speech. 
+
+
+The sensor we consider in this work is a microphone, possibly omnidirectional, embedded in a compact scattering structure; we henceforth refer to it as ``the device''. We discretize the azimuth into  candidate source locations  and consider the standard mixing model in the time domain for  sources incoming from directions ,
+
+where , ,  denotes convolution,  is the observed signal,  is the  source signal,  is the impulse response of the directionally-dependent filter, and  is additive noise. The goal of localization is then to estimate the set of directions  from the observed signal . Note that in general we could also include the elevation by considering a set of  directions in 3D, though this would likely yield many additional ambiguities. 
+The mixing  can be approximated in the short-time Fourier transform (STFT) domain as
+
+where  and  denote the time and frequency indices. This so-called narrowband approximation holds when the filter  is short enough with respect to the STFT analysis window . For reference, the impulse response corresponding to an HRTF is around 4.5 ms long , while the duration of the STFT window for audio is commonly anywhere between 5 ms and 128 ms during which the signal is assumed stationary. Finally, the mixture's spectrogram with  time frames and  frequency bins can be written as
+
+where ,  the spectrogram of the source impinging from ,  is the frequency response of the directionally-dependent filter,  is the spectrogram of the additive noise, and  is a matrix with  on the diagonal.
+
+
+At least conceptually, monaural localization is a simple matter if the source is always the same: for each direction the HRTF imprints a distinct spectral signature onto the sound which can be detected through correlation. In reality, the sources are diverse but this fixed-source case lets us develop a good intuition.
+
+
+To see how scattering helps, suppose the sources are white and a set of  directional transfer functions  of our device is known. The power spectral density (PSD) of a white source is flat and scaled by the source's power:  . Assuming the noise has zero mean, the PSD of the observation is
+
+which is a positive linear combination of the squared magnitudes of the transfer functions. In other words,  belongs to a cone defined as 
+
+Each configuration of sources  results in a different cone . For  directions and  white sources, there are  possible cones which are known a priori since we assume knowing the scatterer. These cones reside in an -dimensional space of direction-dependent spectral magnitude responses, , rather than the physical scatterer space . While the arrangement of cones in  is indeed determined by the geometry of the device in , the relation is complicated and nonlinear, namely it requires solving a boundary value problem for the Helmholtz equation at each frequency. 
+
+Thus, we have , and in theory, the localization problem becomes one of identifying the correct cone
+
+where  denotes the empirical estimate of the corresponding expectation from observed measurements. We discuss this further in the next section where we give the complete algorithm. 
+
+Testing for cone membership results in correct localization when  implies  (distinct direction sets span distinct cones)---a condition that is loosely speaking more likely to hold the more   are. Examples of  are illustrated in Figure . In particular, Figure (a) corresponds to an omnidirectional microphone with a flat frequency response and no scattering structure. In this case  and monaural localization is impossible. Figure (d) corresponds to an HRTF which features relatively smooth variations. Finally, Figures (b) and (c) correspond to our devices constructed using LEGO bricks whose responses have more fluctuating variations. In a nutshell, scattering induces a union-of-cones structure that enables us to localize white sources using a single sensor; stronger and more diverse scattering implies easier localization. 
+
+
+In this section we describe a simple algorithm for localizing noise sources based on the intuition provided in the previous section.}. Our experiments with white noise localization will provide us with an ideal case baseline.
+
+First, we need to replace the expected value  by its empirical mean computed from  time frames. For many types of sources this approximation will be accurate already with a small number of frames by the various concentration of measure results ; we corroborate this claim empirically.
+
+Second, for simplicity, we replace each cone  by its smallest enclosing subspace  represented by a matrix
+  _ |^2, |^2 .
+This way the closest cone can be approximately determined by selecting  such that the subspace projection error is the smallest possible. The details of the resulting algorithm are given in Algorithm ; note the implicit assumption that  as otherwise all cones lie in the same subspace. 
+
+
+
+The robustness of Algorithm  to noise largely depends on the angles between pairs of subspaces  for different configurations , with smaller angles implying a higher likelihood of error. Intuitively, a transfer function that varies smoothly across directions is unfavorable as it yields smaller subspace angles (more similar subspaces).
+
+We now turn our attention to the realistic case where sound sources are diverse: how can we determine whether an observed spectral variation is due to the directivity of the sensor or a property of the sound source itself? In fact, localization of unfamiliar sounds degrades not only for monaural but also binaural listening . It has also been found that older children with unilateral hearing loss perform better in localization tasks than younger children . We can thus conclude that both knowledge and experience allow us to dissociate source spectra from directional cues. Once the HRTF and the source spectra have been learned, it becomes possible to differentiate directions based on their modifications by the scatterer. 
+
+
+We can think of an ideal white source as belonging to the subspace  since . In the following, we generalize the source model to more interesting signals such as speech. For those signals, testing for cone membership the same way we did for white sources is not straightforward. We can, however, take advantage of the non-negativity of the data to design efficient localization algorithms based on NMF. Instead of continuing to work with power spectra , we switch to magnitude spectra : prior work  and our own experiments found that magnitude spectra perform better in this context.
+
+
+
+We adopt the usual assumption that magnitude spectra are additive . Then the magnitude spectrogram of the observation  can be expressed as
+
+for , , , and . We further model the source  as a non-negative linear combination of  atoms  such that . The atoms in  can correspond to either spectral prototypes of the sources to be localized or they can be learned from training data. Using this source model, we rewrite  as
+
+where  is the observation, _{+}^{Kd$. 
+
+For localization, we wish to recover ; however, we are not interested in the coefficient values themselves but rather whether given coefficients are active or not---the activity of a coefficient indicates the presence of a source. In other words, we are only concerned with identifying the support of . Localization is achieved by selecting the  directions whose corresponding groups  have the highest norms. 
+
+Still, recovering  from  is an ill-posed problem. To get a reasonable solution, we must regularize by prior knowledge about . We thus make the following two assumptions. First, the sources are few (), which means that most groups  are zero. Second, each source has a sparse representation in the dictionary . These assumptions are enforced by considering the solution to the following penalized optimization problem
+
+where  is the data fitting term,  is a group-sparsity penalty to enforce the first assumption, and  is a sparsity penalty to enforce the second assumption. The parameters  and  are the weights given to the respective penalties.
+
+A common choice of  for speech is the Itakura--Saito divergence , which for strictly positive scalars  and , is defined as
+
+so that . Another option is the Euclidean distance 
+
+Both the Itakura--Saito divergence and the Euclidean distance belong to the family of -divergences with  and  respectively . The former is scale-invariant and is thus preferred for audio which has a large dynamic range . 
+
+To promote group sparsity, we choose  to be the  penalty  defined as 
+
+where  is a vectorization operator.
+To promote sparsity of the dictionary expansion coefficients, we choose  to be -norm  as 
+
+The combination of sparsity and group-sparsity penalties results in a small number of active groups that are themselves sparse. Thus the joint penalty is known as sparse-group sparsity . 
+
+We note that our main optimization  is performed only over the latent variables ; the non-negative dictionary , which is constructed by merging a source dictionary learned by off-the-shelf implementations of standard algorithms with the direction-dependent transfer functions as described in Section , is taken as input. We thus avoid the joint optimization over  and  which is a major source of non-convexity. However, our choices for non-convex functionals like the Itakura-Saito divergence and the  penalty (although the latter is quasi-convex) render the whole optimization  non-convex.
+
+The minimization  can be solved iteratively by multiplicative updates (MU) which preserve non-negativity when the variables are initialized with non-negative values. 
+The update rules for  are derived using maximization-minimization for the group-sparsity penalty in  and for the -penalty in . They amount to dividing the negative part of the gradient by the positive part and raising to an exponent. In the following we derive the MU rules for our objective . 
+
+Note that the objective is separable over the columns of 
+
+where ,  are columns of  and  respectively. With  as the current iterate, the gradient of  with respect to one element  of  when  is the Itakura--Saito divergence is given by
+
+
+where  are entries of .  The update rule is then given as
+
+where  is a corrective exponent . The updates in matrix form are shown in Algorithm  where the multiplication , division, and power operations are elementwise and  is a matrix of the same size as . Also shown are the updates for using the Euclidean distance following  where  is a thresholding operator to maintain non-negativity with . 
+
+
+
+
+The discretization of the azimuth into  evenly-spaced directions has a direct correspondence with the localization errors. On the one hand, a course discretization limits the localization accuracy to approximately the size of the discretization bin . On the other hand a fine discretization may warrant a smaller error floor, but it implies a model matrix with a higher coherence only worsening the ill-posedness of the optimization problem . It additionally results in a larger matrix which hampers the matrix factorization algorithms that are of complexity  per iteration . A common compromise is the multiresolution approach  in which position estimates are first computed on a coarse grid, and then subsequently refined on a finer grid concentrated around the initial guesses. We test the following strategy:
+
+ 
+The final algorithm for source localization by NMF with and without multiresolution is shown in Algorithm . Since  is non-convex, different initializations of  might lead to different results. We thus later run an experiment to test the influence on the actual localization performance in Section .
+
+
+
+
+
+
+
+We ran experiments using three different devices:
+
+ The first two devices are structures composed of LEGO bricks as shown in Figure . Since we aimed for diverse random-like scattering, we stacked haphazard brick constructions on a base plate of size 25 cm  25 cm along with one omnidirectional microphone. The heights of the different constructions vary between 4 and 12.5 cm. We did not attempt to optimize the layout. The only assumption we make regarding the dimensions of the device is that some energy of the target source resides at frequencies where the device observably interacts with the acoustic wave. We note that the problem of designing and optimizing the structure to get a desired response is that of inverse obstacle scattering which is a hard inverse problem in its own right . For the present work, we simply observe that our random structures result in the desired random-like scattering.  
+
+The directional impulse response measurements were then done in an anechoic chamber where the device was placed on a turntable as shown in Figure (c) and a loudspeaker at a distance of 3.5 m emitted a linear sweep. We note that the turntable is symmetric, so its effect on localization in the horizontal plane, if any, is negligible. The duration of the measured impulse responses averages around 20 ms. Figures (b) and (c) show the corresponding magnitude response for the two devices. Due to their relatively small size, they mostly scatter high frequency waves and so the response at lower frequencies is comparably flat. We thus expect that only sources with enough energy in the higher range of frequencies can be accurately localized. 
+
+ The third device is KEMAR  which is modeled after a human head and torso so that its response accurately approximates a human HRTF. The mannequin's torso measures  cm and the head's diameter is 18 cm. The duration of the impulse response is 10 ms. Figure (d) shows the corresponding magnitude response. As can be seen, the variation across the directions is very smooth which we expect to result in worse monaural localization performance. 
+
+
+[b]{0.3
+    }
+  
+[b]{0.3
+    }   
+[b]{0.3
+    }   
+ 
+
+
+The mixtures are created by first convolving the source signals with the impulse responses and then corrupting the result by additive white Gaussian noise at various levels of signal-to-noise ratio defined as $ We use frame-based processing using the STFT with a Hann window of length 64 ms, with a 50) was set to 100. 
+
+The test data contains 10 speech sources (5 female, 5 male) from TIMIT  sampled at 16000 Hz. The duration of the speech varies between 3.1 and 4.5 s and the maximum amplitude is normalized to 1 so that all sources have the same volume. No preprocessing of the sources such as silence removal was done; when mixing two sources, the longest one was truncated.
+
+A separate validation set was used to select the best sparsity parameters for each device. The parameters that gave the best performance averaged for one and two sources were chosen. We additionally tested whether the lower frequencies can be ignored in localization since, as mentioned before, for the relatively small scatterers the lower frequency range lacks variation and is thus uninformative. Moreover, truncating the lower frequencies would help reduce coherence between the directional transfer functions. The final parameters and used frequency range are summarized in Table .   
+
+
+For speech localization, we test two source dictionaries. For the first experiment, we use a dictionary of prototypes of magnitude spectra from 4 speakers (2 female, 2 male) in the test set.
+
+For the second experiment, we use a more general universal speech model (USM)  learned from a training set of 25 female and 25 male speakers, also from TIMIT. We use a random initialization for the NMF when learning the USM. Each speaker in the training set is modeled using  atoms, thus the final USM is . In total, we use four versions of the USM in the experiments. Two versions correspond to learning the model by minimizing either the Itakura--Saito divergence or the Euclidean distance. The other two versions correspond to learning the model using only the subset of frequencies to be utilized in the localization. 
+
+
+We estimate the azimuth of the sources in the range . The model  assumes a discrete set of 36 evenly spaced directions while the sources are randomly placed on a finer grid of 360 directions. Given the estimated directions  and the true directions , the localization error is computed as the average absolute difference modulo  as
+
+where  is a permutation that best matches the ordering in  and .
+
+For each experiment, we test 5000 random sets of directions. We emphasize that we have been careful to avoid an inverse crime, and we produced the measurements by convolution in the time domain, not by multiplication in the STFT domain. Thus in this set up, the reported errors also reflect the modeling mismatch. 
+
+Following , we report the  defined as the percentage of sources localized to their closest -wide bin as well as the mean error for those accurately localized sources. For 36 bins, there is an inherent average error of . Thus, ideally the accuracy would be 100
+ Since in a non-convex problem different initializations might lead to different results, we run an experiment to test the effect of the initialization of  on the localization performance. The experiment consists of 300 tests for localizing one female speaker using LEGO2 and a USM. We compare the initialization mentioned in Algorithm  () to different random initializations. The estimated DoAs were in agreement for both initializations 98.67 the localization accuracy rates for that experiment which are comparable. This means that there are either ``hard'' situations where localization fails regardless of the initialization or ``easy'' situations where it succeeds regardless of the initialization. Certainly,  tailor-made initializations in the spirit of  may work slightly better, but such constructions are outside the scope of this paper. Additionally, we note that in these works initializations are constructed for the basis matrix. In our case, this matrix is  which is given as input to the algorithm.
+
+
+
+
+We first test the localization of one and two white sources at various levels of SNR using Algorithm . Each source is 0.5 s of white Gaussian noise. We compare the performance using the three devices LEGO1, LEGO2, and KEMAR described above. For white sources, using the full range of frequencies, not a subset, was found to perform better. 
+ 
+The accuracy rate and the mean localization error for the different devices are shown in Table . In the one source case, all devices perform well. The mean error achieved by the devices for one white source is close to the ideal grid-matched  which is better than the reported  and  in  using an HMM. For two sources, the accuracy of the LEGO devices is still high, though lower than for one source. At the same time the accuracy of KEMAR deteriorates considerably. This is consistent with the intuition that interesting scattering patterns such as those of the LEGO devices result in better localization. 
+
+[t]
+
+{@{}llllllll@{}}
+& &  {c}{LEGO1} & {c}{LEGO2} & {c}{KEMAR}  & SNR & Accuracy & Mean & Accuracy & Mean & Accuracy & MeanOne source & 30 dB  & 99.56
+
+
+
+We also test the effect of the discretization on the localization performance. In Table , we report the localization errors using LEGO1 at three different resolutions: , , and . We find that improving the resolution results in more accurate localization for both one and two sources but the average error is still larger than the ideal  and  for the  and  resolutions respectively, especially for two sources. Since white sources are flat, this observation highlights a limitation of the device itself in terms of coherent or ambiguous directions. 
+[t]
+
+{llllllll}
+&  & {c}{} & {c}{ } &  {c}{}  & SNR& Accuracy & Mean & Accuracy & Mean & Accuracy & MeanOne source & 30 dB  & 100.0
+
+
+
+
+We now turn to speech localization which is considerably more challenging than white noise, especially in the monaural setting. Using the three devices, we test the localization of one and two speakers at 30 dB SNR. 
+In this first experiment, we use a subset of 4 speakers from the test data (two female, two male) and consider an easier scenario where we assume knowing the exact magnitude spectral prototypes of the sources. Still, localization with colored prototypes is harder compared to noise prototypes (as in ). This scenario serves as a gauge for the quality of the sensing devices for localizing speech sources. We organize the results by the number of sources as well as by whether the speaker is male or female. We expect the localization of female speakers to be more accurate since they have relatively more energy in the higher frequency range where the device responses are more informative. 
+
+The results for the three devices are shown in Table . As expected the overall localization performance by the less smooth LEGO scatterers is significantly better than by KEMAR. Also as expected, the localization of male speech is worse than female speech except for LEGO1. Similar to the white noise case, the accuracy for localizing two sources is lower in comparison to one source. Moreover, we find that the presence of one female speaker improves the accuracy for LEGO2 and KEMAR, most likely due to the spectral content.
+
+[t]
+
+{@{}llllllllll@{}}
+&   {c}{LEGO1} & {c}{LEGO2} & {c}{KEMAR}  & Accuracy & Mean & Per Source & Accuracy & Mean & Per Source & Accuracy & Mean & Per Sourcefemale speech & 98.48
+
+
+
+In this experiment, we switch to a more realistic and challenging setup where we use a learned universal speech model. We compare the performance of the Itakura--Saito divergence to that of the Euclidean distance in the cost function . The accuracy and mean error for the three devices are shown in Table . We observe that using the Itakura--Saito divergence results in better performance in a majority of cases which is in line with the recommendations for using Itakura--Saito for audio.
+[t]
+
+{@{}llllllllll@{}}
+&   {c}{LEGO1} & {c}{LEGO2} & {c}{KEMAR}  & Accuracy & Mean & Per Source & Accuracy & Mean & Per Source & Accuracy & Mean & Per Sourcefemale speech & 93.20female speech &  85.60
+
+
+
+Similar observations as in the previous experiment hold with the LEGO scatterers offering better localization than KEMAR. We find that localizing one female speaker is successful with 93 with an HMM though at a lower SNR of 18 dB.
+
+As expected, the localization accuracy for male speakers is lower than for female speakers. Since the mean errors are however not much larger than the ideal , the lower accuracy points to the presence of outliers. We thus plot confusion matrices in Figures  and  for female and male speakers respectively. On the horizontal axis, we have the estimated direction which is one of 36 only. First, we look at the single source case in Figures (a) and (a) where we can clearly see the few outliers away from the diagonal. The number of outliers is larger for male speakers which is a direct result of the absence of spectral variation for male speech in the used higher frequency range.
+
+For two sources, the number of outliers increases for both types as seen in Figure (b). We also plot in Figure (a) the confusion matrix for the case of using prototypes which has less outliers in comparison due to the stronger model. Note that outliers exist even with white sources as shown in Figure (c), which points to a deficiency of the device itself as mentioned before. However, we note that while the reported accuracy corresponds to correctly localizing the two sources simultaneously, the average accuracy per source which reflects the number of times at least one of the sources is correctly localized is often higher. For instance for female speakers, the accuracy is 53.52
+
+[t]
+[b]{0.3
+    }
+  
+[b]{0.3
+    }   
+[b]{0.3
+    }
+  
+
+ 
+
+
+
+As mentioned, one straightforward improvement to our system is to increase the resolution. We show in Table  the result of doubling the resolution from  to . For a single female speaker, the error is slightly higher than the ideal average of  and the accuracy is improved relative to the initial bin size of . While some improvement is apparent for the localization of one male speaker as well, the mismatch between the useful scattering range and source spectrum still prevents good performance. However, in line with the discussion in Section , localization of two sources is worse than at a coarser grid due to the increased matrix coherence, with the accuracy dropping from 55[t]
+
+{@{}llllllll@{}}
+&   {c}{LEGO1} & {c}{LEGO2}& Accuracy & Mean & Per Source& Accuracy & Mean& Per Sourcefemale speech & 97.08
+
+
+
+
+Next we tested the multiresolution strategy where we refine the top estimates on the coarse grid using a search on a finer grid. We arbitrarily use the best 7 candidates at the  grid spacing, and redo the localization at a finer  grid centered around the 7 initial guesses. The hyperparameters for localization on the finer grid were tuned on a separate validation set and are given in Table .
+
+As before, multiresolution localization results in some improvement for one source but not for two sources (Table ). We show the relevant confusion matrices in Figure : the lack of increase in performance can be explained by the fact that in the second round of localization the included directions are still strongly correlated and the only way to resolve the resulting ambiguities is through more constrained source models. Additionally, the set of correlated directions are not necessarily concentrated around the true direction which might explain the drop in accuracy for LEGO1. Overall, it seems the extra computation for the multiresolution approach does not bring about significant improvements compared to using a finer discretization.
+
+[t]
+
+{@{}lllllll@{}}
+&  {c}{LEGO1}& {c}{LEGO2}& Accuracy & Mean & Per Source & Accuracy & Mean & Per Sourcefemale speech & 96.94
+
+
+
+
+
+Finally, in Figure , we show a summary of the performance of the different methods for localizing one or two female speakers using LEGO2 along with the average accuracy and error. Note that the results for prototypes use a smaller test set and that the error is lower bounded by the grid size. We also show the size of the model matrix  from  which contributes to the overall complexity of NMF as well as the actual runtime which depends on the machine. The figure suggests that overall using a USM and a  resolution works well. For two-source localization, however, a good source model like prototypes is required.
+
+
+
+
+Any scattering that causes spectral variations across directions enables monaural localization of one white source. On the other hand, more complex and interesting scattering patterns are needed to localize multiple sources. As shown by our ``random'' LEGO constructions, interesting scattering is not hard to come by. In order to localize general, non-white sources, one further requires a good source model. 
+
+We demonstrated successful localization of one speaker using regularized NMF and a universal speech model. Both our LEGO scatterers were found to be superior in localization to a mannequin's HRTF. Finally, we stress that speech localization is challenging and note that the fundamental frequency of the human voice is below 300 Hz while the range of usable frequencies for our devices is above 3000 Hz. This discrepancy is responsible for outliers when localizing multiple speakers, a problem that can potentially be alleviated by increasing the size of the device or using sophisticated metamaterial-based designs. Perhaps a source model other than the universal dictionary could approach the performance of using prototypes.
+
+Finally, we presented our results for anechoic conditions. Preliminary numerical experiments show that the current approach underperforms in a reverberant setting. This shortcoming is partly due to violations of our modeling assumptions. For example, in Eq. , the noise is assumed independent of the sources which is no longer true in the presence of reverberation. For practical scenarios it is thus necessary to extend the approach to handle reverberant conditions as well as to test the localization performance in 3D i.e., estimate both the azimuth and the elevation. For accurate localization in elevation, we expect that a taller device with more variation along the vertical axis would perform better. Since we only use one microphone, the number of ambiguous directions would likely grow considerably in 3D making the problem comparably harder. Other interesting open questions include blind learning of the directional transfer functions and understanding the benefits of scattering in the case of multiple sensors.  
+
+
+We thank Robin Scheibler and Mihailo Kolundija for help with experiments and valuable comments. We also thank Martin Vetterli for numerous insights and discussions, and for suggesting Figure . This work was supported by the Swiss National Science Foundation grant number 20FP-1 151073, â€œInverse Problems regularized by Sparsityâ€. 
+
+LEGO
+
+
+
+

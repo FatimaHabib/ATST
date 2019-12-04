@@ -1,0 +1,286 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{Marginpar on page}
+
+
+
+
+{#1}}}
+
+  
+ 
+
+}
+
+
+: #1}]}
+: #1}]}
+
+
+
+
+
+
+{c}}
+  
+
+
+
+
+
+, Vivek Khetan, Matthew Lease}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+To assess an IR system's effectiveness for different  search scenarios, researchers have proposed a wide variety of evaluation metrics, each providing a different view of system effectiveness~.  
+For example, while  (P@10) and  (RR) are often used to evaluate the quality of the top search results,  (MAP) and  (RBP)~ are often used to quality of search results at greater depth.
+
+Popular evaluation tools such as {}  compute many more evaluation metrics than IR researchers typically have time or space to analyze and report. Even for the most knowledgeable and diligent researcher, it is challenging to decide which small subset of metrics should be reported to best characterize a given IR system's performance. Of course, presenting only a few metrics cannot fully characterize system performance. Information is thus lost in publication, and some interested reader will be disappointed to find a particular desired metric missing, especially when trying to baseline a new method for a given metric, or when conducting a meta-review comparison of prior work.
+
+To compute a different metric of interest, one strategy is to try to reproduce prior work. However, this is often difficult (and sometimes impossible) in practice, as the written description of a method is often incomplete and even shared sourcecode can be difficult or impossible for others to run, especially as compilers, programming languages, and operating systems change. Another strategy is to share system outputs, enabling others to compute any metric of interest for those outputs. While Armstrong et al.~ proposed and deployed  a central repository} to store IR system runs, their proposal did not achieve broad buy-in from IR researchers and was ultimately abandoned. Realistically, it seems such broad buy-in is unlikely unless eventually mandated by research funding agencies. A similar situation exists in the field of biomedical literature mining , where lack of shared data has generated a large body of research in mining published papers to infer additional information. With published papers being the most standard and enduring record of research studies, the capacity to predict an arbitrary metric of interest given only one or more other metric scores, easily obtained from published studies, could be quite valuable in practice.
+
+
+
+Another potential application of such prediction could be to decrease the massive cost of evaluation by enabling prediction of high-cost measures using low-cost measures. That is, instead of collecting many relevance judgments to calculate a particular high-cost measure (e.g. MAP@1000), we would rather collect fewer judgments,  calculate any number of low-cost measures (e.g. P@10, MAP@10, nDCG@10) and predict a high-cost measure of interest. 
+
+
+
+
+
+To address this challenge, we first investigate the correlation between a wide range of evaluation metrics. Using runs submitted to 8 TREC tracks, we compute  23 evaluation measures for every track, system, and topic in order to assemble a large database of paired metric scores. We then calculate Pearson correlation between each evaluation measure pairs. In our extensive experiments, we find out that many metrics are strongly correlated (i.e., ) such as:
+
+ (AP),   (R-Prec), and bpref
+
+Following this, we report use of linear regression to predict one  metric given 1-3 other metrics. We explore prediction of 12 measures and evaluate our prediction model on 3 test collections. Results show we can accurately predict:
+
+
+Therefore, if a system's performance is reported  with these measures, we can still reliably predict its performance on the respective measure. 
+
+Finally, we investigate prediction of high-cost measures using low-cost measures. We show we can accurately predict  RBP(p=0.95) at evaluation depth of 1000 and 100 given  measures computed at depth 30, which shows the promise of this strategy for lowering evaluation cost.
+
+Contributions of our work include:
+
+ (ERR) and RBP using graded relevance judgments, whereas relevant prior work used only binary relevance judgments for these metrics.
+
+
+
+
+
+Section~ discusses the prior  work. Section~ describes the data used in our experiments.
+Section~  and~ present correlation and prediction of  evaluation metrics, respectively. Finally, we conclude in Section~.
+
+
+
+
+
+
+
+
+In order to  better understand similarity between evaluation metrics, several studies have investigated correlation between  them.
+
+Tague-Sutcliffe and Blustein~ investigate correlation between 7 measures on TREC-3 data and show that R-Prec and AP are strongly correlated. This high correlation between R-Prec and MAP is also confirmed by Buckley and Voorhees~ using Kendall's  on TREC-7. Baccini et al.~ measure correlations between 130 measures calculated by { using data from the TREC-(2-8) ad hoc task and group them into 7 clusters based on correlation.  Sakai~ compares 14 graded-level and 10 binary level metrics  using three different data sets from NTCIR. In another work~, Sakai studies correlation between P()-measure, O-measure, normalized weighted reciprocal rank and RR, and concludes that they are highly correlated each other except RR. Egghe~ investigates the correlation between precision, recall, fallout and miss.  Ishioka~ explores relation between  F-measure, break-even point, and 11-point averaged precision. 
+Thom et al.~ also studies correlation between 5 evaluation measures using TREC Terabyte Track 2006.
+None of these works cover ERR and RBP; we investigate correlation of 23 measures including ERR and RBP.
+
+
+Jones et al.~ examine disagreement between 14 evaluation metrics including ERR and RBP  using TREC-(4-8) ad hoc tasks, and  TREC Robust 2005 and 2006 tracks. However, they use only binary relevance judgments in their analysis, which makes ERR identical to RR, whereas we consider graded relevance judgments. In addition, the most recent test collections used in this related prior work is TREC Robust Track 2006 and Terabyte Track 2006. In contrast, we consider more recent TREC test collections (i.e. Web Tracks 2010-2014).
+
+A primary contribution of our work is investigating prediction of evaluation measures. While Aslam et al.~ also proposes predicting evaluation measures, they require a corresponding retrieved ranked list as well as another evaluation metric. They conclude that they can infer accurately user-oriented measures (e.g.
+
+
+
+
+
+
+
+
+
+
+
+In order to investigate correlation and prediction of evaluation measures, we used the submitted runs and relevance judgments of Web Tracks (WT) of TREC-2000, 2010-2014 and Robust Track (RT) of TREC-2004. We consider only { retrieval. } lists the test collections used in our study. 
+
+
+
+
+Using the system runs submitted to these selected TREC tracks and their respective relevance judgments, we calculated 9 different evaluation metrics, including AP,  bpref~, ERR~, nDCG, P@K,  RBP~,  (R), RR~, and R-Prec. 
+We used various cut-off thresholds for the metrics. The cut-off threshold for a particular metric is shown by "@" sign followed by the threshold value (e.g. P@10, R@100). Unless stated, we set the cut-off threshold to 1000, which is {'s default.
+The cut-off threshold for ERR is set to 20 because it has been used as one of the official measures in WT2014. 
+RBP  uses a parameter, called , representing the probability of a user desiring to see the next retrieved page. In our calculations, we test  0.5, 0.8 and 0.95 for the  parameter, which are also the  values explored by Moffat and Zobel~. Using these metrics, we generated two datasets:
+
+
+ We calculated each metric mentioned above for each system for each separate topic. We used 10, 20, 100 and 1000 cut-off thresholds for AP, nDCG, P@K and R@K. In total, we calculated 23 evaluation measures. 
+
+ We calculated each metric mentioned above for each system, averaging over all topics in the corresponding test collection. For AP score, in addition to MAP, we also calculated  (i.e.
+
+In order to calculate RBP and ERR, we used the RBP implementation provided by its authors and the ERR implementation provided by TREC. For the rest of the performance measures, we used {. As in any large dataset, various runs had missing data that resulted in only a subset of evaluation measures being computed. In such cases, we filtered out any such suspicious null or zero values. We also detected runs that have identical ranked lists in WT2013 and WT2014 test collections and filtered out identical submissions. 
+
+
+ We studied the correlation of measures using the TW dataset instead of the SW dataset to avoid losing any information by averaging scores across topics. In particular, we  calculated Pearson correlation between measures across different topics using system runs in all test collections mentioned in Table~. 
+The  correlation results are shown in }.
+
+
+
+There are several observations we can make from these results. First, R-Prec has high correlation with bpref, MAP and nDCG@100, confirming prior work's findings that MAP and R-Prec are highly correlated~. Second, RR is strongly correlated  with RBP(p=0.5) and its correlation with RBP measures decreases as the  parameter of RBP increases. This is because as  increases, RBP becomes more of a deep-rank metric while RR metric ignores the documents ranked after the first relevant document. Third, nDCG@20, which is used as one of the official metrics of WT2014, is  highly correlated with RBP(p=0.8). This finding indirectly verifies that nDCG@20 is an appropriate measure for web search tasks, connecting with Park and Zhang's~ suggestion that p=0.78 is an appropriate  value of RBP for modeling behaviour of web users. 
+Fourth, nDCG is highly correlated with MAP and R-Prec and its correlation with R@K consistently increases as  increases. 
+Fifth,  most correlated  with RBP(p=0.8) and RBP(p=0.95) are P@10 () and P@20 (), respectively. 
+Sixth, Sakai and  Kando~ report that RBP(p=0.5) basically ignores relevant documents ranked lower than 10. Our results are consistent with this finding such that the maximum Pearson correlation between RBP(p=0.5) and  nDCG@K is obtained when K=10, and this correlation decreases as K increases.
+Finally, among all measures, P@1000 is the least correlated one with others, suggesting that it captures an    effectiveness measure of IR systems that no other metric does.
+
+
+
+
+In this section, we  describe our prediction model and experimental setup,  and report results of experiments we conducted to investigate prediction of evaluation measures. 
+
+
+One key goal of our work is to predict a system's missing evaluation measure using reported ones. Thus,
+we build a linear regression model  using only evaluation measures  of systems as features.  We use the SW dataset in our experiments for prediction because studies generally report their average performance over a set of topics, instead of reporting their performance for each topic.
+We use data extracted from WT2000, WT2001, RT2004, WT2010 and WT2011 as the training dataset. WT2012, WT2013 and WT2014 are used to evaluate our prediction model. In order to evaluate the prediction accuracy, we report  and  Kendall's  correlation. 
+ 
+
+
+
+
+
+
+
+
+In this section, we explore the best predictors for 12  evaluation measures including  R-Prec, bpref, RR, ERR@20, MAP, GMAP, nDCG, P@10, R@100, RBP(0.5), RBP(0.8) and RBP(0.95).  Researchers can report different combinations of evaluation measures, yielding a huge number of cases we might consider. In order to reduce our search space, we investigate which  evaluation measure(s) are the best predictors for a particular measure and vary N from 1 to 3. Specifically, in prediction of a particular measure, we try all combinations of size  using the remaining 11 evaluation measures on WT2012 and pick the one that yields the best Kendall's  correlation. Then, the selected combination of measures are used for predicting the respective measure on WT2013 and WT2014. The experimental results are shown in  }.  Kendall's  scores higher than 0.9 (a traditionally-accepted threshold for an acceptable correlation~) are bolded. 
+
+
+
+
+
+
+
+
+
+
+
+
+ We achieve the highest  correlation and interestingly the worst  using only nDCG on WT2014. This shows that while predicted measures are not accurate, rankings of systems based on predicted scores can be highly correlated with the actual ranking. We observe the same pattern of results in prediction of RR on WT2012 and WT2014,  R-prec on WT2013 and WT2014,  R@100 on WT2013, and  nDCG in all three test collections. 
+
+ GMAP and ERR seem to be the most challenging measures to predict because we could never reach 0.9  correlation in any of the prediction cases of these two measures.   Initially,  scores we achieve for ERR consistently increase in all three test collections as we use more evaluation measures for prediction, suggesting that we can achieve  higher prediction accuracy using more independent variables.
+
+ We can predict MAP with very high prediction accuracy and achieve higher than 0.9  correlation in all three test collections using R-Prec and nDCG as predictors. As we use RR as the third predictor,  increases in all cases and  correlation slightly increases on average (0.924 vs.
+ Interestingly, we achieve the highest  correlations using only bpref;    decreases as  more evaluation measures are used as independent variables.  Even though we reach high  correlations for some cases (e.g. 0.915  on WT2014 using only bpref),   nDCG seems to be one of the hardest measures 
+to predict. 
+
+ Using RBP(0.5) and RBP(0.8), which are both highly correlated measures with P@10, we are able to achieve very high  correlation and    in all three test collections (0.912  and 0.983  on average). We reach nearly perfect prediction accuracy () on WT2012.
+
+
+ In all three prediction cases, RR is selected  as one of the independent variables, as expected because of being the most correlated measure with RBP(0.5) (See Figure~). While using only RR is not sufficient to reach 0.9  correlation, when we use also RBP(0.8) (the second most correlated measure) we reach very high prediction accuracy in all three test collections (0.919  and 0.924  on average).
+
+ P@10 is the most correlated measure with RBP(0.8) and is selected as one of the independent variables in all cases, as expected. Using P@10 and RBP(0.5), we are able to achieve more than 0.9  correlation and more than   in all test collections. Using  P@10, RBP(0.5) and RBP(0.95), we achieve the highest  (0.998) and (0.973) among all 108 cases (i.e., 3 test collections x  12 measures x 3 different independent variable sets).
+
+ Compared to RBP(0.5) and RBP(0.8), we achieve noticeably lower prediction performance, especially on WT2013 and WT2014. On WT2012, which is used as the development set in our experimental setup, we reach high prediction accuracy when we use 2-3 independent variables.
+
+ In predicting these three measures, while we reach high prediction accuracy in many cases,  there is no independent variable group yielding high prediction performance on all three test collections.
+
+Overall,  we achieve high predicion accuracy for MAP, P@10, RBP(0.5) and RBP(0.8) on all test collections. 
+RR and RBP(0.8) are the most frequently selected independent variables (10 and 9 times, respectively). Generally, using a single measure is not sufficient to reach 0.9  correlation. However, we are able to achieve very high prediction accuracy using only 2 measures for many  scenarios. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Our prediction results  encouraged us to investigate  whether we could also predict high-cost measures using low-cost measures. We focus on P@1000, P@100, MAP@1000, MAP@100, nDCG@1000, nDCG@100,  RBP@1000, and RBP@100 as the high-cost measures.
+As the low-cost measures, we calculate precision, bpref, ERR, infAP, MAP, nDCG and RBP scores of systems when  (D) is varied from 10 to 50. We specifically use bpref and infAP since they are designed for evaluating systems with incomplete  relevance judgments. We set the  parameter of RBP to 0.95.
+For a particular evaluation depth, we calculate  the powerset of the 7 measures mentioned above (excluding the empty set). Subsequently, in a similar approach in Section~, we find which elements of the powerset are the best predictors of the high-cost measures on WT2012. The set of low-cost measures that yields the maximum  score for a particular high-cost measure is also used for predicting the respective measure on WT2013 and WT2014. We repeat this process for each evaluation depth value (i.e. 10, 20, ..., 50)  separately in order to see impact of the cost on the prediction. The results are shown in }.
+
+
+
+
+For depth 1000 (Figure~), we achieve higher than 0.9 Kendall's  correlation  and higher than 0.98 
+for RBP in all cases when evaluation depth of low-cost measures is 30 or more. While we are able to reach 0.9  correlation for MAP on WT2012, prediction of P@1000 and nDCG@1000 measures performs poorly and never reaches a high  correlation. 
+As expected, the performance of prediction increases when evaluation depth of high-cost measures are decreased to 100 (Figure~ vs. Figure~). 
+
+Overall, RBP seems the most predictable measure using the low-cost measures while precision is the least predictable one. This is because MAP, nDCG and RBP give more weight to documents at higher ranks, which are also evaluated by the low-cost measures. On the other hand, in calculation of precision, we consider only the number of relevant documents and ignore the ranks. 
+
+
+
+
+
+
+
+
+
+
+
+
+In this work, we investigated correlation and prediction of evaluation measures using data from 8 TREC test collections covering ad hoc search task for web documents and news articles. 
+
+We first calculated the correlation between 23 evaluation measures. We found that the following measure groups are strongly correlated each other: 1) MAP Finally, we investigated prediction of high-cost measures using low-cost measures and  showed that we can   predict RBP(0.95) with high accuracy using measures with evaluation depth of 30.
+
+
+
+
+
+In the future, we plan to deepen our investigation using more data from different tasks and exploring other evaluation metrics and prediction models. 
+
+
+
+
+{{}
+}
+
+
+
+

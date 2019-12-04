@@ -1,0 +1,11 @@
+ . We denote the entries of  as , that is,  for . We define the  and the  of  as
+$
+ |$, respectively, 
+and the  of a reversible Markov chain as
+
+
+The relaxation time of a reversible Markov chain (approximately) captures its mixing time, which roughly speaking is the smallest  for which the marginal distribution of  is close to the Markov chain's stationary distribution. We define the following class of stationary Markov reversible chains whose relaxation time is at most :
+
+The goal is to characterize the sample complexity of entropy rate estimation as a function of , , and the estimation accuracy. We define two estimators: 
+
+	: . . vector. as  for any  .

@@ -1,0 +1,295 @@
+
+
+
+
+
+
+
+
+
+
+
+[1]{>{m{#1}}
+
+
+
+
+
+
+
+
+
+
+
+
+, Torsten Braun , Silvia Giordano }
+}
+
+
+
+
+
+Influence propagation in social networks has recently received large interest, both in academia and industry.
+In fact, the understanding of how influence propagates in a social network opens the door to a wide range of applications, as targeted advertising, viral marketing, and recommendation.
+In this context, social networks play an important role as a medium for spreading processes . 
+As an example, a new idea can spread through a social network in the form of ``word-of-mouth'' communication . 
+In the last decade, particular attention has been devoted to the comprehension and modeling of the social influence phenomenon. 
+Social influence is recognized as a key factor that governs human behavior.
+It indicates the attitude of certain individuals to be affected by other subjects' actions and decisions.
+The idea is that the interaction with other individuals (or a group) may result in a change of subject's thoughts, feelings, or behavior. 
+In other words, a subject may take a decision, e.g., to buy a new product or to watch a TV show, when she/he sees her/his friends taking that decision. 
+
+A considerable amount of work has been conducted to investigate social influence and analyze its effect.
+In  and , the authors propose how to qualitatively measure the existence of social influence, whereas in  the correlation between social similarity and influence is examined.
+In , we introduce a novel interpretation of physical, homophily, and social community, as sources of social influence.
+Other relevant works focused on the problem of influence maximization .
+This problem aims to find the most influential individuals in a social network in order to maximize the number of influenced subjects.
+Viral marketing is a strategy that exploits this idea to promote new products. Kempe et al.  focus on two fundamental propagation models, referred to as Independent Cascade (IC) model and Linear Threshold (LT) model.
+In the IC model, each subject independently influences her/his friends with given influence probabilities. 
+In the LT model, a subject is influenced by her/his friends if the combination of their total influence probabilities exceeds a threshold. 
+Both models assume to have as input a social network whose edges are weighted by a measure of influence probability. However, these values are not known in practice and, thus, should be estimated. Many efforts have been made to quantitatively measure the influence strength between pairs of friends . 
+In particular, Goyal et al.  and Saito et al.  investigate how to learn the influence probabilities using only the history of subjects' actions.
+Such approaches have two main drawbacks:  they assume that the probability of friends influencing a subject are independent of each other, and  they do not consider the actions not performed by the subject (but performed by her/his friends) to learn the influence probabilities. 
+In this paper, we propose to address the aforementioned drawbacks by employing a deep learning approach.
+Our objective is to learn subjects interplay for modeling social influence and predicting their behavior.
+We summarize our contributions as follows:
+
+To the best of our knowledge, our solution is the first architecture that accomplishes these two tasks in one shot. 
+We design a DNN taking into account both  the relationship between the subject and her/his friends and  the interactions among them. 
+Further, we learn social influence considering also the actions not performed by the subject (but performed by her/his friends) to understand who really affects subject's decisions.
+This allows us to investigate social influence considering together  (through the social network) and  (real-life) social interactions.
+Previous works conducted their experiments analyzing social influence only in Online Social Networks (OSNs).
+We compare our approach with existing solutions, achieving a remarkable improvement. 
+
+
+
+
+In this paper, we aim to learn social influence in a social network in order to predict human behavior, in terms of decision and actions performed by individuals.
+Let  be a directed graph, which represents the social network, where  is the set of subjects and  is the set of edges connecting them. Subject  is considered a  of subject  if .
+To model social influence we measure the strength of friends' influence on subject's actions.
+We define  as the whole set of actions. For each action , each subject is either , if she/he has performed the action, or , otherwise. It should be noticed that inactive subjects may become active, but not the opposite.
+We define  as the set of active friends of  for the action .
+The objective is to predict whether a subject becomes active based on her/his active friends.
+To achieve this purpose, previous works determine the influence probability , i.e., the influence exerted on subject  by the active friends , by exploiting the history of  actions.
+The main assumption in these works is that the probability of various friends influencing  are independent of each other.
+Thereby, the probability  is computed as
+where  is the influence probability of  on .
+
+As an example, Figure  represents the social network of subject .
+To simplify the reading, only the incoming edges of node  are represented.
+Each edge is weighted by the influence probability . A red node represents an inactive subject.
+The decision of  to perform an action  is a function (Eq. (1)) of the active friends () and related influence probabilities. 
+
+	
+                {!}{        [b]{0.47
+                       [auto, node distance=2cm, every loop/.style={},
+                    thick,node/.style={circle,draw},other node/.style={circle,draw,red,dashed}, main node/.style={circle,draw, dashed}]
+
+  ;
+  ;
+  ;
+  ;
+  ;
+
+  , ->]
+    (1) edge node [right] {0.7} (5)
+	    (2) edge node {0.4} (5)
+    	    (3) edge node [right] {0.8} (5)
+          (4) edge node {0.2} (5);
+
+
+                
+                
+                              [auto, node distance=2cm, every loop/.style={},
+                   thick,node/.style={circle,draw},other node/.style={circle,draw,red,dashed}, main node/.style={circle,draw, dashed}]
+
+  ;
+  ;
+  ;
+  ;
+  ;
+
+  , ->]
+    (1) edge node [right] {0.7} (5)
+	edge node[right] {0.8} (2)
+    (2) edge node {0.4} (5)
+    	 edge [bend left]  node[left] {0.7} (1)
+    (3) edge node [right] {0.8} (5)
+          (4) edge node {0.2} (5);
+
+
+                
+                
+        }        
+	
+	
+
+
+Existing approaches learn the probability , , from the actions performed by both  and . 
+In particular, they consider  as influenced by  if the latter performed the action before the former.
+Such approaches have two main drawbacks. The probability of friends influencing a subject are considered independent of each other. This assumption may not be always true, especially when two friends of a subject are in turn friends, as for the nodes  and  in the example of Figure . 
+The fact that subject  and  are both active can differently affect subject  decision.
+In this instance, the joint probability of influencing  should be higher if compared to the combination of the independent probabilities (Eq. (1)). 
+Further, previous works in the literature learn the influence probability by considering only the actions performed by the subject ().
+However, it may be relevant to take into account the actions not performed by the subject (), but performed by her/his friends, so as to understand who really affects subject's decisions. 
+As an example, we consider the scenario where subject  does not buy a certain product, while some of her/his friends do. In this instance, considering also negative samples can improve the influence modeling, as  may be affected by the friends that share the same  decision.
+
+
+Previous works differ from each other for the way the probabilities  are estimated.
+In this paper, we study the LT models proposed by Goyal et al.  and the IC model of Saito et al. . Other works in the literature model social influence at topic-level, i.e., considering influence among subjects with respect to a set of OSN topics.
+We are not only interested in online scenarios, thus, we aim to model social influence among subjects independently of the topics.
+In the LT models of Goyal et al., a node becomes active if , where  is the activation threshold. 
+They propose different probabilistic models to capture the influence probability , referred to as Bernoulli Distribution (BD), Jaccard Index (JI), Partial Credits - Bernoulli (PC-B), and Partial Credits - Jaccard (PC-J). We do not describe them in details for the lack of space.
+In the IC model of Saito et al., each active subject independently influences her/his inactive friends with influence probabilities estimated by maximizing a likelihood function with the Expectation Maximization (EM) algorithm.
+
+
+
+This work addresses the aforementioned drawbacks by formalizing a deep learning approach for modeling social influence and predicting subject's behavior.
+In this section, we present the proposed approach based on a DNN architecture.
+
+
+
+In recent years, deep learning  has found successful application in a growing number of areas. A DNN is able to approximate any continuous function by learning the relationships embedded in the input data. 
+Thereby, it replaces the manual feature extraction procedure by building up a complex hierarchy of concepts through the multiple layers of the network to automatically extract discriminative and abstractive features of data .
+A DNN is defined by a combination of three layers: input layer , hidden layers , and output layer .
+These layers are fully connected in a weighted way as follows
+
+    _j= 
+
+    _{xh_{j}})&  j= 1     _{j-1}_{h_{j-1}h_{j}})&  1<j 
+
+
+= _{L}_{h_{L}y}) 
+where  indicates the weights of the connections between layer  and , while  is a non-linear activation function (e.g., sigmoid, ReLU, tanh, softmax) of each hidden node at layer , and  is a non-linear activation function of each output node.
+The predictive model of a DNN can be formulated as , where 
+ denotes the predicted output,  represents the model parameters (i.e., the inter-layers weights), and  indicates the function that maps the input  to the output  based on the DNN architecture, i.e., .
+
+
+
+{r}{0.4
+ 
+    {!}{
+[   cnode/.style={draw=black,fill=#1,minimum width=3mm,circle},
+]
+
+    ;
+    ;
+     ;
+    ;
+    
+    
+    {   
+                ) {};
+    }
+    
+        ) {};
+        ) {};
+        ) {};
+      	) {};
+            ,xshift=4pt,yshift=-3.5cm] (-0.8,-1.9) -- (-0.8,2.8) node [black,midway,xshift=-1.4cm] {;
+      ,xshift=4pt,yshift=-5.5cm] (-0.8,-4.8) -- (-0.8,-0.2) node [black,midway,xshift=-1.4cm] {;
+
+
+    
+    {   
+                ) {};
+         (s);
+    }
+    
+    
+    
+    {   
+        {           }
+    }     
+ 
+ }  
+ 
+ 
+ 
+
+In this work, we address the limitations of existing approaches by learning the interplay among subjects using a DNN.
+The proposed approach has the capability for both modeling social influence and predicting human behavior in one shot.
+It should be noticed that the DNN does not explicitly produce a mathematical model, but it learns abstractive feature to implicitly model and learn the interaction of the data in input.
+Our task can be formulated as the problem of predicting whether subject  performed action  as a function of the active friends .
+We address this task as a binary classification problem.
+Thereby, the output  of the DNN is a Boolean variable that is equal to 1 if  performed , and is 0 otherwise.
+The input layer consists of two vectors  and  that indicate subject  and her/his active friends for the action , respectively.
+Both of them have length .
+The former is a one-hot vector that uniquely identifies each subject .
+The vector consists of all  with the exception of a single  that identifies one element of the set.
+In this instance, subject  is represented by the vector , which has only the  element equal to one.
+The latter represents the active friends of subject  for the action .
+The -th element of  corresponds to subject  and it equals one only if  is active and , otherwise is equal to 0.
+These two vectors are first concatenated and then fed into a multi-layer architecture, as depicted in Figure .
+For the sake of simplicity, a DNN with only one hidden layer () is depicted. 
+In our experiments, we design a network with a tower structure, where the bottom layer is the largest and the number of nodes of each successive layer is half of its precedent.
+In such a way, higher layers with few nodes can learn more abstractive features from the input data .
+Details about the implementation will be given in Section .
+The training is performed by minimizing the binary cross-entropy loss between  and , where  is the predicted output of our DNN framework.
+
+The rationale of this approach is based on the attempt of overcoming the drawbacks of previous works described in Section .
+We model social influence by considering the inter-dependencies among friends. In fact, according to the DNN architecture presented above, we take into account both  the relationship between the subject and her/his friends and  the interactions among them.
+We accomplish this task by placing the social network in a neural network, letting the DNN learn the influence strengths and the interplay among the subjects in the social network.
+We learn social influence including in the training phase also actions not performed by the subject. 
+For each subject, we train our DNN with an equal number of positive () and negative samples ().
+In such a way, the DNN framework has the capability for both modeling social influence and predicting human behavior in one shot. 
+
+
+To empirically evaluate our framework, we conduct experiments using data of an EBSN.
+This dataset allows us to investigate social influence considering both  (through the social network) and  (real-life) social interactions.
+
+
+An EBSN is a web platform where users can create events, promote them, and invite friends to participate.
+Events range from small get-together activities, e.g., Sunday brunch or movie night, to bigger events, e.g., concerts or conferences . 
+The rationale behind the choice of utilizing an EBSN is based on the intrinsic agglomerative power of the events. 
+In fact, participating in an event represent a direct and explicit form of social interaction, other than a personal interest.
+An EBSN provides a social network service so as to connect friends and users with common interests.
+In the event main page, a user can see the information related to the event, e.g., date, location, and description, along with the confirmed participants. This information may activate processes of social influence, which can drive user participation in the events .
+
+In this study, we use a dataset from , an EBSN for sharing upcoming plans with friends.
+Plancast allows users to subscribe each other providing direct connections among them. 
+Subscription is similar to the concept of  in OSNs, e.g., Twitter. 
+We utilize a dataset  that includes 93041 users and 401634 events, combined in 1702058 user subscriptions and 869200 user-event participations.
+We restrict our analysis to the U.S., as most of the events have been organized there. We filter out users without any subscription and that attended less than 20 events. 
+We set this threshold in order to build, per each user, a reasonable training and test set to predict her/his behavior. 
+
+
+
+
+
+In this section, we describe how we implement and design our DNN framework.
+The actions set   is defined by the user-events participation in the EBSN dataset, while  is the set of events attended by subject . 
+A subject is considered active for the event  if she/he decided to participate in the event .
+For each subject , we randomly select  events not attended by  so as to consider also negative samples, where .
+In order to limit overfitting and to reduce variability, we utilize a 10-fold cross validation to split the dataset into training and test set. We build the folds so as to
+preserve the percentage of positive and negative samples for each subject in the dataset.
+
+We implement our DNN framework in Keras , following a tower pattern composed of  layers with  nodes, respectively. We train the network for 25 epochs using RMSProp as optimization function, employing the ReLu as activation function at the hidden layers and the sigmoid as activation function at the output layer.
+Moreover, we apply a dropout technique, with a dropout equal to 0.1, to avoid overfitting.
+We tune these hyper-parameter performing a grid search on a validation set (10
+
+To validate the performance of our approach, we compare our proposed method (DNN) with the following baseline algorithms: the LT models (BD, JI, PC-B, and PC-J) proposed by Goyal et al. , and the IC model of Saito et al. .
+To find the best threshold  in the LT model, we measured two metrics: the Youden's index and the closest point to (0,1) in the Receiver Operating Characteristic (ROC) curve. We show only the performance related to the Youden's index as it achieves better results.
+To examine the performance of these models, we employ widely used metrics in the evaluation of classification problem: Accuracy, True Positive Rate (TPR), and False Positive Rate (FPR).
+
+
+Table  depicts the performance of the different solutions.
+Results indicate that the DNN framework achieves the best Accuracy, TPR, and FPR.
+We empirically show that the proposed approach outperforms the baseline algorithms, by efficiently resolving the limitations related to the existing works.
+This result highlights the importance of  the interplay among subject's friends, in terms of dependent influence probabilities, and of  the negative samples to detect influential friends and learn influence strengths. 
+Our DNN framework has the capability for both modeling social influence taking into account these aspects and for predicting human behavior, achieving remarkable results.
+
+
+In this paper, we investigated social influence and how it impacts human behavior.
+We propose to address the limitations of existing approaches by employing a deep learning approach.
+We introduced a DNN framework that has the capability for both modeling social influence and predicting human behavior.
+We implemented an architecture that allows the DNN to learn the interplay among friends and to consider both positive and negative samples.
+To empirically validate the proposed framework, we evaluated our approach using real-life data of an EBSN.
+Performances exhibit a significant improvement with respect to the state of the art, showing that the proposed approach efficiently resolves the limitations related to existing works.
+
+
+
+
+
+
+

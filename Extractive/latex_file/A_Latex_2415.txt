@@ -1,0 +1,692 @@
+
+
+\documentclass[journal,12pt,onecolumn,draftclsnofoot]{IEEEtran}
+\usepackage{cite}
+\ifCLASSINFOpdf
+  \usepackage[pdftex]{graphicx}
+\else
+\fi
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{color}
+\usepackage{graphicx}
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\usepackage{algorithmic}
+\usepackage{array}
+\usepackage{url}
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{lemma}{Lemma}
+\newtheorem{remark}{Remark}
+\newtheorem{claim}{Claim}
+\newtheorem{algorithm}{Algorithm}
+
+\newcommand{\cV}{\mathcal{V}}
+\newcommand{\cE}{\mathcal{E}}
+\newcommand{\cB}{\mathcal{B}}
+\newcommand{\cR}{\mathcal{R}}
+\newcommand{\cP}{\mathcal{P}}
+\newcommand{\cS}{\mathcal{S}}
+\newcommand{\cN}{\mathcal{N}}
+\newcommand{\bL}{\mathbf{L}}
+\newcommand{\bP}{\mathbf{P}}
+\newcommand{\bX}{\mathbf{X}}
+\newcommand{\bU}{\mathbf{U}}
+
+
+\newcommand{\bV}{\mathbf{V}}
+\newcommand{\bv}{\mathbf{v}}
+\newcommand{\bx}{\mathbf{x}}
+\newcommand{\bu}{\mathbf{u}}
+\newcommand{\indep}{\rotatebox[origin=c]{90}{$\models$}}
+\newcommand{\latpt}{\mathbf{y}}
+\newcommand{\Latpt}{\mathbf{Y}}
+\newcommand{\Vor}{\mathcal{V}}
+\newcommand{\Bab}{\mathcal{B}}
+\newcommand{\del}{\partial}
+\newcommand{\Interval}{\mathcal{I}}
+\newcommand{\VInterval}{\mathcal J}
+\DeclareMathOperator{\lcm}{lcm}
+\begin{document}
+\title{On the Interactive Communication Cost of  the  Distributed Nearest Lattice Point Problem\footnote{This work was presented in part at the 2017 IEEE Intl. Symposium on Information Theory, Aachen, Germany, June 2017.}}
+\author{V. A. Vaishampayan %,~\IEEEmembership{Fellow,~IEEE,}
+        and M. F. Bollauf%,~\IEEEmembership{Student Member,~IEEE}}% <-this % stops a space
+\thanks{V. A. Vaishampayan is with the Department
+of Electrical  Engineering, City University of New York, College of Staten Island, Staten Island,
+NY 10314, USA e-mail: vavaishampayan@icloud.com}% <-this % stops a space
+\thanks{M. F. Bollauf is with the Institute of Mathematics, Statistics and Computer Science, University of Campinas, Campinas, Sao Paulo, Brazil and was a visiting scholar at CUNY in 2016.}
+%\thanks{This work has been submitted to the IEEE for possible publication. Copyright may be transferred without notice.
+%after which this version may no longer be accessible}
+}% <-this % stops a space
+\maketitle
+
+\markboth{On the Interactive Communication Cost of  the  Distributed Nearest Lattice Point Problem}%
+{Vaishampayan and Bollauf}
+
+\begin{abstract}
+We consider the problem of distributed computation of the nearest lattice point for a two dimensional lattice.
+An interactive two-party model of communication  is considered. Algorithms with bounded, as well as unbounded, number of rounds of communication are considered. For the algorithm with a bounded number of rounds, expressions are derived for the error probability as a function of the total number of communicated bits. We observe that the error exponent  depends on the lattice. With an infinite number of allowed communication rounds, the average cost of achieving zero error probability is shown to be \emph{finite}. 
+\end{abstract}
+\begin{IEEEkeywords}
+Lattices, lattice quantization, Communication complexity, distributed function computation, Voronoi cell, Babai cell, rectangular partition.
+\end{IEEEkeywords}
+\vspace{0.3in}
+
+
+\IEEEPARstart{G}{iven} a lattice~\footnote{A lattice is a discrete additive subgroup of $\mathbb{R}^n$. The reader is referred to \cite{SPLAG} for details.} $\Lambda \subset \mathbb{R}^n$, and $\bx=(x_1,x_2,\ldots,x_n) \in \mathbb{R}^n$, the  lattice point $\latpt_v(x)$ which minimizes the Euclidean distance $\|\bx-\latpt\|$, $\latpt \in \Lambda$ is called the nearest lattice point to $\bx$. The nearest lattice point problem is  to find $\latpt_v(\bx)$ for each $\bx\in \mathbb{R}^n$. 
+
+ Our objective is to study the communication cost of finding the nearest lattice point in a distributed network under the assumption that $x_i$ is only available at node-$i$, $i=1,2,\ldots,n$, in a network of $n$ nodes.  We consider an interactive communication model in which nodes exchange information according to a pre-arranged protocol.  When communication ends, each node  has sufficient information to determine $\latpt(\bx)$, an approximation to $\latpt_v(\bx)$.  We restrict our work to lattices of dimension 2, since this captures most of the main geometric insights required for the analysis. %Generalizations to higher dimensions will be considered in companion works and in future contributions.
+
+We view our problem as a distributed function computation problem, the function being the nearest lattice point to $\bx$ and consider \emph{interactive} communication protocols for the computation of this function. In an interactive protocol, a communication session is broken up into rounds and in each round a node is allowed to compute its message based on local information and all the information that it has received from other nodes in previous rounds. Interactive protocols are more powerful than one-way protocols~\cite{Orlitsky:1991}.
+
+The cost of communication for any function depends on the nature of the function, the error criterion used if an approximate solution is sought, and the correlation structure of the source. In order to pay attention to the function alone, we will assume throughout this work that the information available at each node is statistically independent.
+The main contributions of the paper are as follows. 
+\begin{enumerate}
+\item We consider interactive protocols with a single-round as well as interactive protocols with an unbounded number of rounds.
+\item For a single round protocol we develop analytic expressions for the tradeoff between rate and error probability.
+\item For interactive protocols with an unbounded number of rounds, we exhibit a construction which results in zero error probability with finite average bit cost. 
+\item We study the dependence of the communication cost of our protocols on the lattice structure.
+\end{enumerate}
+
+Since the problem of finding the nearest lattice point can be viewed as a classification problem, where a class is the Voronoi cell of a lattice point, our results are of value for distributed classification problems in general. Given the current focus on data analytics and cloud computing, the communication costs of distributed classification problems  are expected to play an important role in practice.
+
+
+
+In a companion paper~\cite{Bollauf:2017} we have developed upper bounds for the communication complexity of constructing a specific rectangular partition for a given lattice along with a closed form expression for the error probability $P_e$. The partition is referred to as a Babai partition and is an approximation to the Voronoi partition for a given lattice. 
+
+The probability of an event $E$  is written $Pr(E)$ or $P_\bX(E)$, when the distribution is to be emphasized. The probability density function (pdf) of $\bX$ is denoted by $p_\bX(\cdot)$. The conditional pdf of $\bX$ given $\mathbf Z$ is denoted $p_{\bX|\mathbf Z}(\cdot|\cdot)$. The entropy function is denoted by $H(\cdot)$, with argument being either a random variable or a probability distribution. The differential entropy function is denoted by $h(\cdot)$ with similar convention regarding its argument. If $\cB \subset \mathbb{R}^2$, then we define $\cB^i=\{x_i~:~(x_1,x_2) \in \cB\}$, $i=1,2$ to be its projection on the $i$th coordinate axis.
+
+The remainder of the paper is organized as follows. Previous work is reviewed in Sec.~\ref{sec:previous}, assumptions and a preliminary analysis are presented in Sec.~\ref{sec:largescale}, the interactive model is analyzed and quantizer design is presented  for a single round of communication in Sec.~\ref{sec:onedec}, and for an unbounded number of rounds of communication in Sec.~\ref{sec:infinitedec}.  Numerical results and a discussion are in Sec.~\ref{sec:discussion}. A summary and conclusions is provided in Sec.~\ref{sec:summary}.
+
+\section{Previous Work}
+\label{sec:previous}
+The problem considered here is related to the following bodies of prior work: interactive communication, distributed function computation, distributed hypothesis testing and quantization, in particular, asymptotic quantization theory. We briefly review prior work in each of these areas. Loosely speaking, communication complexity is the minimum amount of communication required to achieve a specific objective, whether it be distributed compression or distributed function computation.
+
+Two-party interactive communication is considered in a series of papers~\cite{Orlitsky:1990},\cite{Orlitsky:1991},~\cite{Orlitsky:1992}.  When worst-case complexity is considered, infinite message  complexity can be as small, but no better than, the logarithm of the one-message complexity, and the one-message complexity is the logarithm of the strong chromatic number of a graph that is derived from the support set of the joint distribution of the pair of random variables. It is also shown that two messages suffice to achieve communication within a constant factor of the best possible using an infinite number of messages. For the average case, when random variables are uniformly distributed over their support set, average case communication close to the conditional entropy can be acheived using four or more messages~\cite{Orlitsky:1992}.
+
+Given a function $f$ of several variables, the communication complexity of computing $f$ in a distributed setting is considered in~\cite{Yao:1979},~\cite{KushNis:1997}. 
+Early information theoretic work on communication complexity for distributed function computation includes~\cite{Yamamoto:1982}. %~\cite{AhlCai:1994}.
+In~\cite{Orlitsky:2001}   the problem of computing $f(X,Y)$ at node-$Y$ is considered and it is shown  that $H_G(X|Y)$ bits are necessary and sufficient, where $H_G$ is  a conditional entropy defined on $G$ the characteristic graph of $X$, $Y$ and $f$. A characterization of the two-message rate region is also provided.
+More recently, two terminal interactive communication is studied in considerable detail in~\cite{MaIshwar:2009}, \cite{MaIshwar:2011}, and the benefit of an unbounded number of messages is demonstrated. In particular tight bounds for computing  the Boolean AND function are obtained. 
+
+
+ If $X$ and $Y$ are iid Gaussian with unit variance, with correlation coefficient $\rho$, $f(X,Y)=(X+Y)/2$, the objective is to calculate $f$ at node-$Y$, and only a single round of communication is allowed from node-$X$ to node-$Y$ then node-$X$ must send $(1/2)\log_2((1-\rho^2)/4D)$ bits to achieve mean squared error distortion $D$~\cite{Yamamoto:1982}. If $\rho=0$, the minimum rate required coincides with the rate for communicating $X/2$ with mse distortion $D$, as can be seen from the rate distortion function for the source.  If the objective is to determine $(X+Y)/2$ at both nodes with mse distortion $D$, the minimum sum rate is $\log_2((1-\rho^2)/4D)$, which is twice the rate required for calculating $f$ at one node. Once again, when $\rho=0$ this coincides with the minimum rate for sending $X/2$ to $Y$ and $Y/2$ to $X$, even if multiple rounds of interactive coding are allowed~\cite{SuElGamal:2010}.  
+
+
+ Our work is based on analysis techniques for quantization~\cite{Bennet:1948}, \cite{GP:1968},\cite{Zador:1982} some applications of which to detection problems have already appeared  in~\cite{Poor:1988},~\cite{Benitz:1989} and ~\cite{Gupta:2003}. More recently, the design of fine scalar quantizers for distributed function computation with a squared error distortion measure is considered in~\cite{Misra:2011} and succeeding works. 
+
+\section{Applications}
+\label{sec:applications}
+While the problem considered in this paper is of fundamental importance, it also has potential applications to emerging systems for  network security and machine learning. 
+
+The need for large scale distributed systems has been noted, by security researchers, as a foil to distributed and coordinated attacks. Examples of such attacks and pre-cursors to attacks are distributed denial of service attacks ~\cite{wei2013rank},  distributed port scans and fragmented worms. %anomalous energy usage~\cite{oliner2012collaborative}. 
+This is enabled by the increased sophistication of attackers, who are able to commandeer multiple resources and attack a network in a distributed manner, so as to evade localized detection techniques.  A common feature of these attacks is that detection requires global information. The communication cost of detecting such attacks is high and the bottleneck is the network bandwidth, which is a few orders of magnitude smaller than  memory bandwidth~\cite{barroso2013datacenter}. 
+In response, researchers have considered the design of distributed, collaborative  intrusion detection systems and several survey papers on this important subject have appeared recently, e.g~\cite{vasilomanolakis2015taxonomy},~\cite{meng2015collaborative}.    
+
+A similar trend towards collaborative distributed systems is observed in the area of machine learning, e.g.~\cite{kraska2013mlbase}. Machine learning systems can serve as a subsystem in an intrusion detection system, but are also of interest in a host of other applications. Primitives provided in such systems include gradient and stochastic gradient descent, map-reduce (for developing divide and conquer strategies) and  graph parallel primitives. The problem of reducing the communications overhead in datacenter implementations of large scale machine learning problems has been addressed in several works, e.g.~\cite{li2014communication}.  As a specific example consider the design of a neural network classifier for data that is distributed across many physical locations~\cite{LPC-NN:2017}. The focus in ~\cite{LPC-NN:2017} is on understanding the statistical performance of the proposed distributed learning algorithm---there is no explicit accounting of the communication cost of the proposed algorithm. Our work aims to fill this gap.
+
+Finally, we would like to note that when detecting an attack in a large network, the first attack is often very hard to detect. It is only after anomalous behavior is noted that an effort is made to discover the mode of the attack, after which an attack signature is obtained for preventing further spread. Thus, the  availability of network data that precedes the attack is crucial for discovering the mode of an unseen attack. Such data can take the form of counts of packets with specific source, destination IP addresses, as in~\cite{keralapura2006communication}. However, since uncompressed network logs will consume a lot of network bandwidth, it makes sense to have available a compressed representation of  a  network log.    In the example of packet counts, lossy compression is an acceptable and necessary step in reducing the network bandwidth requirements. The emphasis on low delay is also important here. We may not have the luxury of accumulating data for a month at each sensor node, but may wish to encode data daily. 
+
+% and by machine learning researchers, who often must build large scale algorithms based on data that is available at several physically separated locations. 
+%
+%
+%Inter-machine communication bandwidth required for implementing large scale machine learning algorithms places an enormous load on communication bandwidth in large datacenters. 
+%
+%From the computer networking community, a valuable abstraction for distributed network monitoring appears in~\cite{keralapura2006communication}, where the objective is to estimate the aggregate counts of packets headed to a specific IP address. The high communication cost of the problem leads to a formulation in which the communication is reduced by approximating the desired counts. Such an activity is valuable in detecting a denial of service attack. 
+
+
+
+
+
+
+The problem considered here has applications to the above-mentioned distributed systems and our expectation is that the communication efficiencies obtained through their solution  will contribute to system efficiencies.
+
+
+\section{Lattice Setup}
+\label{sec:largescale}
+\begin{figure}[h!]
+\begin{center}
+		\includegraphics[height=3.8cm]{rvectors.jpg}  
+	%\includegraphics[height=2.6cm]{a2fundamental.pdf} \quad
+\caption{{Voronoi region, Babai partition and three relevant vectors}}
+\label{rvectors}
+%\vspace{0.15cm} {\footnotesize {Fontes: \cite{slidesueli}, p.4 e \cite{zamir}, p.18.} }
+\end{center}
+\end{figure}
+
+Our analysis is for lattices in dimension 2. We summarize here, some of the necessary and relevant facts about two dimensional lattices. 
+ We will assume that generator matrix $\bV$ of lattice $\Lambda$ is of full rank (the associated lattice is called a full rank lattice) and has the upper triangular form 
+ \begin{equation}
+ \bV=\begin{pmatrix} 1 & \rho \cos \theta \\ 0 & \rho \sin \theta\end{pmatrix}
+ \label{eqn:GenMatrix}
+ \end{equation}
+  where the columns of $\bV$ are basis vectors for the lattice.   The associated quadratic form is $f(x,y)=x^2 + 2\rho \cos \theta~ xy + \rho^2 y^2$. It is known that this form is reduced if and only if $2|\rho \cos \theta|  \leq 1 \leq \rho^2 $ and the three smallest values taken by $f$ over $(x,y)\in \mathbb{Z}^2-\{ 0\}$ are $1$, $\rho^2$, and $1-2|\rho \cos \theta| + \rho^2$~see e.g. Th. II, Ch. II, \cite{Cassels:1997}. Based on a result due to Voronoi, Th. 10, Ch. 21,~\cite{SPLAG}, it follows that the relevant vectors, i.e. the vectors which determine the faces of the Voronoi cell, are $\pm (1,0)$, $\pm (\rho \cos \theta, \rho \sin \theta)$ and $\pm (\rho \cos \theta -1,\rho \sin \theta)$. We thus consider lattices with generator matrix $\bV$ as above, with $\rho \geq 1$. From an additional symmetry, and in order to avoid indeterminate solutions we restrict $\theta$  such that $0 < \rho \cos \theta < 1/2$. Performance at the endpoints $0$ and $1/2$ can be obtained by taking limits. More generally, the generator matrix of the lattice is represented by matrix $\bV$ with $i$th column  $\bv_i$, $i=1,2,\ldots,n$. Thus $\Lambda=\{\bV \bu,~\bu\in \mathbb{Z}^n\}$.  The $(i,j)$ entry of V is $v_{i,j}$, thus $\bv_i=(v_{1i},v_{2i},\ldots,v_{ni})$. The Voronoi cell $\Vor_\latpt$ is defined as the set of all $\bx$ for which $\latpt\in \Lambda$ is the closest lattice point. When $\latpt=\mathbf 0$, we will write $\Vor$ as shorthand for $\Vor_{\mathbf 0}$.
+
+
+
+A fundamental region of a lattice $\Lambda$ is a set with the property that distinct points in the set are distinct, modulo translations by lattice vectors. The volume of any fundamental region is $|\det V|$. The Voronoi cell  $\Vor_\latpt$ is a  fundamental region for the lattice $\Lambda$. For the lattice $\Lambda$ with generator matrix  (\ref{eqn:GenMatrix}),  it is not hard to show that any translate of the rectangle $[0,1)\times[0,\rho \sin \theta)$   is also a fundamental region for $\Lambda$ and that these are the only axis-aligned rectangular fundamental regions for this lattice. Given a lattice $\Lambda$ and  a rectangular fundamental region $\cR$, a  partition of $\mathbb{R}^n$ of the form $\cR+\latpt$, $\latpt \in \Lambda$ will be referred to as a \emph{rectangular fundamental partition} of $\Lambda$. A simple method for obtaining a fundamental rectangular partition is to partition $\mathbb{R}^n$ into rectangles for which $\bu=(u_1,u_2,\ldots,u_n)$  is constant,  where 
+\begin{equation}
+u_i=[(x_i-\sum_{j=i+1}^n v_{ij}u_j)/v_{ii}],~i=n,n-1,\ldots,1,
+\label{eqn:BabaiU}
+\end{equation}
+ ($[x]$ is the nearest integer to $x$). This partition is referred to as  the nearest-plane or Babai partition,  the lattice point 
+ \begin{equation}
+ \latpt_{np}(\bx)=\bV \bu
+ \label{eqn:BabaiPoint}
+ \end{equation}
+is referred to as the Babai point, the set of $\bx$ mapped to $\latpt$ by (\ref{eqn:BabaiU}) and (\ref{eqn:BabaiPoint}) is called the Babai cell associated with $\latpt$, denoted $\Bab_\latpt$. The Babai cell at the origin $\Bab_{\mathbf 0}$ is abbreviated $\Bab$.
+
+
+
+\section{Interactive, Nearest-Plane, Single Round of Communication}
+\label{sec:onedec}
+\begin{figure}[htbp] %  figure placement: here, top, bottom, or page
+   \centering
+   \includegraphics[width=3in]{TwoStageSetup.pdf} 
+   \caption{Two stages in the computation of $\latpt(\bx)$. At the end of Stage-I, both nodes have determined $\latpt_{np}(\bx)$. Stage-II then refines the approximation. Shown here is the 12 order for Stage-II communication. In the 21 order for Stage-II communication, $z_2$ is sent before $z_1$ and is calculated differently. }
+   \label{fig:twostage}
+\end{figure}
+Our algorithm computes $\latpt(\bx)$ in two stages, as illustrated in Fig.~\ref{fig:twostage}.
+ In the first stage, a Babai partition of $\mathbb{R}^2$ is constructed. This  is accomplished by first sending $u_2$ from node-2 to node-1 and then sending $u_1$ from node-1 to node-2 calculated according to (\ref{eqn:BabaiU}).  At the conclusion of this stage of the protocol, both nodes have determined an approximate nearest lattice point, ${\latpt}_{np}(\bx)$, thus localizing $\bx$ to the Babai cell $\Bab_{\latpt_{np}(\bx)}$. In the second stage, we allow only a single round of communication. This round consists of sending a bin index $(w_1,z_1)$ from node-1 to node-2 and another bin index $z_2$ from node-2 to node-1. Computation of $w_1$ and $z_i$'s is explained later in this section. Different results are obtained depending on the order in which the $z_i$ are communicated. Both possibilities are analyzed. At the end of the second stage, each node has determined  a better approximation to $\latpt_v(\bx)$ than $\latpt_{np}(\bx)$. We call this common lattice point ${\latpt}(\bx)$\footnote{Our protocol excludes the possibility that the lattice points determined by each node at the end the the second stage are different.}.
+
+Let $\cE=\{\latpt(\bX)\neq \latpt_{v}(\bX)\}$ and let $P_e=P_{\bX}(\cE)$ denote the error probability. The total number of bits communicated in Stages I and II is denoted by $R_{I}$, $R_{II}$, respectively and $R_{sum} = R_{I} + R_{II}$.
+Our  objective is to determine  the error probability as a function of $R_{sum}$. % in two scenarios (i) where the lattice remains fixed (ii) when the lattice is scaled, i.e. when the determinant is driven to zero. In both cases we will assume that the quantization bins within a  Babai cell are small thus allowing certain approximations to be made. General formulas are obtained for (i) and explicit expressions are obtained for (ii). 
+
+
+Since $X_1$ and $X_2$ are assumed to be independent and the Babai cell satisfies $\Bab_\latpt=\Bab^1_\latpt \times \Bab^2_\latpt$, the pdf of $\bX=(X_1,X_2)$ conditioned on the event  $\{\bX \in \Bab_\latpt\}$ or equivalently $\{\Latpt=\latpt\}$ satisfies $p_{\bX|\Latpt}(\bx|\latpt)=p_{X_1|\Latpt}(x_1|\latpt)p_{X_2|\Latpt}(x_2|\latpt)$.   
+
+
+ \subsection{Analysis of Rate in Stage-I}
+The Stage-I rate is given by $H(\bU)$, where $\bU=(U_1,U_2)$ and the $U_i$ are obtained in~(\ref{eqn:BabaiU}). For general probability distributions  $H(U_1,U_2)$ must be obtained computationally. However, when the lattice is scaled by $\alpha$ (i.e. the generator matrix for the lattice is $\alpha \bV$) and  $\det \bV = 1$  it is easy to show that the Stage-I rate satisfies~\cite{Bollauf:2017}
+ \begin{equation}
+ \lim_{\alpha \to 0}\left(R_I+2\log_2(\alpha)\right)=h(p_{X_1})+h(p_{X_2}).
+ \label{eqn:rateI}
+ \end{equation}
+% Conditions for convergence are stated in Remark~\ref{rem:convergence} following (\ref{eqn:finalrd}).
+% $R_{I}=H(U_1,U_2)=(n-1)\sum_{i=1}^nh(p_i) -n(n-1) \log_2(\alpha)$ (with $n=2$ in this case)~\cite{Bollauf:2017}.
+%and $H(W_1|U_1,U_2)$ must be obtained computationally. %However, when the lattice $\Lambda$, is scaled it is possible to obtain limiting closed form expressions for $H(U_1,U_2)$ and $H(W_1|U_1,U_2)$ as $|\det V| \rightarrow 0$. %This is done later in Sec.~\ref{sec:}.
+\subsection{Analysis: Stage-II, 12 Order}
+
+\begin{figure}[htbp] %  figure placement: here, top, bottom, or page
+   \centering
+   \includegraphics[width=4in]{PeCalcDetail.jpg} 
+   \caption{A  typical vertical strip created by $S_1$ and its partition into three parts by $S_2$ (left). Probability distribution $Q(x)$ which underlies the calculation of $H(U_2|U_1)$ is on the right.}
+   \label{fig:verticalslice}
+\end{figure}
+
+
+
+We now describe the scheme for the $12$ order for the second stage. Node-1 partitions $\Bab^1$ into bins and sends a message to node-1 to indicate which bin $x_1$ lies in, in effect partitioning $\Bab$ into  vertical rectangular strips. 
+%To begin, node-1 sends $Z_1=i$  to node-2 indicating the bin  that $X_1$ lies in. This effectively partitions $(-1/2,1/2]$, the support of $X_1$ into bins of length $\delta_i$, and equivalently, partitions $\Bab_\latpt$ into vertical strips of widths $\delta_i$, $i=1,2,\ldots,N_\latpt$. Based on $Z_1$ and its local information $X_2$, node-2 sends message $Z_2$ back to node-1. 
+%Both nodes decode to lattice point $\latpt(Z_1,Z_2)$. 
+Node-2 partitions each vertical rectangular strip into at most three parts using at most two horizontal cuts or thresholds\footnote{We shall assume that a vertical strip never straddles a vertical wall of a Voronoi cell.}. The location of each cut is determined by the location of the appropriate boundary wall of  a Voronoi cell. A typical situation is illustrated in Fig.~\ref{fig:verticalslice}. 
+%In this figure,  vertical strip $i$ is partitioned into  rectangles, $\cR_{\latpt_{np}}(i,j)$,   and  is  decoded to $\latpt_{\latpt_{np}}(i,j)$, $j=-1,0,1$. Note that the partition of a Babai cell depends on $\latpt$. The probability of error  is given by
+%\begin{equation}
+%P_e=\sum_{\latpt_{np} \in \Lambda} \sum_{i = 1}^{N_\latpt}\sum_{j \in \{-1,0,1\}} \sum_{\latpt' \neq \latpt_{\latpt_{np}}(i,j)} P_\bX(\Vor(\latpt') \cap  \cR_{\latpt_{np}}(i,j)).
+%\end{equation}
+Here a rectangle %$\cR$ 
+is intersected by the boundary lines of the Voronoi cell $\Vor$, and is partitioned into three smaller rectangles. % $\cR_i$, $i=-1,0,1$. 
+The partitioning of a rectangle into smaller rectangles is determined by the optimum decoding or decision rule,  which associates a   lattice point  with every rectangle in the final partition. Consider a rectangle $\cR$ and let $\latpt(\cR)$ be the lattice point that it is decoded to. From elementary considerations it follows that $\latpt(\cR)=\arg \max_{\latpt'}  P_{\bX}(\cR\cap \Vor_{\latpt'})$. Thus the optimum decision rule decodes region $\cR$ to the lattice point whose Voronoi region has the largest probability of   intersection with $\cR$. 
+
+
+Assume that the upper and lower boundary lines of $\Vor$ are described by $u(x)$ and $l(x)$, respectively, when $\bx \in \Bab$.  In case one or more of the Voronoi boundary lines is absent, $u(\cdot)$ and $l(\cdot)$ coincide with the boundary of the Babai cell and the slopes are zero.   Let $\cR$  have width $\delta$ and let $\alpha$ and $\beta$, both in $[0,1]$,  be as shown in Fig.~\ref{fig:verticalslice}.  Then
+\begin{eqnarray}
+Pr[\cE|\bX \in \cR]  & \approx &  \frac{1}{2}\delta^2p_{X_1|\bX \in \cR}(x_1)\left[(\alpha^2 +(1-\alpha)^2)|u'(x_1)|p_{X_2|\bX \in \cR}(u(x_1))+ \right. \nonumber \\
+& & \left. (\beta^2+(1-\beta)^2)|l'(x_1)| p_{X_2|\bX \in \cR}(l(x_1))\right] \nonumber \\
+&  \geq &\frac{1}{4} \delta^2p_{X_1|\bX \in \cR}(x_1)\left[|u'(x_1)|p_{X_2|\bX \in \cR}(u(x_1))+|l'(x_1)|p_{X_2|\bX \in \cR}(l(x_1))\right]
+\label{eqn:prob}
+\end{eqnarray}
+and equality holds when $\alpha=\beta=1/2$. This determines the best location of two horizontal cuts for each vertical rectangular strip.%Conditions under which a precise limit is obtained are in Rem.~\ref{rem:convergence}.
+
+We now describe the partition of $\Bab^1$ in a hierarchical manner, using random variables $W_1$ and $Z_1$. The function $|u'(x)|+|l'(x)|$ is constant on $2m+1$ sub-intervals\footnote{Some intervals may be of zero length. For the cases that our analysis is applied to $m$ is either $1$ or $2$.} of $\Bab^1$, for some $m\geq 0$. $W_1$ describes the sub-interval that $X$ lies in. The sub-interval indexed by $w_1=0$ is special in that $|u'(x)|+|l'(x)|$ is zero over this sub-interval and $P(\cE|\bU=\bu,W_1=0)=0$ for each $\bu$. No further partitioning of a sub-interval $W_1=0$ is required, and Stage-II communication ends. Each subinterval $W_1\neq 0$ is further partitioned into bins and the random variable $Z_1$ describes the bin index of the bin that $X_1$ lies in.  
+Thus each bin  is indexed by $(\bu, w_i, i)$, where $\bu$ is the index of the Babai cell, $w_i$ is the sub-interval index, $i$ is the bin index relative to the sub-interval, and 
+\begin{eqnarray}
+P_e & = & \sum_\bu \sum_{w_1}  P_{\bU,W_1}(\bu,w_1)P(\cE|\bU=\bu,W_1=w_1)  \nonumber \\
+& =  & (1-P_{W_1}(0))\sum_\bu \sum_{w_1\neq 0} \frac{P_{\bU,W_1}(\bu,w_1)}{(1-P_{W_1}(0))}P(\cE|\bU=\bu,W_1=w_1)
+\label{eqn:errorprobfull}
+\end{eqnarray}
+where $P(\cE|\bU=\bu,W_1=w_1)$ is given by averaging the minimum value achieved by (\ref{eqn:prob}) with appropriate bin size $\delta$.
+
+The information rate from node-1 in Stage-II is $H(W_1,Z_1|\bU)$. The sum information rate for all communication  (Stages I and II)  is given by 
+\begin{equation}
+R_{sum}=\underbrace{H(\bU)}_{R_{I}}+\underbrace{H(Z_1|W_1,\bU)+H(W_1|\bU)}_{R_{II,12}}+\underbrace{H(Z_2|Z_1,W_1,\bU)}_{R_{II,21}},
+\label{eqn:ratesum}
+\end{equation}
+where, for convenience, we mention again that  $U_1$ and $U_2$ are the random variables associated with communication in Stage-I, given by (\ref{eqn:BabaiU}) and $Z_1$, $W_1$ and $Z_2$ are random variables associated with communication in Stage-II.
+
+
+
+Since the quantization in Stage-II is assumed to be fine (for a lattice at any scale), we can obtain useful approximations for $H(Z_1|\bU,W_1)$. Specifically, for a realization of $(\bU,W_1)=(\bu,w_1)$
+\begin{equation}
+H(Z_1|\bu,w_1)= \sum_{i=1}^{N_{\bu,w_1}} \int_{\Interval_i}p_{X_1|\bU,W_1}(x) \log_2\frac{1}{\int_{\Interval_i}p_{X_1|\bU,W_1}(t)dt}dx,
+%H(Z_1|U_1,U_2,W_1)=\sum_{\latpt} Pr(\Bab_\latpt) \sum_{i=1}^{N_\latpt} -(p_\latpt(x_{i,\latpt})\delta_{i,\latpt}) \log_2 (p_\latpt(x_{i,\latpt} )\delta_{i,\latpt})+ o(\delta).
+\label{eqn:rate1}
+\end{equation}
+where $N_{\bu,w_1}$, the number of bins and $\Interval_i$, the $i$th bin of the $w_1$th sub-interval  of the Babai cell indexed by $\bu$. Note that $\Interval_i$  may depend on $(\bu,w_1)$ though this is not reflected in the notation.
+
+The partition constructed by node-2 is described next. Suppose $x_1$ lies in the rectangle $\cR=\Interval_i\times \Bab^2$. As shown in Fig.~\ref{fig:verticalslice},  $\cR$ is partitioned into at most three rectangles labeled $\cR_j$, $j=-1,0,1$. Define the probability distribution $Q_{\bu,w_1}(x_1)=(Q_{-1},Q_0,Q_1)$, where $Q_j=P_{X_2|X_1}(R_j|x_1)$. Node-2 sends $H(Z_2|Z_1,\bU)$ bits to node-1 where
+\begin{equation}
+H(Z_2|Z_1,\bU) \approx  \sum_{\bu} \sum_{j} P_{\bU,W_1}(\bu,j) \sum_{i=1}^{N_{\bu,j}}  H(Q_{\bu,w_1}(x_{i}))p_\latpt(x_{i,\bu})\delta_{i,\bu},%\left( q_1(i) \log_2(1/q_1(i))+q_0(i) \log_2(1/q_0(i)) + \right. \nonumber \\
+%& \left. q_2(i) \log_2(1/q_2(i))\right).
+\label{eqn:rate2}
+\end{equation}
+where $x_{i,\bu}$ lies in the $i$th bin of the $j$th sub-interval of the Babai cell indexed by $\bu$, having length $\delta_{i,\bu}$. %$\Bab_\latpt$. %See Rem.~\ref{rem:convergence} for conditions under which precise limits are obtained.
+
+In order to derive limiting expressions for (\ref{eqn:prob})--(\ref{eqn:rate2}), we follow the approach in \cite{Bennet:1948}, \cite{GP:1968},\cite{Zador:1982} and introduce the bin-length function $\delta(x)$ and the point density function $\rho(x)=(N\delta(x))^{-1}$, where $N$ is the number of bins that a sub-interval is partitioned into and $\delta(x)$ is the length of a bin that contains $x$.
+%\begin{equation}
+%\delta_\latpt(x)=\delta_{i,\latpt},~~x \in \mbox{ $i$th bin of $\Bab^1_\latpt$}.
+%\end{equation}
+Observe that $\rho(x)$ measures the density of bins at $x$ within a sub-interval and integrates to unity over that sub-interval. Wherever needed $\rho$ will be indexed by the Babai cell index $\bu$ and sub-interval $w_1$. 
+% Our analysis proceeds under the assumption that $\min_\latpt N_\latpt \rightarrow \infty$, i.e. the number of bins in each cell is driven to infinity. However, the bin lengths do not in general go to zero uniformly and this requires special care. If for some $x$, $\delta_{i,\latpt}(x)$ does not tend to zero, then $\rho_\latpt(x) \rightarrow 0$ and $N_\latpt \rho_\latpt(x) \rightarrow L$, where $L$ is the length measure of the complement of the subset of $\Bab^1_\latpt$ on which $\rho_\latpt(x) \rightarrow 0$.
+
+In terms of the point density function $\rho(x)$ and 
+\begin{equation}
+\gamma_{\bu,w_1}(x):= \frac{|u'(x)|p_{X_2|\bU,W_1}(u(x)|\bu,w_1)+|l'(x)|p_{X_2|\bU,W_1}(l(x)|\bu,w_1)}{4}
+\end{equation}
+we obtain
+\begin{eqnarray}
+%P_e\approx \sum_{\bu}P_\bU(\bu) \sum_{w_1}P_{W_1|\bU}(w_1|\bu)E\left[\frac{\gamma_{\bu,w_1}(X_1)}{\rho_{\bu,w_1}(X_1)N_{\bu,w_1}}\left\vert W_1=w_1,\bU=\bu \right. \right],
+%P_e=\sum_{\latpt \in \Lambda} Pr(\Bab_\latpt) {\int_{\Bab^1_\latpt} \frac{\gamma_\latpt(x)}{\rho_\latpt(x)N_\latpt}p_\latpt(x)dx},
+P(\cE|\bU=\bu,W_1=w_1) & \approx & \left\{ \begin{array}{cc}
+E\left[\frac{\gamma_{\bu,w_1}(X_1)}{\rho_{\bu,w_1}(X_1)N_{\bu,w_1}}\left\vert W_1=w_1,\bU=\bu \right. \right], & w_1 \neq 0 \\
+0, & w_1 = 0,
+\end{array}
+\right.
+\label{eqn:ErrProbLim}
+\end{eqnarray}
+\begin{eqnarray}
+H(Z_1|\bu,w_1)& \approx  &\left\{ \begin{array}{cc} 
+E\left[ \log \left(\frac{\rho_{\bu,w_1}(X_1) N_{\bu,w_1}}{p_{X_1|\bU,W_1}(X_1|\bu,w_1)}\right) |W_1=w_1,\bU=\bu \right], & w_1 \neq 0,  \\
+0, & w_1 = 0,
+\end{array}
+\right.
+%\sum_\latpt Pr(\Bab_\latpt){\int_{\Bab^1_\latpt}p_\latpt(x) \log \frac{\rho_\latpt(x) N_\latpt}{p_\latpt(x)}dx},
+\label{eqn:Rate1Lim}
+\end{eqnarray}
+and
+\begin{equation}
+\lim_{m \rightarrow \infty} H(Z_2|Z_1, W_1, \bU)=  \sum_{\bu}P_\bU(\bu) \sum_{w_1}P_{W_1|\bU}(w_1|\bu)E\left[ H(Q_{\bu,w_1}(X_1) |W_1=w_1,\bU=\bu\right].
+%\sum_{\latpt \in \Lambda} Pr(\Bab_\latpt) \int_{\Bab^1_\latpt}  H(Q(x))p_\latpt(x)dx.%\left( q_1(i) \log_2(1/q_1(i))+q_0(i) \log_2(1/q_0(i)) + \right. \nonumber \\
+%& \left. q_2(i) \log_2(1/q_2(i))\right).
+\label{eqn:rate2lim}
+\end{equation}
+Observe that (\ref{eqn:rate2lim}) does not depend on $\rho$.
+
+We minimize $P_e$ with respect to the sum rate $R_{sum}$ in two steps. First we obtain a lower bound on  (\ref{eqn:ErrProbLim})  through an application of Jensen's inequality~\cite{HLP:1952}, ~\cite{Zador:1982},~\cite{GG:1977}. We follow this with another application of Jensen's inequality to determine the optimal rate allocation $R(\bu,w_1)$.
+Thus for $w_1\neq 0$
+\begin{eqnarray}
+\lefteqn{P(\cE|\bU=\bu,W_1=w_1)  \approx } &  & \nonumber \\
+& \approx &   E\left[\exp\left(\log\left(\frac{\gamma_{\bu,w_1}(X_1)}{\rho_{\bu,w_1}(X_1)N_{\bu,w_1}} \right) \right) \left\vert W_1=w_1,\bU=\bu \right. \right] \nonumber \\
+&  \geq &   \exp \left( E\left[\log \left(\gamma_{\bu,w_1}(X_1)-\log\left( \rho_{\bu,w_1}(X_1)N_{\bu,w_1}\right)  \right)\vert W_1=w_1,\bU=\bu\right]\right) \nonumber \\
+ & \approx  &  \exp \left( E\left[\log \left(\gamma_{\bu,w_1}(X_1) \right) \vert \bU=\bu, W_1=w_1\right] \right)\exp(-H(Z_1|\bu,w_1)) \exp(h(X_1|\bU=\bu,W_1=w_1) \nonumber \\
+% & \geq & \underbrace{\exp \left( E\left[\log \left(\gamma_{\bu,w_1}(X_1) \right) \vert \bU=\bu, W_1=w_1\right] \right)}_{A_{\bu,w}}\exp(-R(\bu,w_1)) \exp(h(X_1|\bU=\bu,W_1=w_1) \nonumber \\
+\end{eqnarray}
+and equality holds if and only if $\rho_{\bu,w_1}(x_1)N_{\bu,w_1}=\gamma_{\bu,w_1}(x_1)/K_{\bu,w_1}$, for some constant $K_{\bu,w_1}$. Let
+\begin{equation}
+A_{\bu,w_1}:=
+\left\{ 
+\begin{array}{cc}
+E\left[\log \left(\gamma_{\bu,w_1}(X_1) \right) \vert \bU=\bu, W_1=w_1\right], & w_1 \neq 0,\\
+0, & w_1=0
+\end{array}
+\right.
+\end{equation}
+and let
+\begin{equation}
+\tilde{P}(\bu,w_1)= \frac{P_{\bU,W_1}(\bu,w_1)}{(1-P_{W_1}(0))},~w_1\neq 0.
+\label{eqn:tildep}
+\end{equation}
+From (\ref{eqn:errorprobfull}) it follows that
+\begin{eqnarray}
+P_e  & \geq   & (1-P_{W_1}(0))\sum_\bu \sum_{w_1\neq 0} \tilde{P}(\bu,w_1)\exp(A_{\bu,w_1}-H(Z_1|\bu,w_1)+h(X_1|\bu,w_1)) \nonumber \\
+& \geq & (1-P_{W_1}(0)) \exp\left(  \sum_\bu \sum_{w_1\neq 0} \tilde{P}(\bu,w_1)  \left(A_{\bu,w_1}-H(Z_1|\bu,w_1)+h(X_1|\bu,w_1)\right) \right) \nonumber \\
+& \geq & (1-P_{W_1}(0)) \exp\left(  \sum_\bu \sum_{w_1\neq 0} \tilde{P}(\bu,w_1)  \left(A_{\bu,w_1}+h(X_1|\bu,w_1)\right) \right) \exp\left(-\frac{H(Z_1|\bU,W_1)}{(1-P_{w_1}(0))}\right)\nonumber \\
+\end{eqnarray}
+and equality holds when $H(Z_1|\bu,w_1)=A_{\bu,w_1}+h(X_1|\bu,w_1) + K$ for some constant $K$.
+%Equation (\ref{eqn:ErrProbLim}) can be minimized subject to a constraint on the sum rate (\ref{eqn:ratesum}), through two applications of Jensen's inequality~\cite{HLP:1952}, a technique used in~\cite{Zador:1982},~\cite{GG:1977},
+From here it follows directly that
+\begin{eqnarray}
+\lefteqn{\lim_{R_{sum} \rightarrow \infty} \log \left(P_e e^{\frac{R_{sum}}{(1-P_{W_1}(0))}}\right)=} & \nonumber \\
+&  \log(1-P_{W_1}(0))+ \tilde{E}[\log \gamma_{\bU,W_1}+h(X_1|\bu,w_1)] + \frac{H(W_1|\bU)}{1-P_{W_1}(0)}+\frac{H(\bU)+H(Z_2|Z_1,\bU,W_1)}{1-P_{W_1}(0)},
+\label{eqn:finalrd}
+\end{eqnarray}
+where $\tilde{E}[\cdot]$ is the expectation with respect to the probability distribution $\tilde{P}$ defined in (\ref{eqn:tildep}) and $h(X_1|\bu,w_1)$ is the differential entropy of the probability density $p_{X_1|\bU,W_1}(x|\bu,w_1)$.
+ \begin{remark}
+From (\ref{eqn:errorprobfull}) we see that in order to achieve $P_e=0$ it is necessary that $P(\cE|\cR(\bu,j,i))=0$ for all $\cR(\bu,j,i)$ which have positive probability. This is impossible unless the bin size (the $x_1$ dimension) is zero, which requires an infinite rate.
+ \end{remark}
+
+\begin{remark}
+\label{rem:convergence}
+Conditions for convergence in (\ref{eqn:finalrd}) are less stringent than those required in the analysis of quantizers under difference distortion measures since the error measure considered here is the error probability. It suffices to assume that the marginal pdf's satisfy smoothness conditions (53(a)-(c)) in~\cite{GP:1968}.
+\end{remark}
+
+
+
+
+
+
+\subsection{Special Case: 12 Order and $\bX\sim \mbox{Unif}(\Bab_{\mathbf 0})$}
+\begin{figure}[htbp] %  figure placement: here, top, bottom, or page
+   \centering
+%   \includegraphics[width=3.1in]{BabaiVoronoiCell2.jpg} 
+\includegraphics[width=3.1in]{BabaiVoronoiNewNew.jpg} 
+   \caption{Babai and Voronoi cells, with key points labeled. $x_1,x_2$ are the horizontal, vertical  coordinates, resp. We have reduced the clutter  by labeling only one of a pair of vertices $\bx$, $-\bx$. }
+   \label{fig:detailedGeom}
+\end{figure}
+We now specialize the analysis to the simplest case where we assume that $\bX$ is uniformly distributed over $\Bab_{\mathbf 0}$. %$\Vor_{\mathbf 0}$ and $\Bab_{\mathbf 0}$ for the given lattice when the offset parameter $\bx_0=0$. 
+Thus $H(\bU)=0$ in (\ref{eqn:finalrd}) and the remaining terms are derived in the sequel. We note here that this analysis also applies in a limiting sense when applied to lattice $\alpha \Lambda$ and $\alpha \to 0$. The only modification required is that $H(\bU)$ be computed using (\ref{eqn:rateI}). Thus the analysis presented here is applicable in the limiting case for general source distributions. The benefit is that it allows us to study explicity, the dependence on geometric parameters of the Babai and Voronoi cell.
+
+The Voronoi cell $\Vor_{\mathbf 0}$ and  Babai cell $\Bab_{\mathbf 0}$ are shown with all the significant boundary points and intervals   in Fig.~\ref{fig:detailedGeom}. We identify four thresholds $t_{-2}=(\rho \cos \theta-1)/2$, $t_{-1}=(-\rho \cos \theta)/2$, $t_1=-t_{-1}$ and $t_2=-t_{-2}$ and five intervals  $I_{-2}=(-1/2, t_{-2}]$, $I_{-1}=(t_{-2},t_{-1}]$, $I_0=(t_{-1},t_1]$, $I_1=(t_1,t_2]$ and $I_2=(t_2,1/2]$ with lengths $L_{-2}=L_2=(1/2)\rho \cos \theta$, $L_{-1}=L_1=1/2-\rho \cos \theta$, $L_0=\rho \cos \theta$, $L=L_0+2L_1+2L_2=1$. Let $H_{-2}=H_{2}=(1/2)\cos \theta/\sin \theta$. Note that $H_{-2}=H_{-2u}+H_{-2l}$ in Fig.~\ref{fig:detailedGeom}. Let $H_{-1}=H_1=\cos \theta (1-2 \rho \cos \theta)/2 \sin \theta$. Note that $H_{-1}=H_{-1l}$ in Fig.~\ref{fig:detailedGeom}. Let the height of the Babai cell be   $H=\rho \sin \theta$.   Thus
+\begin{equation}
+\gamma_{{\mathbf 0},w_1}(x)=\left\{ \begin{array}{cc} 
+\frac{H_{-2}}{4L_{-2}H} = 1/(4\rho^2 \sin^2 \theta), & x \in I_{-2} (\equiv w_1=-2) \nonumber \\
+\frac{H_{-1}}{4L_{-1}H}=\cos \theta/ (4 \rho \sin^2 \theta), & x \in I_{-1} (\equiv w_1=-2) \nonumber \\
+0, & x \in I_0 (\equiv w_1=0) \nonumber \\
+\frac{H_{1}}{4L_1H}=\cos \theta/ (4 \rho \sin^2 \theta), & x \in I_{1}  (\equiv w_1=1)\nonumber \\
+\frac{H_{2}}{4L_2H} = 1/(4\rho^2 \sin^2 \theta), & x \in I_{2} (\equiv w_1=2),
+\end{array}\right.
+\end{equation}
+Then
+\begin{equation}
+\tilde{E} [\log \gamma_{\bU,W_1}]= \sum_{j=-2, j\neq 0}^2 \frac{L_j}{1-L_0}\log \frac{H_j}{4HL_j}
+\end{equation}
+\begin{equation}
+H(W_1|\bU)=-\sum_{j=-2}^2L_j \log L_j
+\end{equation}
+and
+\begin{equation}
+\tilde{E}[h(X_1|\bu,w_1)] = \sum_{j=-2, j\neq 0}^2 \frac{L_j}{1-L_0}\log L_j
+\end{equation}
+Let random variable $W_2$ which takes values $j=-2,-1,0,1,2$ with probability $H_j/H$. We thus obtain 
+\begin{eqnarray}
+\lefteqn{P_e  \exp\left(\frac{R_{sum}}{1-P_{W_1}(0)}\right) =}\\ 
+=& \frac{(1-P_{W_1}(0))}{4} \left( \frac{1}{P_{W_1}(0)}\right)^{\frac{P_{W_1}(0)}{1-P_{W_1}(0)}}\left(\prod_{j=-2,j \neq 0}^2 \left(\frac{P_{W_2}(0)}{P_{W_1}(0)}\right)^{\frac{P_{W_1}(0)}{1-P_{W_1}(0)}}\right) \exp \left\{\frac{E[H(Q(X_1))]}{(1-P_{W_1}(0))}\right\} \nonumber \\
+=& \frac{(1-L_0)}{4} \left( \frac{1}{L_0}\right)^{\frac{L_0}{1-L_0}}\left(\prod_{j=-2,j \neq 0}^2 \left(\frac{H_j}{L_j H}\right)^{\frac{L_j}{1-L_0}}\right) \exp \left\{\frac{E[H(Q(X_1))]}{(1-L_0)}\right\}.
+\label{eqn:FinalGeneralExprUnif}
+\end{eqnarray}
+
+
+
+It is worth noting that for the special case considered here, namely, $\bX$ uniformly distributed on $\Bab_{\mathbf 0}$, (\ref{eqn:FinalGeneralExprUnif}) can be obtained more directly by partitioning  $I_{-2}$ into $N_2$ equal-length intervals, $I_{-1}$ into $N_1$ equal-length intervals, $I_0$ into $1$ interval, $I_1$ into $N_1$ equal-length intervals and  $I_2$ into $N_2$ equal-length intervals~\cite{VB:2017}.
+
+
+
+
+\subsection{Interactive: Single Round, Reversed Steps, $\bX\sim \mbox{Unif}(\Bab_{\mathbf 0})$}
+\label{sec:irev}
+Analysis is now presented for  $21$ order of communication.  The general formula (\ref{eqn:FinalGeneralExprUnif}) continues to apply here, but with $W_2$, $Z_2$ and $X_2$  replacing $W_1$, $Z_1$, and $X_1$, respectively. We thus derive an expression for the special case with $\bX$ uniformly distributed on $\Bab_{\mathbf 0}$, since this captures the essential geometric differences between the two orderings of communication in Stage-II. 
+
+The support for $X_2$ is partitioned into $3$ subintervals $\VInterval_0:=(\tau_{-1},\tau_1]$, $\VInterval_{-1}:=(-\rho \sin \theta/2, \tau_{-1}]$ and $\VInterval_{1}=(\tau_1,\rho \sin \theta/2]$  and the bin that $X_2$ lies in is communicated to node-1 by random variable $W_2$. Conditioned on $W_2\neq 0$, random variable $Z_2$ indicates a bin for interval $\VInterval_j$, $j\neq 0$ that $X_2$ lies in. %With reference to Fig.~\ref{fig:detailedGeom},  a single large bin spans the interval $\VInterval_0:=(\tau_{-1},\tau_1]$. %The interval $\VInterval_{-1}:=(-\rho \sin \theta/2, \tau_{-1}]$ is partitioned into $N$ intervals of equal length $\Delta$. The same holds for the interval $J_{1}=(\tau_1,\rho \sin \theta/2]$. Equal bin sizes are justified by symmetry. Observe that there is only a single step size parameter here, as opposed to the 12 case, where two step sizes were called for. 
+Also let $H=\rho \sin \theta$, the vertical ($X_2$) dimension of $\Bab_{\mathbf 0}$ and $H_i=\mbox{length}(\VInterval_i)$, $i=-1,0,1$ as in Fig.~\ref{fig:detailedGeom}.
+%$H_0:=(H-2H_1)$. Let $Q:=(H_0/H, H_1/H,H_1/H)$ and $Q_0=H_0/H$. 
+
+Node-2 sends $W_2,Z_2$, the index of the bin that $X_2$ lies in, and thus partitions $\Bab_{\mathbf 0}$ into horizontal strips. Node-1 then partitions each horizontal strip into at most three parts using at most two vertical cuts or thresholds, referred to as the left and right thresholds, and sends $Z_1$ to node-2. For a given $x_2$, let $P_{-1}(x_2)$ be the probability that $X_1$ lies to the left of the left threshold ($Z_1=-1$), $P_1(x_2)$ the probability that $X_1$ lies to the right of the right threshold ($Z_1=1$) and $P_0(x_2)$ the probability that $X_1$ lies in between the two thresholds ($Z_1=0$). Let $P(x)=(P_{-1}(x),P_0(x),P_1(x))$. 
+Then
+\begin{equation}
+\lim_{m \rightarrow \infty} H(Z_1|Z_2, W_2, U_1,U_2)=  E[H(P(X_2)].%\left( q_1(i) \log_2(1/q_1(i))+q_0(i) \log_2(1/q_0(i)) + \right. \nonumber \\
+%& \left. q_2(i) \log_2(1/q_2(i))\right).
+\label{eqn:rate2limRev}
+\end{equation}
+It follows that 
+\begin{equation}
+\lim_{N\rightarrow \infty} P_{e,II}2^{R_{sum}/(1-P_{W_2}(0))}= \frac{1-H_0}{4H}\left( \frac{H}{H_0}\right)^{\frac{H_0}{1-H_0}} \left(\prod_{j=-1, j\neq 0}^1 \frac{HL_j}{H_j} \right) \exp \left\{\frac{E[H(P(X_2))]}{(1-H_0)}\right\}.
+\label{eqn:Pe12unif}
+\end{equation}
+
+
+\subsection{The Optimum Offset}
+\begin{figure}[htbp] %  figure placement: here, top, bottom, or page
+   \centering
+   \includegraphics[width=6.0cm]{VoronoiBabaiIntersections.pdf} 
+   \caption{Shifted Babai cell (red) and Voronoi cells (blue) and lattice points '+'. Observe that the lattice is not shifted and a lattice point remains at the center of every Voronoi cell.  Also, the lattice point $\latpt$ lies in the shifted Babai cell because of our restriction on $\bx_0$. A single Babai cell will intersect at most six Voronoi cells. }
+   \label{fig:VoronoiBabaiInt}
+\end{figure}
+
+\begin{figure}[htbp] %  figure placement: here, top, bottom, or page
+   \centering
+   \includegraphics[width=6cm]{OffsetBabaiNew.pdf} 
+   \caption{An illustration of the Voronoi cell $\Vor_{\mathbf 0}$ an offset Babai cell (dashed rectangle) and the Babai cell with zero offset (solid rectangle).}
+   \label{fig:OffsetBabai}
+\end{figure}
+
+We consider the possibility that the Babai partition constructed on $\bx-\bx_0$ for some fixed offset vector $\bx_0=(x_{01},x_{02})$ might lead to improved performance.   Notice that the lattice and Voronoi partition remain unchanged; only the rectangular partition has shifted. It suffices to restrict $\bx_0$ to the rectangle $\prod_{i=1}^n [-v_{ii}/2,v_{ii}/2)$ and with this restriction $\latpt \in \cB_{\bx_0}(\latpt)$. For 2D lattice considered here $\bx_0 \in [-1/2,1/2)\times [-(\rho/2) \cos \theta, (\rho/2) \cos \theta )$. 
+
+\begin{figure}[h] %  figure placement: here, top, bottom, or page
+   \centering
+   \begin{tabular}{ccc}
+   \includegraphics[width=5cm]{invtub.pdf}  & \includegraphics[width=5cm]{Offset12.pdf} & \includegraphics[width=5cm]{Offset21.pdf}\\
+   (a) & (b) & (c)
+   \end{tabular}
+   \caption{Variation with offset for $\theta=2 \pi/5$ and $R_{sum}=4.0$ bits for 12 order of communication. (a) $L_0$ as a function of $d_1$, (b) $P_e$ given in (\ref{eqn:Pe12unif}) as a function of $d_1$ shows that $d_1=\rho \cos \theta (1-\rho \cos \theta)$ is optimum. (c) 21 order of communication. $P_e$ is minimum at zero offset.}
+   \label{fig:maxexp}
+   \label{fig:OffsetOpt}
+\end{figure}
+First consider the 12 order to communication. We have already shown that the error probability decreases as $2^{-R_{sum}/(1-L_0)}$ and thus the maximum rate of decay is obtained by choosing an offset $\bx_0$ for which $L_0$ is maximized.  In terms of the distances shown in Fig.~\ref{fig:OffsetBabai}, $L_0=1-\max(d_1,d_4)-\max(d_2,d_3)$ and $d_1,...,d_4$ depend on the vertical offset $x_{02}$. For $0 < d_1 \leq \rho \cos \theta$, $d_2=\frac{d_1 (1-\rho \cos \theta)}{\rho \cos \theta}$, $d_3=\rho \cos \theta -d_1$ and $d_4=\frac{(1-\rho \cos \theta)}{\rho \cos \theta}(\rho \cos \theta -d_1)$. Note that offset $\bx_{\mathbf 0}=0$ corresponds to $d_1=(1/2)\rho \cos \theta$. $L_0$ is maximized for any $d_1$ which satisfies $(\rho \cos \theta)^2 \leq d_1 \leq \rho \cos \theta (1-\rho \cos \theta)$, as shown in Fig.~\ref{fig:maxexp}. Thus $\bx_{\mathbf 0}=0$ is optimal in terms of rate of decay. A further optimization is possible in terms of the constant term. This has been calculated numerically and is shown in Fig.~\ref{fig:OffsetOpt}(b). For the 12 order of communication $d_1=\rho \cos \theta (1-\rho \cos \theta)$ is optimum (for all $\theta$ in $(\pi/3,\pi/2)$) and  results in significant improvements in the error probability.
+
+A similar, but simpler analysis for the reverse order shows that in this case the zero offset is indeed optimal, as shown in Fig.~\ref{fig:OffsetOpt}(c).
+
+
+
+
+
+
+
+\section{Interactive: Infinite Rounds}
+\label{sec:infinitedec}
+\begin{figure}[h!]
+\begin{center}
+		\includegraphics[height=6.8cm]{Round1Round2.jpg}  
+\caption{Red solid lines show partition after the first round of communication. Dashed lines are created in the second round of communication. }
+\label{fig:pi}
+\end{center}
+\end{figure}
+
+We now analyze the interactive model in which an infinite number of communication rounds are allowed. We provide an analysis under the assumption that $\bX$ is uniformly distributed over $\Bab_{\mathbf 0}$. As we have noted earlier, the analysis with this restriction also applies when the lattice is fine, i.e. when $|\det V|$, the volume of a fundamental region is small. The construction and  performance analysis is presented is described in Sec.~\ref{sec:infach}. The optimum offset is investigated in Sec.~\ref{sec:infoffset}.
+
+\subsection{Interactive:Infinite rounds: A Bit-Excahnge Protocol}
+\label{sec:infach}
+Node-2 communicates first. In Round-1, Node-2
+partitions the support of $X_2$ into three intervals as in Sec.~\ref{sec:irev} (see Figs.~\ref{fig:pi} and \ref{fig:detailedGeom}),  $\VInterval_{-1}$,  and $\VInterval_0$, and $\VInterval_1$.  Let random variable $W_2$ be the index of the interval in which  $X_2$ lies. In Round-1, upon receiving $W_2$ and if  $W_2=1$, Node-1 partitions the support of $X_1$ into three intervals  $\Interval_{-1}=(-1/2,t_{-2}]$, $\Interval_0=(t_{-2},t_1]$ and $\Interval_1=(t_1,1/2]$ (see Fig.~\ref{fig:detailedGeom}). If $W_2=-1$, the support of $X_2$ is partitioned into intervals $-\Interval_1,-\Interval_0, -\Interval_{-1}$. If $W_2=0$, no partitioning step is taken. Random variable $W_1$ describes the interval in which $X_1$ lies. Let $Pr(W_2=i)=:Q_i$, $i=-1,0,1$. Let $P_i=Pr(W_1=i|W_2=1)$, $i=-1,0,1$. Let $Q=(Q_0,Q_1,Q_2)$ and $P=(P_0,P_1,P_2)$.
+
+We assume that for every round, upon sending $U_i$, Node-$i$  updates $X_i$ by subtracting the lower endpoint of the interval that it lies in.
+
+The partition of $\Bab_{\mathbf 0}$ into rectangular cells after a single, and after two rounds of communication is  shown in Fig.~\ref{fig:pi}. Define a rectangular cell to be \textit{error-free} if its interior does not contain a boundary of $\Vor_{\mathbf 0}$. 
+Of the seven rectangles in the partition at the conclusion of Round-1, all but four are error-free. If $\bX=(X_1,X_2)$ lies in an error-free rectangle, communication halts after Round-1. Else a second round of communication occurs, during which a total of 2 bits are communicated. This process of partitioning and communication continues until each node determines that $X$ lies in an error free rectangle of the current partition.   When the algorithm halts, $P_{e}=0$. Let $N(\bX)$, $R(\bX)$  denote the number of rounds, and number of bits communicated, respectively, when the algorithm halts. Let $\bar{R}=E[R(\bX)]$ and $\bar{N}=E[N(\bX)]$ denote averages over $\bX$.
+\begin{theorem}
+For the interactive model with unlimited rounds of communication, a nearest plane partition can be transformed into the Voronoi partition using,  on average, a finite number of bits and rounds of communication. Specifically, 
+\begin{equation}\bar{R}=H(Q)+(1-Q_0)H(P)+4(1-P_0)(1-Q_0) \label{eqn:avrateinf} \end{equation}
+and
+$$\bar{N}=1+2(1-P_0)(1-Q_0).$$
+\end{theorem}
+\begin{proof}
+We assume that an optimum entropy code is used (thus if $W_2=0$, the codeword length is $\log_2(1/Q_0)$ bits). The term $H(Q)+(1-Q_0)H(P)$ in (\ref{eqn:avrateinf}) is the cost of resolving the Round-1 partition. At the conclusion of Round-1, if $\bX$ belongs to a region which is not error-free, then the average number of bits transmitted is obtained by the following argument. At the conclusion of Round-1, there are two kinds of error rectangles, determined by the sign of the slope of the boundary of $\Vor_{\mathbf 0}$ in the rectangle. Note that error rectangles are designed so that the boundary of $\Vor_{\mathbf 0}$ is a diagonal of the corresponding rectangle. Let an error rectangle have length $L$ and height $H$. If the slope is positive, construct the binary expansion  $1-x_1/L=\sum_{i=1}^\infty b_i 2^{-i}$, else construct $x_1/L=\sum_{i=1}^\infty b_i 2^{-i}$. In both cases construct the binary expansion  $x_2/H=\sum_{i=1}^\infty c_i 2^{-i}$. From the independence  and uniformity of $X_1$ and $X_2$ it follows that the bits $B_i$ and $C_i$ are independent unbiased Bernoulli random variables. Further, the algorithm halts after $n$ rounds, with $2n$ total bits communicated if and only if $B_i\neq C_i$, $i<n$ and $B_n=C_n$. Thus, given $\bX$ in an error rectangle, $Pr(R(\bX)=2n)=Pr(N(\bX)=n)=2^{-n}$. The result follows immediately by computing the average.
+\end{proof}
+
+\subsection{Infinite Rounds: Optimum Offset for the Babai Partition} 
+\label{sec:infoffset}
+
+With reference to Fig.~\ref{fig:OffsetBabai}, define the probability distributions $Q=[Q_{-1},Q_0,Q_1]$, with $Q_i=H_i/H$, $i\neq 0$, $Q_0=(1-(Q_1+Q_{-1})$, $P_1=[P_{1,-1},P_{1,0},P_{1,1}]=[d_1/L,1-(d_1+d_2)/L,d_2/L]$ and $P_{-1}=[P_{-1,-1},P_{-1,0},P_{-1,1}]=[d_4/L, (1-(d_4+d_3)/L,d_3/L]$. In terms of parameters for the basis, $H=\rho \sin \theta$, $L=1$, $H_1= d_1 (1-\rho \cos \theta)/(\rho \sin \theta)$, $H_{-1}=d_3 (1-\rho \cos \theta)/(\rho \sin \theta)$  and for $0 < d_1 \leq \rho \cos \theta$, $d_2=\frac{d_1 (1-\rho \cos \theta)}{\rho \cos \theta}$, $d_3=\rho \cos \theta -d_1$ and $d_4=\frac{(1-\rho \cos \theta)}{\rho \cos \theta}(\rho \cos \theta -d_1)$ (replicated here for convenience).
+
+The sum rate for Stage-II communication is given by 
+\begin{equation}
+R_{II}=H(Q)+Q_1H(P_1)+Q_{-1}H(P_{-1})+(Q_1 (1-P_{1,0})+Q_{-1}(1-P_{-1,0}))4
+\end{equation}
+
+\begin{figure}[htbp] %  figure placement: here, top, bottom, or page
+   \centering
+   \includegraphics[width=3in]{PeInteractiveOffset.pdf} 
+   \caption{Variation of rate with $d_1$ shows that zero offset is optimum for 21 order infinite round communication for $\rho=1$ and $\theta=2 \pi/5$. The vertical line shows $d_1$ at zero offset.}
+   \label{fig:CompInteractive}
+\end{figure}
+
+The sum rate plotted in  in Fig.~\ref{fig:CompInteractive}, for the offset Babai partition shows that zero offset is optimal, consistent with the result for the 21 single-round result.
+
+\begin{remark}
+The communication strategy is implicit in the proof. Note that the finite value for $\bar{R}$ is because of the rapid decrease with $n$  of the probability of halting at $n$ rounds.
+\end{remark}
+\begin{remark}
+This result has  interesting implications when viewed in the context of distributed classification problems. Suppose we have an optimum two-dimensional classifier with separating boundaries that are not axis aligned and also a suboptimal classifier with separating boundaries that are axis aligned, e.g. a $k$-$d$ tree. We expect the communication complexity of refining the approximate rectangular classifier to the optimum classifier to be finite.
+\end{remark}
+
+\section{Numerical Results and Discussion}
+\label{sec:discussion}
+\begin{figure}[htbp] %  figure placement: here, top, bottom, or page
+   \centering
+   \includegraphics[width=2.5in,height=2.0in]{Pe2R.pdf} 
+   \caption{Variation of $P_{e,II}$ with $\theta$ for the single-round interactive model, 12 (top), 21 (middle) with  $R=4.0$ bits. $\bar{R}=E[R]$ for the infinite-round interactive model  is shown in the bottom panel for $\rho=1$.}
+   \label{fig:thetavariation}
+\end{figure}
+Performance results for all models are summarized in Fig.~\ref{fig:thetavariation}, for $\rho=1$ and $\pi/3 < \theta < \pi/2$.  Under the 1-round interactive model  the hexagonal lattice is not the worst case for the $12$ sequence, but is for the $21$ sequence. The large gap in performance at the same rate for the $12$ and $21$ sequences highlights the importance of selecting the sequence of order in which nodes communicate in this case. Under the infinite round interactive model, the hexagonal lattice is the worst case, with $\bar{R}=2.42$ bits.
+\section{Summary and Conclusions}
+\label{sec:summary}
+For the nearest lattice point problem, we have considered the problem of interactively computing the  nearest lattice point for a lattice in two dimensions. A two-party model of communication is assumed and expressions for the error probability have been obtained for a single round of communication (i.e. two messages). We have also considered an unbounded number of rounds of communication and shown that it is possible to achieve zero probability of error with a finite number of bits exchanged on average. In almost all cases, our results indicate that lattices which are better for quantization or for communication have a higher communication complexity.
+
+
+
+
+	
+	
+
+
+\begin{thebibliography}{1}
+
+
+\bibitem{babai} \label{babai}
+L.~Babai. {``On Lov\'asz lattice reduction and the nearest lattice point problem''}, Combinatorica, vol. 6, No. 1, pp. 1-13.  March 1986.
+
+\bibitem{barroso2013datacenter}
+L.~A. Barroso, J.~Clidaras, and U.~H{\"o}lzle.
+\newblock The datacenter as a computer: An introduction to the design of
+  warehouse-scale machines.
+\newblock {\em Synthesis lectures on computer architecture}, vol. 8, no. 3, pp.1--154, 2013.
+
+\bibitem{Benitz:1989}
+G.~R.~Benitz and J.~A.~Bucklew,  {``Asymptotically optimal quantizers for detection of iid data''}, IEEE Transactions on Information Theory, vol. 35, No. 2, pp. 316-325, March 1989.
+
+\bibitem{Bennet:1948} W. R. Bennett, ``Spectra of quantized signals,'' Bell Labs Technical Journal, vol. 27, No. 3, pp. 446-472,
+1948.
+
+\bibitem{Bollauf:2017} M.~Bollauf, V. A. Vaishampayan, and S. I. R. Costa, {``On the communication cost of the determining an approximate nearest lattice point''}, Proc. 2017 IEEE Int. Symp. Inform. Th., Aachen, Germany,  pp. 1838-1842,  July  2017.
+
+\bibitem{BoydVandenberghe:2004}
+S.~Boyd and L.~Vandenberghe. \emph{Convex optimization}. Cambridge University Press, 2004.
+
+\bibitem{Cassels:1997} J.~W.~S.~Cassels, \emph{An Introduction to the Geometry of Numbers}. Springer-Verelag, Berlin Heidelberg, 1997.
+
+\bibitem{SPLAG} J.~H.~Conway and N.~J.~A.~Sloane, \emph{Sphere Packings, Lattices and Groups}, 3rd ed., Springer-Verlag, New York, 1998.
+
+%
+\bibitem{GP:1968} H. Gish and J. Pierce, `` Asymptotically efficient quantizing,''  IEEE Transactions on Information
+Theory, vol. 14, No. 5, pp. 676-683, Sept. 1968.
+
+\bibitem{GG:1977} R.~Gray and A.~Gray,  ``Asymptotically optimal quantizers'', IEEE Transactions on Information Theory, vol. 23, No. 1, pp.143-144, Jan. 1977.
+
+\bibitem{Gupta:2003}
+R.~Gupta, and A.~O.~Hero,  {``High-rate vector quantization for detection''}, IEEE Transactions on Information Theory, vol. 49, No. 8, pp.1951-1969, Aug. 2003.
+
+\bibitem{HLP:1952} G. Hardy and J. E. Littlewood and G. P\'{o}lya, \emph{Inequalities}, Cambridge University Press, 1952.
+
+\bibitem{keralapura2006communication}
+R.~Keralapura, G.~Cormode, and J.~Ramamirtham.
+\newblock Communication-efficient distributed monitoring of thresholded counts.
+\newblock In {\em Proceedings of the 2006 ACM SIGMOD international conference
+  on Management of data}, pp. 289--300. ACM, 2006.
+
+
+\bibitem{KornerMarton}
+J.~Korner and K.~Marton. {``How to encode the modulo-two sum of binary sources''}, IEEE Transactions on Information Theory,  vol. 25, No. 2, pp. 219-221, March, 1979. 
+
+\bibitem{kraska2013mlbase}
+T.~Kraska, A.~Talwalkar, J.~C. Duchi, R.~Griffith, M.~J. Franklin, and M.~I.
+  Jordan.
+\newblock Mlbase: A distributed machine-learning system.
+\newblock In {\em CIDR}, volume~1, pages 2--1, 2013.
+
+\bibitem{KushNis:1997}
+E. Kushilevitz and N. Nisan, \emph{Communication Complexity.} Cambridge,
+U.K.: Cambridge Univ. Press, 1997.
+
+\bibitem{LeeShraibman} \label{LeeShraibman}
+T.~Lee and A.~Shraibman, {``Lower Bounds in Communication Complexity''}, In \emph{Foundations and Trends in Theoretical Computer Science}, vol. 3, pp. 263-399.  2009.
+
+\bibitem{LPC-NN:2017}
+N.~Lewis, S.~Plis, and V.~Calhoun.
+\newblock Cooperative learning: Decentralized data neural network.
+\newblock In {\em 2017 International Joint Conference on Neural Networks
+  (IJCNN)}, pages 324--331, May 2017.
+
+\bibitem{li2014communication}
+M.~Li, D.~G. Andersen, A.~J. Smola, and K.~Yu.
+\newblock Communication efficient distributed machine learning with the
+  parameter server.
+\newblock In {\em Advances in Neural Information Processing Systems}, pages
+  19--27, 2014.
+
+\bibitem{Lovasz} \label{Lovasz}
+L.~Lov\'asz, {``Communication Complexity: A Survey''}. In \emph{Paths, Flows, and VLSI Layout}, Springer Verlag, Berlin, 1990.  
+
+
+\bibitem{MaIshwar:2009}
+N. Ma and P. Ishwar, ``Infinite-message distributed source coding
+for two-terminal interactive computing'', 47th Annual Allerton Conf. on Communication, Control, and Computing, Monticello, IL,Sept. 2009.
+
+\bibitem{meng2015collaborative}
+G.~Meng, Y.~Liu, J.~Zhang, A.~Pokluda, and R.~Boutaba.
+\newblock Collaborative security: A survey and taxonomy.
+\newblock {\em ACM Computing Surveys (CSUR)}, vol. 48, no. 1, 2016.
+
+\bibitem{Misra:2011}
+V. ~Misra, V.~K. Goyal, and L.~ R.~ Varshney. ``Distributed scalar quantization for computing: high-resolution analysis and extensions'',  IEEE Transactions on Information Theory, vol. 57, No. 8, pp. 5298-5325, Aug.~2011.
+
+\bibitem{MaIshwar:2011}
+M.~Nan, and P.~Ishwar. ``Some results on distributed source coding for interactive function computation'', IEEE Transactions on Information Theory, vol.  57, No. 9, pp. 6180-6195, Sept. 2011. 
+
+%\bibitem{oliner2012collaborative}
+%A.~J. Oliner, A.~P. Iyer, E.~Lagerspetz, S.~Tarkoma, and I.~Stoica.
+%\newblock Collaborative energy debugging for mobile devices.
+%\newblock In {\em HotDep}, 2012.
+
+\bibitem{Orlitsky:1990} A. Orlitsky, ``Worst-case interactive communication I: Two messages are almost optimal,'' IEEE Transactions on Information Theory, vol. 36, No. 5, pp. 1111-1126, Sep. 1990.
+
+\bibitem{Orlitsky:1991} A. Orlitsky, ``Worst-case interactive communication, II, Two messages are not optimal'', IEEE Transactions on Information Theory, vol. 37, No. 5, pp.995-1005, July 1991.
+
+\bibitem{Orlitsky:1992} A. Orlitsky,  ``Average-case interactive communication,'' IEEE Transactions on Information Theory, vol. 38, No. 5, pp.1534-1547. Sep. 1992.
+
+\bibitem{Orlitsky:2001}
+A.~Orlitsky and J.~R.~Roche, ``Coding for Computing'', IEEE Transactions on Information Theory, vol. 47, no. 3, pp. 903--917, March 2001. 
+
+
+\bibitem{Poor:1988} H.~V.~Poor,   ``Fine quantization in signal detection and estimation'', IEEE Transactions on Information Theory, vol. 34, No. 5, pp. 960-972, Sept.~1988.
+
+\bibitem{SuElGamal:2010} H. I. Su and A. E. Gamal, `` Distributed lossy averaging,''  IEEE Transactions on Information
+Theory, vol. 56, No. 7, pp. 3422-3437, July 2010.
+
+\bibitem{VB:2017} V. A. Vaishampayan and M.~F.~Bollauf,  {``Communication Cost of Transforming a Nearest Plane Partition to the Voronoi Partition''}, Proc. 2017 IEEE Int. Symp. Inform. Th., Aachen, Germany,  pp. 1843-1847,  July  2017.
+
+\bibitem{vasilomanolakis2015taxonomy}
+E.~Vasilomanolakis, S.~Karuppayah, M.~M{\"u}hlh{\"a}user, and M.~Fischer.
+\newblock Taxonomy and survey of collaborative intrusion detection.
+\newblock {\em ACM Computing Surveys (CSUR)}, vol. 47, no. 4, pp. 55:1-33, 2015.
+
+\bibitem{wei2013rank}
+W.~Wei, F.~Chen, Y.~Xia, and G.~Jin.
+``A rank correlation based detection against distributed reflection {DOS}
+  attacks'',  {\em IEEE Communications Letters}, vol. 17, no. 1, pp. 173--175, 2013.
+
+\bibitem{Yamamoto:1982} H.~Yamamoto,  "Wyner-Ziv theory for a general function of the correlated sources," IEEE Transactions on Information Theory, vol.  28, No. 5, pp. 803-807,  Sept. 1982.
+
+\bibitem{Yao:1979} \label{Yao:1979}
+A. C.~Yao, ``Some Complexity Questions Related to Distributive Computing(Preliminary Report)''. In Proceedings of the Eleventh Annual ACM Symposium on Theory of Computing, STOC '79, 209-213.  1979.
+
+\bibitem{Zador:1982} P. Zador, ``Asymptotic quantization error of continuous signals and the quantization dimension'', IEEE Transactions on Information Theory. vol 28, No. 2,  pp. 139-49, March 1982.
+\end{thebibliography}
+
+
+\end{document}

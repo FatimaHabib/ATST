@@ -1,0 +1,300 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{10pt plus 1.0pt minus 2.0pt}
+{10pt plus 1.0pt minus 2.0pt}
+{10pt plus 1.0pt minus 2.0pt}
+{10pt plus 1.0pt minus 2.0pt}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                              
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{0.97}
+
+
+
+
+
+        Sajad Mousavi,
+     Fatemeh Afghah,
+    Jonathan D. Ashdown 
+    and
+    Kurt Turck}
+        School of Informatics, Computing and Cyber Systems,
+    Northern Arizona University, Flagstaff, AZ, United States     Email: @nau.edu}
+      Air Force Research Laboratory,
+   Rome, NY, United States     Email: @us.af.mil}
+ }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Unmanned aerial vehicles, coalition formation, mission completion, evolutionary algorithms.
+
+
+
+
+
+
+
+A single agent system is often unable to perform complex tasks considering the limited individual capabilities of such an agent. Therefore, cooperative multi-agent systems (MASs) can offer a practical solution to this problem by ensembling a complementary set of different capabilities/resources from several agents. However, one of the key challenges in such cooperative MASs is forming optimal sub-groups of agents (i.e., coalition formation) in order to efficiently perform the existing tasks, especially in a distributed case where no central controller is available. That being said, the coalition formation problem concerns how different coalitions can be formed considering the tasks' requirements and the agents' capabilities so much so that the collective goals of the tasks are reached in the most effective manner.
+
+A considerable amount of research has been recently carried out in solving coalition formation problems. This has spawned several classic methods to form stable coalitions that follow common stability concepts based on Core, Shapley value, Bargaining Set, and Kernel . However, achieving such stability concepts often mandates high computational complexity. Many researchers have attempted to deal with the problem of coalition formation in multi-agent systems by applying various approaches including genetic algorithms , dynamic programing methods , graph theory , iterative processes , cooperative Multi-Agent Reinforcement Learning (MARL) , and temporal-spatial abstraction MARL . The majority of these reported studies have focused mainly in reducing costs and only a few of them have focused upon multiple objectives in solving the problem. In this paper, a solution for coalition formation problem in a heterogeneous resource-constraint UAV network in which multiple objectives are considered to form the optimal coalitions is proposed.
+The objectives of the coalition formation method proposed here are : minimizing the cost associated with consumption of resources of the coalitions formed, maximizing the reliability of the formed coalitions, and lastly to select the most trustworthy of UAVs among the available self-interested UAVs in the network. 
+Finding the solution of such a multi-objective coalition formation problem involves an NP-hard problem. Many approaches such as mixed integer linear programming  and dynamic network flow optimization  have been utilized to provide an exact solution to this problem. However, since these approaches seek such a solution, applying them to a large-scale problem is computationally taxing. More recently, metaheuristic algorithms such as Particle Swarm Optimization (PSO) , Ant Colony Optimization , Genetic Algorithms (GAs) , and Simulated Annealing (SA)  have offered reasonable solutions in efficient times for a variation of multi-objective optimization problems.  Inspired by the success of evolutionary approaches, this paper presents a novel leader-follower-based coalition formation algorithm using a quantum evolutionary approach whilst considering the aforementioned objectives in addressing the problem. As an unknown, dynamic environment is assumed where no prior knowledge is available about targets or Point of Interests (PoIs) and UAVs need to gain the knowledge of environment dynamically . Some potential applications of the proposed method are search and rescue, humanitarian relief, and public safety operations in unknown remote environments or military operations in remote fields. In such environments, it can be safely assumed that ground station does not have prior information about the PoIs and their positions. To evaluate the performance of the proposed method in such an unknown environment, several scenarios with different numbers of tasks ranging from 4 to 24, and a heterogeneous network of UAVs consists of a different number of UAVs ranging from 8 to 124 were simulated. 
+
+The rest of the paper is organized as follows: Section  presents the problem statement and the formulation of the multi-UAV coalition formation as a multi-objective optimization problem. Section  describes the proposed coalition formation algorithm. Section  reports the simulation results followed by concluding remarks in section .
+
+
+
+
+
+
+
+
+
+
+
+
+
+In this section, the decentralized task allocation problem in a network of autonomous UAVs by forming optimum coalitions are formulated. The possibility of selfish behavior of these self-interested UAVs are accounted for and reputation guidelines in selecting the most reliable of UAVs to participate in the formed coalitions are also defined. It is vital to note that the proposed algorithm considers minimizing the cost of coalition formation in terms of overspending the resources on particular tasks as well as enhancing the reliability of the formed coalitions as paramount.
+
+A heterogeneous network of  UAVs , where each UAV,  can carry a different set of resources compared to another is considered.  denotes the set of resources available at UAV,  where  is the number of possible resources in the network. It is also assumed that there exists  tasks in the environment . Each task,  requires a certain amount available resource in each of  in order to be completed. The vector of required resources for task  is defined as follows: 
+where  is the required amount of resource  for task . It is assumed that each task is associated to one PoI (target) and the PoIs can be located in different positions with a diverse set of resource requirements. All UAVs are able to search the unknown environment for new PoIs. The tasks are carried out by the formed coalitions , where each coalition  is responsible for one task. A large search space where the PoIs are distributed far apart from each other are considered. It can therefore be assumed that the formed coalitions are sufficiently far from one another that each UAV can only be a member of a single coalition, i.e., . This also means that the coalitions are non-overlapping. The capability of each coalition  to complete its encountered task is defined as the value of coalition  as described in the next section. Moreover,  is defined as the cost of coalition  in performing task . The cost function for coalition  captures the cost imposed on all UAV members of this coalition (i.e.,  in which their resources have been shared to accomplish task {}. 
+
+Another key contribution of the proposed model is considering the reliability factor in forming the optimal coalitions. While in the majority of existing techniques, it is assumed that the UAV members of formed coalitions are perfectly operational during the mission lifetime, this is obviously not a realistic assumption as the UAVs' operation can be interrupted for several reasons (e.g., exhaustion of battery or a particular resource). A practical scenario is considered where the UAVs are assumed to be either fully operational or one of their capabilities (e.g., resources) are bound to fail during the mission. Such failures in various capabilities are considered to be statistically independent. Furthermore, involving different types of UAVs in a coalition may result in different execution times of accomplishing the sub-tasks as the UAVs have a different set of capabilities. For instance, a given UAV may be able to fulfill its duty in a shorter time than another. The cost and reliability of a coalition indeed depend on these execution times where lower execution times are favored for incurring lower execution costs.
+In the next section, we define and formulate these factors (i.e., cost, reliability and reputation).   
+
+
+A set of UAVs in the form of a coalition collaborate with one another to carry out the encountered task. Participation in such coalitions involves a cost of sharing and consuming the resources for the member UAVs. For a given task  with the required resources , where the amount of resource  for task  is denoted by , the execution cost of consuming resource  of UAV  is denoted by , where  and  is a constant coefficient in order to convert the amount of resource  to a time dependent value to have the same unit as the execution time. Thus, the cost of  coalition ,  can be calculated as follows:
+
+where  is the execution time if UAV  carrying resource  is involved in task , and  is the travel time of UAV  to task .
+
+Possibility of potential defects in the UAVs' resources that may result in performance failure of these UAVs during the mission is also accounted for. Considering so, the reliability of coalition  for a give task , denoted by  is defined as follows:
+
+where  is the failure rate of resource  of UAV .
+For simplicity,  transfer of  function as follows,  is used.
+The formulation of the reliability has been inspired by works reported in  and . Interested readers are referred to these papers for more details on the probability that a system can accomplish a particular task without failure. Similar to other cognitive agents, the UAVs are expected to be self-interested in the sense that they prefer to save their limited resources, and act selfishly by not consuming enough resources during the mission. To monitor the cooperative behavior of these UAVs, an accumulative cooperative reputation related to the amount of resources that each UAV shares during the mission is defined. During each mission  (i.e., accomplishing an assigned task), the cooperative reputation of each UAV ,  is updated as follows:
+
+where  is the amount of contribution of UAV  to coalition  in terms of sharing resources to carry out the assigned task  and can be defined as follows:
+
+where  is the sum of the resource requirements of task  denoting as  and  is the sum of the resource contributions of UAV , defined as . As such, the coalition reputation of all involved UAVs in the coalition  is computed as follows:
+
+
+
+To consider all aforementioned optimization criteria including reducing the coalition cost, and increasing the reliability, and reputation of the formed coalitions, Multi-Objective Optimization Problem (MOOP) as a weighted-sum of three objectives is defined. The multi-objective optimization and its required constraints are defined as follows.
+
+where  and  are weighting parameters to assign the desired importance to each objective and scale them to be in comparative ranges. Constraint () refers to the requirement to secure enough resources in the formed coalition to complete the encountered task .
+In table , a summary of the notations used throughout this paper is presented. 
+ 
+
+
+
+The objective function described in section  is a NP-hard problem. Standard approaches such as dynamic programming and exact algorithms involve computational complexity of  that could be intractable in large-scale networks. Hence, evolutionary algorithms such as genetic algorithm can be considered as potential options to find feasible solutions of this problem. In this paper, we propose a coalition formation algorithm based on a version of genetic algorithm called Quantum-Inspired Genetic Algorithm (QIGA) to find the solution of the multi-objective problem in ().
+
+
+The idea behind QIG algorithms is to take advantage of both GA and quantum computing mechanisms . In quantum computation, the data representation is based on qubit that is the smallest information unit. A qubit is considered as a superposition of two different states  and  that can be denoted as:
+where  and  are complex numbers such that .  and  are the probability of  amplitudes where the qubit can be at states  and ,  respectively. With  qubits, the model can represent  independent states. However, when the value of the qubit is measured, it leads to a single state of the quantum state (i.e.,  or ).
+Similar to a standard genetic algorithm, a chromosome's representation is defined as a string of  information units. Thus, a chromosome can be defined as a string of  qubits as:
+where each pair   denotes a gene of the chromosome.
+
+To evaluate a quantum chromosome, a transfer function called  is applied to convert the quantum states to a classical chromosome representation. For example, each pair  is converted to a value  so that the -qubit chromosome may result in a binary string . More specifically, each pair becomes  or  using the corresponding qubit probabilities  and . To perform this conversion, we use the measure function defined as follow:
+
+
+
+
+
+
+To establish a multi-UAV coalition, a leader-follower coalition formation method is followed. Initially, the UAVs are uniformly distributed in a search space to look for the PoIs. When a PoI is detected by a UAV, this UAV computes the resource requirements of the detected PoI and serves as a leader to form an optimal coalition. 
+After calculating the required resources, the leader UAV calls other UAVs within a  certain distance to join it in forming a coalition. Then, the UAVs with at least one of the required resources can respond to this call by reporting the amount of resources that they are able to contribute to help accomplish the task. It is also assumed that the UAVs are self-interested, meaning that if a UAV receives multiple requests, it will consider joining the coalition which offers the highest benefit. The UAV ,  measures the value of each request based on travel time to reach the task and the expected cooperative reputation credit received. Thus, its utility value can be defined as:
+
+where  and  are the cooperation credit and travel time of  when it attempts to join coalition .  is the weight indicating the relative significance of the travel time compared to the expected credit. Algorithm  shows the pseudo-code for the multi-UAV coalition formation.
+
+
+                                    
+
+
+        [b]{0.4
+                
+        
+        
+    
+    ~           [b]{0.4
+        
+        
+        
+    
+    ~         
+    [b]{0.4
+        
+        
+        
+    
+        [b]{0.4
+        
+        
+        
+    
+    
+
+
+
+
+
+
+
+
+
+To evaluate the performance of the proposed QIGA-based coalition formation method, several scenarios with different number of UAVs and PoIs were simulated. It is assumed that the UAVs and PoIs are uniformly distributed across the region and the closest UAV to the PoI is considered to be the one that first detects the PoI and form a coalition (as a coalition leader). It is also assumed that each UAV has five different types of resources. The values for the UAVs' resources are generated with a random uniform distribution and the UAV's resource failure rates are produced randomly in the range . Furthermore, the execution times of the identified tasks are computed randomly in the range between  and , depending on the task and the capability of the UAV.
+  
+
+
+{ccccccc}
+ & {c}{} 
+  & {c}{} & {c}{} & {c}{}  
+  &  Completed tasks & Resource violations & Completed tasks & Resource violations & Completed tasks & Resource violations   8-2 & & &0.43}}$16-4 & & &0.6}}$32-8 & & &0.73}}$64-16 & & &2.03}}$128-24 & & &4.33}}$}
+
+
+ 
+
+
+{ |c|c|c|c|c|c|} 
+Time slot & Coalition 1  & Satisfied & Coalition 2 & Satisfied  & Unreliable UAVs  &  & Yes &   & Yes &   &  & Yes &   & Yes &   &  & Yes &   & Yes &   &  & Yes &   & No &   &  & Yes &   & Yes &   &  & Yes &   & No &   &  & Yes &   & Yes &   &  & Yes &   & Yes &   &  & Yes &   & Yes &   &  & No &   & Yes &   &  & Yes &   & No &  {c}{L: Leader, F: Follower}
+ }
+
+The performance of our proposed algorithm is compared with three well-known algorithms including: i) the distance-based coalition formation method in which the coalitions are formed with the closest UAVs to the leader (i.e., the leader only considers the UAVs in a certain distance of the PoI to be in the coalition and do not evaluate them in terms of cooperative reputation or available resources), ii) the common merge-and-split coalition formation , and iii) a Non-Dominated Sorting Genetic Algorithm (NSGA-II) which is a fast, elitist and heuristic-based multi-objective algorithm. Table  shows the corresponding parameters for these algorithms.
+
+
+Table  represents some statistics regarding the completed tasks and resources violations for different algorithms. It demonstrates that the performance of the proposed coalition formation method is quite better than other algorithms addressed here in terms of percentage of completed tasks and average of resource violations. We  also compared the proposed method against the merge-and-split coalition formation algorithm. The percentage of completed tasks for the merge-and-split method in 30 missions for different numbers of UAVs and tasks were between 46, our method could achieve rate of 90Figure  compares the qualities of solutions of the MOQGA to NSGA-II algorithm. The plots demonstrate that the performance of the proposed method is better than the NSGA-II algorithm and result in superior quality solutions in terms of lower cost and higher reliability.
+Figure  shows changes in UAV's cooperative reputation over the course of time. It is assumed that UAVs,  and  are not trustworthy. As seen in the figure, the reputations of these UAVs decrease at each time slot, therefore it is less likely that these UAVs are selected by the leaders over time. 
+The impact of reliability in coalition formation is also studied, where a pre-defined failure rate of 90 represents the selected UAVs (e.g., followers) by leaders where there are two unreliable UAVs. As shown in the table, the proposed method tries to not select unreliable UAVs in most cases. 
+The reason for the selection of unreliable UAVs in some cases is that the problem is a MOOP and the method has to consider other objectives (i.e., cost and reputation) to optimize as well.
+
+
+
+
+
+
+
+A leader-follower UAV coalition formation method is proposed to provide a practical solution for distributed task allocation in an unknown environment. Three critical aspects of cost minimization, reliability maximization, and the potential selfish behavior of the UAVs were considered in this coalition formation, and a quantum-inspired genetic algorithm is proposed to find the optimal coalitions with a low level of computational complexity. The proposed approach led to promising results compared to existing solutions with respect to completing a higher number of tasks and minimally overspending the resources.
+
+
+The authors acknowledge the U.S. Government's support in  the publication of this paper. This material is based upon work funded by AFRL. Any opinions, findings and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the US government or AFRL.
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

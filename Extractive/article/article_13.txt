@@ -1,0 +1,686 @@
+
+
+
+
+
+
+
+
+
+24106004, 25730003. The second author was partially supported by FY 2015 Researcher Exchange Program between JSPS and NSERC.}
+
+
+}
+}}
+
+
+
+{
+{
+{}
+
+[1]{(#1)}
+{}
+{}
+
+{}
+
+{}
+
+[2]{#1 
+
+{
+
+
+
+[5]{_{}(#3,#4)}
+[4]{}(#3,#4)}
+[4]{}(#3,#4)}
+
+
+{Theorem}[section]
+[theorem]{Lemma}
+[theorem]{Corollary}
+
+
+
+[theorem]{Proposition}
+[theorem]{Observation}
+[theorem]{Claim}
+
+
+{.} [1]{Figure~}
+
+
+
+
+
+
+{rgb}{0.5,0.5,1.0}
+{rgb}{0.8,0,0}
+{rgb}{0,0.5,0}
+{rgb}{0,0,0.5}
+
+[1]{{[TODO: {#1}]}}
+[1]{{[Yota says: {#1}]}}
+[1]{{#1}}
+
+
+[1]{{#1}}
+
+[1]{{#1}}
+
+
+
+
+
+
+{:}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Recently, the reconfiguration framework has been applied to several search problems.
+In a reconfiguration problem, we are given two feasible solutions of a search problem and are asked 
+to determine whether we can modify one to the other by repeatedly applying prescribed reconfiguration rules while keeping the feasibility~(see ).
+Studying such a problem is important for understanding the structure of the solution space of the underlying problem.
+Computational complexity of reconfiguration problems has been studied intensively.
+For example, the  problem under 
+the reconfiguration rules ~, ~, and ~
+is studied for several graph classes such as
+planar graphs~,
+perfect graphs~,
+claw-free graphs~,
+trees~, 
+interval graphs~, and
+bipartite graphs~.
+
+In this paper, we initiate the study on problems of reconfiguring , which generalizes .
+For a graph  and an integer , a vertex set  is  if the subgraph  induced by  admits a proper -coloring.
+For example, the -colorable sets in a graph are exactly the independent sets of the graph.
+Recently, -colorable sets have been studied from the viewpoint of wireless network optimization
+(see  and the references therein).
+The  problem asks
+given two -colorable sets  and  in a graph , 
+whether we can reach from  to  by repeatedly applying local changes allowed.
+We consider the following three local change operations (see Section~ for formal definitions): 
+
+      
+
+
+
+In perfect graphs, being -colorable is equivalent to having no clique of size more than .
+This property often makes problems related to coloring tractable.
+Thus, to understand this very general problem, we start the study on  with classes of perfect graphs.
+ shows the graph classes studied in this paper and the inclusion relationships
+(see Section~ for definitions).
+
+
+
+
+Before we start our investigation on the reconfiguration problem,
+we first fill a gap in the complexity landscape of the search problem 
+that asks for finding a large -colorable set.
+When ,  is equivalent to the classical problem of finding a large independent set 
+that can be solved in polynomial time for perfect graphs.
+For larger , it was only known that the case  is NP-complete for perfect graphs~.
+To make the complexity status of  for perfect graphs complete,
+we show that it is NP-complete for any fixed  (Theorem~).
+
+We then show complexity divergences among the classes of perfect graphs in , in particular under  and .
+See Table~ for a summary of our results.
+Our results basically say that the problem under  and  is tractable on interval graphs
+but further generalization is not quite possible.
+
+
+ outputs co-comparability graphs. See also Theorem~ in this paper.}
+
+
+More specifically, we first study the problem on interval graphs 
+and show that a shortest reconfiguration sequence under  can be found in linear time (Theorem~).
+This implies the same result under .
+Next we study the problem on split graphs. 
+We show that the complexity depends on .
+When  is a fixed constant, the problem is polynomial-time solvable under  and  (Theorem~).
+If  is a part of input, then we can show that the problem is PSPACE-complete under all rules, including  (Theorem~).
+While the hardness result applies also to chordal graphs,
+it is unclear whether a similar positive result for chordal graphs can be obtained when  is a fixed constant.
+We only know that the case of  under  and  is polynomial-time solvable as chordal graphs are even-hole-free~.
+We finally show that for every fixed 
+the problem is PSPACE-complete for co-comparability graphs under all rules (Theorem~).
+Thus, our results are in some sense tight since the interval graphs are exactly the chordal co-comparability graphs
+and split graphs are chordal graphs (see ).
+
+
+As a byproduct of Theorems~ and , 
+the  problem~ turns out to be polynomial-time solvable
+for split graphs and interval graphs under  and .
+These are the first polynomial-time solvable cases for .
+To see the polynomial-time solvability, observe that the complements  of -colorable sets  in a chordal graph  are exactly the feedback vertex sets in the graphand reconfigurations of the complements are equivalent to reconfigurations of the original vertex sets under  and .
+
+
+
+
+
+
+We say, as usual, that an algorithm for a graph  runs in 
+if the running time of the algorithm is .
+
+
+A  of a graph assigns a color from  to each vertex
+in such a way that adjacent vertices have different colors.
+Given a graph  and an integer ,  asks whether  admits a proper -coloring.
+This problem is NP-complete even if  is fixed to 3~.
+The minimum  such that a graph admits a proper -coloring is its .
+
+The  problem is a generalization of 
+where we find a large induced subgraph of the input graph that admits a proper -coloring.
+Let  be a graph.
+For a set of vertices , we denote by  the subgraph induced by .
+A vertex set  is  in  if  has a proper -coloring.
+Now the problem is defined as follows:
+
+  {0pt}
+   
+   A graph  and integers  and .
+   Does  have a -colorable set of size at least ?
+
+
+The problem of finding a large -colorable set
+is studied for a few important classes of perfect graphs (see  and Table~).
+For the class of perfect graphs,
+it is known that a maximum -colorable set (that is, a maximum independent set) can be found in polynomial time~.
+Parameterized complexity~ and approximation~ 
+of  on perfect graphs are also studied.
+
+
+
+
+
+
+Let  and  be -colorable sets in a graph .
+Then,  for a nonnegative integer 
+if  and , where
+ denotes the symmetric difference .
+Here  means that  and  can be reconfigured to each other in one step
+and  stands for ``token addition A sequence  of
+-colorable sets in  is a  of length  between  and  under 
+if  holds under  for all .
+A reconfiguration sequence under  is simply called a .
+We write  if there exists a -sequence between  and .
+Note that every reconfiguration sequence is , that is,
+ if and only if .
+Now the problem we are going to consider is formalized as follows:
+
+  {0pt}
+    under  ( for short)
+   A graph , integers  and , and -colorable sets  and  of .
+   Does  under  hold?
+
+We denote by  an instance of .
+We assume that both  and  hold; otherwise it is trivially a no-instance.
+Note that the lower bound  guarantees that none of the sets in the reconfiguration sequence is too small.
+Without the lower bound, the reachability problem becomes trivial as  can always reach  via .
+
+For a -instance ,
+we denote by  the length of a shortest -sequence
+in  between  and ; if there is no such a sequence, then
+we set .
+
+We note that  is a decision problem and hence does not require the specification of an actual -sequence.
+Similarly, the shortest variant of  simply requires to output the value of .
+
+
+Although the  rule is our main target,
+we also study two other well-known rules  (token jumping) and  (token sliding).
+Let  and  be -colorable sets in a graph .
+For  and , we additionally assume that 
+because these rules do not change the size of a set.
+Now the rules are defined as follows:
+
+    
+    the two vertices in  are adjacent in .
+
+
+Reconfiguration sequences under  and 
+as well as the reconfiguration problems  and  are defined analogously.
+An instance of  or  is represented as ,
+and  and  are defined in the same way.
+
+The following relation can be shown in almost the same way as Theorem~1 in~
+and means that  is not harder than  in the sense of Karp reductions.
+
+
+Let  and  be -colorable sets of size  in a graph .
+Then,  under  if and only if  under .
+Furthermore,  holds.
+
+
+To make the presentation easier, we often use the shorthands  for  and  for .
+For a vertex  of a graph , we denote the neighborhood of  in  by .
+
+
+
+A  in a graph is a set of pairwise adjacent vertices.
+A graph is  if the chromatic number equals the maximum clique size for every induced subgraph~.
+The following fact follows directly from the definition of perfect graphs
+and will be used throughout this paper.
+
+
+A vertex set  of a perfect graph 
+is -colorable if and only if  has no clique of size more than .
+
+
+
+There are many graph classes of perfect graphs.
+Chordal graphs form one of the most well-known subclasses of perfect graphs,
+where a graph is  if it contains no induced cycle of length greater than 3.
+
+Co-comparability graphs form another large class of perfect graphs.
+A graph  is a  if there is a linear ordering  on 
+such that  and  imply  or .
+Although they are less known than chordal graphs,
+co-comparability graphs generalize several important graph classes
+such as interval graphs, permutation graphs, trapezoid graphs, and co-bipartite graphs (see ).
+
+The classes of chordal graphs and co-comparability graphs are incomparable.The  graph obtained by attaching a pendant vertex to each vertex of a triangle is chordal but not a co-comparability graph.}
+It is known that the class of interval graphs characterizes their intersection;
+namely, a graph is an interval graph if and only if it is a co-comparability graph and chordal~.
+Recall that a graph is an  if it is the intersection graph of closed intervals on the real line.
+
+Another well-studied subclass of chordal graphs (and hence of perfect graphs) is the class of split graphs.
+A graph  is a  if  can be partitioned into a clique  and an independent set .
+To emphasize that  is a split graph, we write .
+The classes of interval graphs and split graphs are incomparable.The net graph is a split graph but not an interval graph.}
+
+
+ on perfect graphs for fixed }
+
+It is known that 
+if  is unbounded,  is polynomial-time solvable
+for interval graphs~ and
+more generally for co-comparability graphs~,
+while it is NP-complete for split graphs (and thus for chordal graphs)~.
+On the other hand, if  is a fixed constant,
+ is polynomial-time solvable even for chordal graphs~.
+
+For perfect graphs,  the case of  is solvable in polynomial time~,
+while the case of  is NP-complete~.
+Here we demonstrate that the problem is hard for any fixed .
+
+
+
+In , the problem actually studied was the dual of our problem.
+An  is a cycle of odd length.
+An   of a graph  is a set of vertices
+that intersects every cycle of odd length in . 
+In other words,  is an odd cycle transversal if and only if  is bipartite.
+They study the following problem of finding a small odd cycle transversal:
+
+  {0pt}
+     (OCT)
+   A graph  and an integer .
+   Does  have an odd cycle transversal of size at most ?
+
+
+[]
+OCT is NP-complete for perfect graphs.
+
+
+The  of two disjoint graphs  and 
+is the graph .
+That is,  is obtained from the disjoint union of  and  by adding all possible edges between  and .
+
+
+The class of perfect graphs is closed under join.
+That is, if two disjoint graphs are perfect, then so is their join.
+
+
+
+Now we are ready for proving the main claim of this section.
+
+
+
+
+
+
+In this section, we show that  for interval graphs can be solved in linear time.
+Our result is actually stronger and says that an actual shortest -sequence can be found in linear time, if any.
+By Lemma~, the same result is obtained for .
+We first give a characterization of the distance between two -colorable sets in an interval graph (Section~).
+This characterization says that a shortest -sequence has length linear in the number of vertices of the graph.
+We then show that the distance can be computed in linear time (Section~).
+We finally present a linear-time algorithm for finding a shortest -sequence (Section~).
+
+It is known that a graph is an interval graph if and only if its maximal cliques can be ordered so that
+each vertex appears consecutively in that ordering~.
+We call a list of the maximal cliques ordered in such a way a .
+Let  be an interval graph and  be a clique path of ;
+that is, for each vertex , there are indices  and  such that 
+if and only if . 
+Given an interval graph, a clique path and the indices  and  for all vertices can be computed in linear time~.
+Hence we can assume that we are additionally given such information.
+Note that  is an interval representation of .
+Namely,  if and only .
+
+Let  be a clique in an interval graph .
+By the Helly property of intervals, the intersection of all intervals in  is nonempty;
+that is,   (see ).
+A point in the intersection  is a  of .
+
+
+
+
+
+Let  be an instance of .
+The set  is 
+if  is a maximal -colorable set in  and .
+The following lemma follows immediately from the definition.
+
+ 
+Let  be a graph, 
+and let  and  be distinct -colorable sets of size at least  in .
+If  or  is locked in , then .
+
+
+
+The rest of this subsection is dedicated to a proof of the following theorem,
+which implies that the converse of the lemma above also holds for interval graphs.
+
+
+
+
+For ,  if and only if none of  and  is locked in .
+
+
+Observe that  for any pair of -colorable sets  and  in .
+We use this fact implicitly in the following arguments.
+
+[Theorem~~()]
+
+Let  be an interval graph, 
+and let  and  be -colorable sets of size at least  in .
+If  and  are not locked in ,
+then .
+
+
+
+
+[Theorem~~()]
+
+Let  be an interval graph, 
+and let  and  be distinct -colorable sets of size at least  in .
+If  and  are not locked in ,
+and exactly one of  and  is locked in , then . 
+
+
+
+
+
+[Theorem~~()]
+
+Let  be an interval graph, 
+and let  and  be distinct -colorable sets of size at least  in .
+Assume  and  are locked in  but not in .
+If there is a vertex  such that both  and  are -colorable in ,
+then .
+
+
+
+
+[Theorem~~()]
+
+Let  be an interval graph, 
+and let  and  be distinct -colorable sets of size at least  in .
+Assume  and  are locked in  but not in .
+If there is no vertex  such that both  and  are -colorable in ,
+then .
+
+
+
+
+
+
+
+
+We here explain how to check which case of Theorem~ applies to a given instance in linear time.
+
+
+Given an interval graph  and -colorable sets  and  in ,
+one can either find a vertex  such that  and  are -colorable
+or decide that no such vertex exists in linear time.
+
+
+
+By setting  in the lemma above, we have the following lemma.
+
+
+Given an interval graph  and a -colorable set  in ,
+one can either find a vertex  such that  is -colorable
+or decide that  is maximal in linear time.
+
+
+
+
+Given an interval graph  and -colorable sets  and  in ,
+the distance  can be computed in linear time.
+
+
+
+
+
+
+Here we describe how we find an actual shortest reconfiguration sequence in linear time.
+To this end, we need to be careful about the representation of a reconfiguration sequence.
+If we always output the whole set, the total running time cannot be smaller than .
+However, this product can be quadratic.
+To avoid this blow up, we output only the difference from the previous set.
+That is, if the current set is  and the next set is  (), we output  (, resp.).
+We also fully use the reversible property of reconfiguration sequences
+and output them sometimes from left to right and sometimes from right to left.
+For example, we may output a reconfiguration sequence 
+as first , next , then .
+It is straightforward to output the sequence from left to right by using a linear-size buffer.
+
+
+
+
+
+
+
+For split graphs, we consider two cases.
+In the first case, we assume that  is a fixed constant, and show that the problem under  (and ) can be solved in  time.
+The second case is the general problem having  as a part of input.
+We show that in this case the problem is PSPACE-complete under all reconfiguration rules.
+
+
+
+Let  be a split graph, where  is a clique and  is an independent set.
+For  with , we define  as follows:
+  T_{C}
+  = 
+  
+    C  |C| < c,     C (u) |C| = c.
+  
+
+We can see that  is -colorable for every  with  as follows.
+Every clique  includes at most  vertices in  and at most one vertex in .
+Since a vertex in  has fewer than  neighbors in , 
+the maximum clique size of  is at most .
+
+
+
+If  is a -colorable set of  with ,
+then  under .
+
+
+
+By the reversibility of reconfiguration sequences,
+we can reduce the problem as follows.
+
+
+If  and  are -colorable sets of  with  and ,
+then  under  if and only if  under .
+
+
+Now we state the crucial lemma for solving the reduced problem.
+
+
+Let  and .
+If  and  are -colorable sets of size at least ,
+then  under  if and only if .
+
+
+
+Combining the arguments in this subsection, we are now ready to present 
+a polynomial-time algorithm.
+
+
+
+
+
+
+For split graphs with  as a part of input, NP-completeness of 
+is shown in  by a reduction from .
+Here we present a reduction essentially the same as theirs but from  under ,
+which is equivalent to  with .
+
+
+
+
+The following claim implies that  is a bijection.
+
+  
+  If  is a -colorable set of size  in ,
+  then 
+  and  is an independent set of size  in .
+ 
+
+
+Let  and  be independent sets of size  in .
+From the discussion above, it suffices to show that
+the following properties are equivalent:
+
+  
+  
+  
+  
+
+
+
+To show that Property~ implies Property~,
+assume that  under .
+Let  and .
+Now  and  hold.
+Since  and  are in the same clique  of , we have  under .
+
+By the definitions of  and ,
+Property~ implies Property~.
+By Lemma~, Property~ and Property~ are equivalent.
+
+We finally show that Property~ implies Property~.
+Assume that  under .
+This implies that .
+By Claim~, .
+Therefore,  also holds.
+Thus  under .
+
+
+
+
+
+
+
+In , we are given an unweighted graph , two vertices ,
+and two shortest -- paths  and  in .
+The goal is to decide whether there is a sequence of shortest -- paths 
+such that for each , 
+ and  differ at exactly one vertex.
+
+To show the PSPACE-hardness,
+we generalize the reduction for  in .
+Note that the following theorem holds even if  is a fixed constant.
+
+
+
+Now we define a map  from shortest -- paths in  to -colorable sets of size  in .
+For a shortest -- path  in , we set .
+In , a maximal clique is formed either by  and  or by  and  for some .
+(Recall that  and  are not adjacent in  for all .)
+Thus,  is -colorable in .
+The following claim implies that  is a bijection.
+
+  
+  If  is a -colorable set of size  in ,
+  then 
+  and  induces a shortest -- path in .
+ 
+
+
+Let  and  be shortest -- path in .
+To complete the proof of Theorem~, it suffices to show that the following properties are equivalent:
+
+  
+  
+  
+  
+
+
+To show that Property~ implies Property~,
+assume that  and  
+differ at exactly one index .
+Hence  and .
+Since  and  are in the clique , we have  under .
+
+By the definitions of  and ,
+Property~ implies Property~.
+By Lemma~, Property~ and Property~ are equivalent.
+
+Finally, we show that Property~ implies Property~.
+Assume that  under .
+This implies that .
+Furthermore, Claim~ implies that 
+ and
+.
+Therefore,  and  differ exactly at one vertex.
+
+
+
+
+We show that  under / is linear-time solvable on interval graphs.
+Our results give a sharp contrast of the computational complexity with respect to graph classes, while some cases are left unanswered.
+One of the main unsettled cases is  with fixed  for chordal graphs (see Table~).
+In particular, what is the complexity of  with  for chordal graphs?
+This problem is equivalent to the reconfiguration of feedback vertex sets under  on chordal graphs.
+It would be also interesting to study the shortest variant on split graphs with a constant .
+
+Our positive results for  on interval graphs and split graphs (Theorems~ and ) 
+do not imply analogous results for .
+The complexity of  is not settled for these graph classes even with a fixed constant .
+It was only recently shown that if , then  can be solved in polynomial time for interval graphs~.
+For ,  on interval graphs is left unsettled.
+For split graphs, although co-NP-hardness of a related problem is known~,
+ is not solved for all .
+
+
+
+
+
+
+
+
+
+
+
+
+
